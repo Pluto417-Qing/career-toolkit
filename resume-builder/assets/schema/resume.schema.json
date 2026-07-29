@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aime.local/schemas/resume.schema.json",
+  "title": "Resume",
+  "description": "面向中文语境扩展的 JSON Resume 兼容简历数据结构。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["basics"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "language": {"type": "string", "enum": ["zh", "en", "zh-en"], "default": "zh"},
+        "theme": {"type": "string", "default": "classic"},
+        "updated_at": {"type": "string"}
+      }
+    },
+    "basics": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string"},
+        "english_name": {"type": "string"},
+        "label": {"type": "string", "description": "求职意向 / 一句话定位"},
+        "gender": {"type": "string"},
+        "birth": {"type": "string", "description": "YYYY 或 YYYY-MM"},
+        "phone": {"type": "string"},
+        "email": {"type": "string"},
+        "location": {"type": "string"},
+        "website": {"type": "string"},
+        "avatar": {"type": "string", "description": "本地路径或 URL"},
+        "summary": {"type": "string"},
+        "profiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["network", "url"],
+            "properties": {
+              "network": {"type": "string"},
+              "username": {"type": "string"},
+              "url": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["institution"],
+        "additionalProperties": false,
+        "properties": {
+          "institution": {"type": "string"},
+          "area": {"type": "string", "description": "专业"},
+          "degree": {"type": "string", "description": "学位/学历，如 本科/硕士/博士"},
+          "gpa": {"type": "string"},
+          "rank": {"type": "string", "description": "排名，如 15/120"},
+          "start": {"type": "string"},
+          "end": {"type": "string"},
+          "location": {"type": "string"},
+          "courses": {"type": "array", "items": {"type": "string"}},
+          "highlights": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "work": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["organization"],
+        "additionalProperties": false,
+        "properties": {
+          "organization": {"type": "string"},
+          "position": {"type": "string"},
+          "type": {"type": "string", "description": "全职/实习/兼职"},
+          "location": {"type": "string"},
+          "start": {"type": "string"},
+          "end": {"type": "string"},
+          "summary": {"type": "string"},
+          "highlights": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {"type": "string"},
+          "role": {"type": "string"},
+          "type": {"type": "string", "description": "个人/团队/科研/开源"},
+          "url": {"type": "string"},
+          "start": {"type": "string"},
+          "end": {"type": "string"},
+          "summary": {"type": "string"},
+          "tech": {"type": "array", "items": {"type": "string"}},
+          "highlights": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "research": {
+      "type": "array",
+      "description": "科研经历（学术向）",
+      "items": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": {"type": "string"},
+          "advisor": {"type": "string"},
+          "organization": {"type": "string"},
+          "start": {"type": "string"},
+          "end": {"type": "string"},
+          "highlights": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "publications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {"type": "string"},
+          "publisher": {"type": "string"},
+          "release_date": {"type": "string"},
+          "url": {"type": "string"},
+          "summary": {"type": "string"}
+        }
+      }
+    },
+    "awards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": {"type": "string"},
+          "date": {"type": "string"},
+          "awarder": {"type": "string"},
+          "summary": {"type": "string"}
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {"type": "string", "description": "技能分类，如 编程语言 / 框架 / 工具"},
+          "level": {"type": "string"},
+          "keywords": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["language"],
+        "properties": {
+          "language": {"type": "string"},
+          "level": {"type": "string", "description": "如 CET-6 / IELTS 7.0 / 母语"},
+          "score": {"type": "string"}
+        }
+      }
+    },
+    "activities": {
+      "type": "array",
+      "description": "社团/志愿/组织活动",
+      "items": {
+        "type": "object",
+        "required": ["organization"],
+        "properties": {
+          "organization": {"type": "string"},
+          "role": {"type": "string"},
+          "start": {"type": "string"},
+          "end": {"type": "string"},
+          "highlights": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "interests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "keywords": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "reference": {"type": "string"}
+        }
+      }
+    },
+    "custom_sections": {
+      "type": "array",
+      "description": "自定义模块（考研目标、考公规划等）",
+      "items": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": {"type": "string"},
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "heading": {"type": "string"},
+                "subheading": {"type": "string"},
+                "date": {"type": "string"},
+                "summary": {"type": "string"},
+                "highlights": {"type": "array", "items": {"type": "string"}}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

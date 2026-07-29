@@ -1,0 +1,34 @@
+basic:
+  name: 张三
+  gender: 男
+  birth: 2003-05
+  city: 北京
+education:
+  - school: 某某大学
+    major: 计算机科学与技术
+    degree: 本科
+    gpa: 3.7/4.0
+    rank: 15/120
+    start: 2022-09
+    end: 2026-06
+experiences:
+  - type: 实习           # 实习 / 项目 / 科研 / 竞赛 / 社团
+    org: 某互联网公司
+    role: 前端开发实习生
+    start: 2025-06
+    end: 2025-09
+    highlights:
+      - 独立完成 XX 表单引擎重构，代码行数下降 45%
+skills:
+  hard: [Python, React, TypeScript, SQL]
+  soft: [沟通, 结构化思考]
+  languages: [{name: 英语, level: CET-6, score: "580"}]
+assessment:
+  holland: [I, R, C]      # 由 score_holland.py 回填
+  interests: [数据, 工程, 编辑器]
+  values: [成长, 影响力, 稳定]
+goals:
+  primary: 就业            # 就业 / 读研 / 考公 / 出国
+  targets:
+    - 前端工程师 @ 一线互联网
+    - 保研本校计算机学硕（备选）
