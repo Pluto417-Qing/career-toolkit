@@ -1,0 +1,376 @@
+resume-builder/assets/themes/compact/style.css
+  s_72df99473eaf19::t_ff1390c60d95b8 1-147 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69fd0f6da6925efc0bd2be","tool_type":"agent","tool_id":"Write","line_ranges":[{"Range":[1,147]}]}]}
+resume-builder/assets/themes/minimal/template.html.j2
+  s_72df99473eaf19::t_ebf61671d093d5 1-229 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69fcf66da6925efc0bd2bb","tool_type":"agent","tool_id":"Write","line_ranges":[{"Range":[1,229]}]}]}
+resume-builder/assets/themes/infographic/style.css
+  s_72df99473eaf19::t_d8ab0c3dc3794d 1-237 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69fd606da6925efc0bd2ca","tool_type":"agent","tool_id":"Write","line_ranges":[{"Range":[1,237]}]}]}
+resume-builder/assets/themes/minimal/style.css
+  s_72df99473eaf19::t_e42477c987d3e7 1-166 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69fce66da6925efc0bd2b8","tool_type":"agent","tool_id":"Write","line_ranges":[{"Range":[1,166]}]}]}
+resume-builder/assets/themes/elegant/template.html.j2
+  s_72df99473eaf19::t_d76128eea640c8 1-236 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69fd496da6925efc0bd2c7","tool_type":"agent","tool_id":"Write","line_ranges":[{"Range":[1,236]}]}]}
+resume-builder/assets/themes/compact/template.html.j2
+  s_72df99473eaf19::t_7dc8ee68a4f5c7 1-229 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69fd1a6da6925efc0bd2c1","tool_type":"agent","tool_id":"Write","line_ranges":[{"Range":[1,229]}]}]}
+resume-builder/assets/themes/elegant/style.css
+  s_72df99473eaf19::t_1a11cb93df0004 1-161 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69fd376da6925efc0bd2c4","tool_type":"agent","tool_id":"Write","line_ranges":[{"Range":[1,161]}]}]}
+resume-builder/references/themes.md
+  s_72df99473eaf19::t_1a2c8f7b168c0f 18,20-23 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69fd9c6da6925efc0bd2d3","tool_type":"agent","tool_id":"Edit","line_ranges":[{"Single":18},{"Range":[20,23]}]}]}
+resume-builder/assets/themes/infographic/template.html.j2
+  s_72df99473eaf19::t_87a7b0f16cab89 1-253 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69fd736da6925efc0bd2cd","tool_type":"agent","tool_id":"Write","line_ranges":[{"Range":[1,253]}]}]}
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "d8a8bde7aea37fe3aa9bd2873e8a2c866e4b6e0a",
+  "prompts": {},
+  "sessions": {
+    "s_72df99473eaf19": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "6a69fafa6da6925efc0bd223",
+        "model": "c_o_new_thinking__dev"
+      },
+      "human_author": "yuanqinghong <yuanqinghong.417@bytedance.com>"
+    }
+  },
+  "attestation_metadata": {
+    "resume-builder/assets/themes/compact/style.css": [
+      {
+        "hash": "s_72df99473eaf19::t_ff1390c60d95b8",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              147
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69fd0f6da6925efc0bd2be",
+            "tool_type": "agent",
+            "tool_id": "Write",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  147
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "resume-builder/assets/themes/compact/template.html.j2": [
+      {
+        "hash": "s_72df99473eaf19::t_7dc8ee68a4f5c7",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              229
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69fd1a6da6925efc0bd2c1",
+            "tool_type": "agent",
+            "tool_id": "Write",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  229
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "resume-builder/assets/themes/elegant/style.css": [
+      {
+        "hash": "s_72df99473eaf19::t_1a11cb93df0004",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              161
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69fd376da6925efc0bd2c4",
+            "tool_type": "agent",
+            "tool_id": "Write",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  161
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "resume-builder/assets/themes/elegant/template.html.j2": [
+      {
+        "hash": "s_72df99473eaf19::t_d76128eea640c8",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              236
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69fd496da6925efc0bd2c7",
+            "tool_type": "agent",
+            "tool_id": "Write",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  236
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "resume-builder/assets/themes/infographic/style.css": [
+      {
+        "hash": "s_72df99473eaf19::t_d8ab0c3dc3794d",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              237
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69fd606da6925efc0bd2ca",
+            "tool_type": "agent",
+            "tool_id": "Write",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  237
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "resume-builder/assets/themes/infographic/template.html.j2": [
+      {
+        "hash": "s_72df99473eaf19::t_87a7b0f16cab89",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              253
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69fd736da6925efc0bd2cd",
+            "tool_type": "agent",
+            "tool_id": "Write",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  253
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "resume-builder/assets/themes/minimal/style.css": [
+      {
+        "hash": "s_72df99473eaf19::t_e42477c987d3e7",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              166
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69fce66da6925efc0bd2b8",
+            "tool_type": "agent",
+            "tool_id": "Write",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  166
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "resume-builder/assets/themes/minimal/template.html.j2": [
+      {
+        "hash": "s_72df99473eaf19::t_ebf61671d093d5",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              229
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69fcf66da6925efc0bd2bb",
+            "tool_type": "agent",
+            "tool_id": "Write",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  229
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "resume-builder/references/themes.md": [
+      {
+        "hash": "s_72df99473eaf19::t_1a2c8f7b168c0f",
+        "line_ranges": [
+          {
+            "Single": 18
+          },
+          {
+            "Range": [
+              20,
+              23
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69fd9c6da6925efc0bd2d3",
+            "tool_type": "agent",
+            "tool_id": "Edit",
+            "line_ranges": [
+              {
+                "Single": 18
+              },
+              {
+                "Range": [
+                  20,
+                  23
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "remote_transcripts": {
+    "s_72df99473eaf19": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_1a11cb93df0004": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_1a2c8f7b168c0f": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_7dc8ee68a4f5c7": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_87a7b0f16cab89": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_d76128eea640c8": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_d8ab0c3dc3794d": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_e42477c987d3e7": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_ebf61671d093d5": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_ff1390c60d95b8": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    }
+  }
+}
