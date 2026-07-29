@@ -1,0 +1,243 @@
+career-toolkit/modules/resume-builder/MODULE.md
+  s_72df99473eaf19::t_d46ad639830b28 74-77 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69fecc6da6925efc0bd32a","tool_type":"agent","tool_id":"Edit","line_ranges":[{"Range":[74,77]}]}]}
+  s_72df99473eaf19::t_3d7b7db689c2ad 13 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69feca6da6925efc0bd327","tool_type":"agent","tool_id":"Edit","line_ranges":[{"Single":13}]}]}
+career-toolkit/SKILL.md
+  s_72df99473eaf19::t_aede478058ddc2 1-51 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69fee06da6925efc0bd330","tool_type":"agent","tool_id":"Write","line_ranges":[{"Range":[1,51]}]}]}
+career-toolkit/modules/career-planner/MODULE.md
+  s_72df99473eaf19::t_a584dba1485960 75 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69feb96da6925efc0bd321","tool_type":"agent","tool_id":"Edit","line_ranges":[{"Single":75}]}]}
+  s_72df99473eaf19::t_10852dc04eb610 15-16 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69feb66da6925efc0bd31b","tool_type":"agent","tool_id":"Edit","line_ranges":[{"Range":[15,16]}]}]}
+  s_72df99473eaf19::t_2d145a8abb0296 71 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a69feb86da6925efc0bd31e","tool_type":"agent","tool_id":"Edit","line_ranges":[{"Single":71}]}]}
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "77da77afdf1096d9ab439496e0a386d2191d3ec7",
+  "prompts": {},
+  "sessions": {
+    "s_72df99473eaf19": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "6a69fafa6da6925efc0bd223",
+        "model": "c_o_new_thinking__dev"
+      },
+      "human_author": "yuanqinghong <yuanqinghong.417@bytedance.com>"
+    }
+  },
+  "attestation_metadata": {
+    "career-toolkit/SKILL.md": [
+      {
+        "hash": "s_72df99473eaf19::t_aede478058ddc2",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              51
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69fee06da6925efc0bd330",
+            "tool_type": "agent",
+            "tool_id": "Write",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  51
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "career-toolkit/modules/career-planner/MODULE.md": [
+      {
+        "hash": "s_72df99473eaf19::t_a584dba1485960",
+        "line_ranges": [
+          {
+            "Single": 75
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69feb96da6925efc0bd321",
+            "tool_type": "agent",
+            "tool_id": "Edit",
+            "line_ranges": [
+              {
+                "Single": 75
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "hash": "s_72df99473eaf19::t_10852dc04eb610",
+        "line_ranges": [
+          {
+            "Range": [
+              15,
+              16
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69feb66da6925efc0bd31b",
+            "tool_type": "agent",
+            "tool_id": "Edit",
+            "line_ranges": [
+              {
+                "Range": [
+                  15,
+                  16
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "hash": "s_72df99473eaf19::t_2d145a8abb0296",
+        "line_ranges": [
+          {
+            "Single": 71
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69feb86da6925efc0bd31e",
+            "tool_type": "agent",
+            "tool_id": "Edit",
+            "line_ranges": [
+              {
+                "Single": 71
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "career-toolkit/modules/resume-builder/MODULE.md": [
+      {
+        "hash": "s_72df99473eaf19::t_d46ad639830b28",
+        "line_ranges": [
+          {
+            "Range": [
+              74,
+              77
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69fecc6da6925efc0bd32a",
+            "tool_type": "agent",
+            "tool_id": "Edit",
+            "line_ranges": [
+              {
+                "Range": [
+                  74,
+                  77
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "hash": "s_72df99473eaf19::t_3d7b7db689c2ad",
+        "line_ranges": [
+          {
+            "Single": 13
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a69feca6da6925efc0bd327",
+            "tool_type": "agent",
+            "tool_id": "Edit",
+            "line_ranges": [
+              {
+                "Single": 13
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "remote_transcripts": {
+    "s_72df99473eaf19": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_10852dc04eb610": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_2d145a8abb0296": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_3d7b7db689c2ad": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_6c3425f329af6d": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_7b877562d14d77": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_a584dba1485960": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_aede478058ddc2": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_72df99473eaf19::t_d46ad639830b28": {
+      "tool": "trae",
+      "conversation_id": "6a69fafa6da6925efc0bd223",
+      "session_id": "6a69fafa6da6925efc0bd223",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    }
+  }
+}
