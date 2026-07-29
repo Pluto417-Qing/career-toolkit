@@ -1,0 +1,147 @@
+/* Compact Resume Theme — Maximum info density in one page */
+
+@page {
+  size: A4;
+  margin: 10mm 12mm;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  font-size: 9pt;
+  color: #222;
+  line-height: 1.4;
+  background: #fff;
+}
+
+.resume {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 6px 8px;
+}
+
+/* ===== Header ===== */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1.5px solid #222;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+.header-main { flex: 1; }
+
+.name {
+  font-size: 18pt;
+  font-weight: 700;
+  margin: 0;
+  color: #111;
+}
+
+.english-name { font-size: 10pt; color: #666; margin-left: 6px; }
+.label { font-size: 9pt; color: #444; margin: 2px 0; }
+
+.contact {
+  font-size: 8.5pt;
+  color: #444;
+  margin-top: 2px;
+}
+
+.contact span { margin-right: 10px; white-space: nowrap; }
+.contact.meta { color: #777; font-size: 8pt; }
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid #ddd;
+}
+
+/* ===== Sections ===== */
+.section {
+  margin-top: 6px;
+  page-break-inside: avoid;
+}
+
+.section-title {
+  font-size: 9.5pt;
+  font-weight: 700;
+  color: #fff;
+  background: #2c3e50;
+  padding: 2px 8px;
+  margin: 4px 0 4px 0;
+  letter-spacing: 0.5px;
+}
+
+.summary { margin: 2px 0; color: #333; font-size: 9pt; }
+
+/* ===== Entries ===== */
+.entry {
+  margin-bottom: 5px;
+  page-break-inside: avoid;
+}
+
+.entry-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.entry-title { font-size: 9.5pt; }
+.entry-title strong { font-weight: 700; }
+.entry-meta { font-size: 8.5pt; color: #666; white-space: nowrap; }
+
+.entry-sub {
+  font-size: 8.5pt;
+  color: #444;
+  margin: 1px 0;
+}
+.entry-sub.tech { color: #555; font-style: italic; }
+
+.sep { color: #999; margin: 0 3px; }
+.date { color: #666; }
+.tag {
+  display: inline-block;
+  font-size: 7.5pt;
+  padding: 0px 4px;
+  margin-left: 4px;
+  background: #ecf0f1;
+  color: #2c3e50;
+  border-radius: 2px;
+}
+
+/* ===== Lists ===== */
+.highlights, .skill-list {
+  margin: 2px 0;
+  padding-left: 14px;
+}
+
+.highlights li, .skill-list li {
+  margin: 1px 0;
+  font-size: 8.5pt;
+  line-height: 1.4;
+}
+
+/* ===== Two-column skills ===== */
+.skills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 20px;
+  margin: 2px 0;
+}
+
+.skills-grid .skill-item {
+  font-size: 8.5pt;
+  width: 48%;
+}
+
+/* ===== Links ===== */
+a { color: #2c3e50; text-decoration: none; }
+a:hover { text-decoration: underline; }
