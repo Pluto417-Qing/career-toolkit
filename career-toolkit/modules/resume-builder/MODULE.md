@@ -1,9 +1,3 @@
----
-name: resume-builder
-description: 用 YAML 编写、渲染并导出中文简历的完整工具链。能力：(1) 提供扩展自 JSON Resume 的中文语境 schema，让 Agent 用 YAML 结构化收集个人信息并做 schema 校验；(2) 通过内置 HTML 主题渲染出可在浏览器直接预览的简历页面；(3) 通过 WeasyPrint 一键导出印刷级 PDF；(4) 同时输出 JSON Resume 兼容的 resume.json，便于对接第三方主题/工具。适用场景：用户提到"写简历/做简历/生成简历/简历模板/resume/CV/导出 PDF/预览简历/JSON Resume/YAML 简历"，或需要为求职、实习、保研、留学、考公申请材料准备一份可维护的简历时使用。
-author: 袁箐鸿
----
-
 # Resume Builder
 
 用 YAML 写简历，一处编写、多端导出（HTML 预览 / PDF 打印 / JSON Resume 数据）。
@@ -16,7 +10,7 @@ author: 袁箐鸿
 - 在浏览器预览简历，或导出印刷级 PDF
 - 需要一份符合 JSON Resume schema 的数据文件用来接第三方模板
 
-不覆盖：`JD 匹配 / ATS 深度诊断 / bullet 量化改写`——那些交给 `resume-optimizer` skill；`职业方向规划 / 测评 / 路径推荐`交给 `career-planner` skill。
+不覆盖：`JD 匹配 / ATS 深度诊断 / bullet 量化改写`——那些交给 `resume-optimizer` 模块（后续）；`职业方向规划 / 测评 / 路径推荐`交给 `career-planner` 模块。
 
 ## 核心工作流
 
@@ -77,10 +71,10 @@ python3 scripts/render.py <path/to/resume.yaml> --out-dir <output_dir> --pdf
 - 新增主题时把 `template.html.j2` 保持"数据即渲染"，样式差异全部放到 `style.css`。
 - 特别注意：Jinja2 中读 dict 里名为 `items` 的键要用 `data['items']`，避免撞名 `.items()` 方法。
 
-## 与其他 skill 的协作
+## 与其他模块的协作
 
-- `career-planner` 生成规划后若用户需要简历，声明"使用 `resume-builder` skill 生成简历"，并把 `profile.yaml` 中的信息映射到 `resume.yaml`。
-- `resume-optimizer`（后续）会在本 skill 产出的 `resume.json` 上做 JD 匹配、ATS 检查、bullet 量化。
+- `career-planner` 模块生成规划后若用户需要简历，会切换到本模块，并把 `profile.yaml` 中的信息映射到 `resume.yaml`。
+- `resume-optimizer`（后续）会在本模块产出的 `resume.json` 上做 JD 匹配、ATS 检查、bullet 量化。
 
 ## 目录导航
 

@@ -1,9 +1,3 @@
----
-name: career-planner
-description: 面向学生和职场新人的职业规划智能体。能力：(1) 引导式收集用户画像（教育、经历、技能、兴趣、约束）并落到结构化 profile.yaml；(2) 通过 Holland RIASEC 简版量表做兴趣测评并计算得分；(3) 基于测评结果与用户约束，给出「就业 / 读研 / 考研 / 保研 / 留学 / 考公」多路径可行性对比与个性化建议；(4) 输出 3-6-12 个月里程碑与关键节点日历的行动规划报告 career_plan.md；(5) 需要制作简历时声明式调用 resume-builder skill。适用场景：用户提到"职业规划、生涯规划、我该做什么工作、大学生迷茫、就业还是考研、考公规划、留学规划、Holland 测评、MBTI、找工作方向、毕业选择"或对未来方向感到迷茫时使用。
-author: 袁箐鸿
----
-
 # Career Planner
 
 面向学生 / 职场新人的职业规划智能体。三步：**画像 → 测评 → 路径**，最终产出一份可执行的 12 个月规划报告。
@@ -18,8 +12,8 @@ author: 袁箐鸿
 - 需要一份阶段性行动清单（3/6/12 个月）
 
 不覆盖：
-- 简历本身的生成与排版 → 声明式调用 `resume-builder` skill
-- 岗位 JD 匹配、ATS 检查、bullet 量化 → 声明式调用 `resume-optimizer` skill（后续）
+- 简历本身的生成与排版 → 路由到 `resume-builder` 模块
+- 岗位 JD 匹配、ATS 检查、bullet 量化 → 路由到 `resume-optimizer` 模块（后续）
 
 ## 核心工作流
 
@@ -74,11 +68,11 @@ Holland Code 是**参考锚点，不是判决**——需要结合用户已有经
 
 ### Step 4（可选）：生成简历
 
-若用户希望"顺便做个简历"，声明式调用 `resume-builder` skill，把 `profile.yaml` 中的对应字段映射到 `resume.yaml`（映射对照见 SKILL 尾部）。
+若用户希望"顺便做个简历"，切换到 `resume-builder` 模块，把 `profile.yaml` 中的对应字段映射到 `resume.yaml`（映射对照见本文件尾部）。
 
 ## 与其他 skill 的协作
 
-- **`resume-builder`**：需要生成简历时使用；不要在本 skill 里重复实现 HTML/PDF 渲染。
+- **`resume-builder` 模块**：需要生成简历时切换到该模块；不要在本模块里重复实现 HTML/PDF 渲染。
 - **`lark-doc`**：用户要发布规划报告为飞书文档时使用。
 - **`lark-htmlbox`**：想在飞书报告里画路径对比图（雷达图 / 时间线）时使用。
 
