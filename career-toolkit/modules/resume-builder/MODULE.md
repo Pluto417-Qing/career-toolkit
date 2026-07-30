@@ -1,122 +1,105 @@
 # Resume Builder
 
-用 YAML 写简历，一处编写、多端导出（HTML 预览 / PDF 打印 / JSON Resume 数据）。
+用自然对话生成一份专业简历——用户只需聊天，Agent 负责收集、组织、校验、渲染。
+
+## 核心原则
+
+> **用户不需要知道 YAML、Schema、字段名。**
+> Agent 通过对话主动提问、归纳、确认，最终产出结构化简历并渲染为 HTML/PDF。
+
+禁止：把字段列表或 YAML 模板甩给用户让他们自己填。
+正确做法：逐步引导，一次只问一两个问题，按「基础信息 → 教育 → 经历 → 技能 → 补充」的节奏推进。
 
 ## 何时使用
 
 用户想要：
-- 生成、更新或美化一份简历（中文为主，也支持 zh-en 双语字段）
-- 把散乱的经历整理成结构化数据，方便后续投递不同岗位时快速定制
+- 生成、更新或美化一份简历
+- 把散乱的经历整理成结构化数据
 - 在浏览器预览简历，或导出印刷级 PDF
-- 需要一份符合 JSON Resume schema 的数据文件用来接第三方模板
+- 需要一份 JSON Resume 兼容数据用来接第三方模板
 
-不覆盖：`JD 匹配 / ATS 深度诊断 / bullet 量化改写`——那些交给 `resume-optimizer` 模块（后续）；`职业方向规划 / 测评 / 路径推荐`交给 `career-planner` 模块。
+不覆盖：JD 匹配 / ATS 深度诊断 / bullet 量化改写（交给 `resume-optimizer`）；职业方向规划（交给 `career-planner`）。
 
-## 核心工作流
+## 工作流：对话驱动，三阶段自动推进
 
-三步走：**收集 → 校验 → 渲染**。
+### 阶段 1：对话收集
 
-### 1. 收集：把用户信息落到 `resume.yaml`
+Agent 主动引导对话，分轮次收集以下信息（不必一次问完，自然穿插即可）：
 
-先把工作目录下（默认 `./resume/`）建 `resume.yaml`。字段结构参考 [schema.md](references/schema.md) 或直接看示例：
-- 应届/在校生：从 [assets/examples/zh-fresh-grad.yaml](assets/examples/zh-fresh-grad.yaml) 复制起手。
+1. **破冰 & 定位**：你目前是学生还是在职？大概投什么方向？有没有现成简历/经历文档可以参考？
+2. **基础信息**：姓名、联系方式、求职意向一句话、社交主页（GitHub/LinkedIn 等）
+3. **教育背景**：学校、专业、学位、GPA/排名（可选）、毕业时间
+4. **核心经历**：工作/实习/项目/科研——每段问清楚：做了什么、用了什么技术、成果如何量化
+5. **技能 & 补充**：技术栈分类、获奖、语言能力、自定义模块（考研目标、作品集等）
 
-**关键字段一览**（详细见 [schema.md](references/schema.md)）：
+**收集技巧**：
+- 用户给出模糊描述时，追问量化数据（"提升了多少？""服务了多少用户？"）
+- 用户一次性粘贴大段文字时，Agent 主动提炼结构化要点并回复确认
+- 信息够用时主动说"我这边信息差不多了，帮你生成初稿？"
 
-| 字段 | 说明 |
-|---|---|
-| `basics` | 姓名、联系方式、求职意向一句话（`label`）、社交主页 |
-| `education[]` | 学校、专业、学位、GPA、排名、时间段 |
-| `work[]` | 工作/实习经历，`type` 区分全职/实习/兼职 |
-| `projects[]` | 项目经历，含技术栈 `tech` |
-| `research[]` | 科研经历（学术向） |
-| `skills[]` | 分类的技能与关键词 |
-| `awards[]` / `publications[]` / `languages[]` / `activities[]` | 常规模块 |
-| `custom_sections[]` | 自定义模块（考研目标、考公岗位规划、作品集等） |
+收集完成后，Agent 在用户工作目录（默认 `./resume/`）生成 `resume.yaml`。字段结构遵循 [schema.md](references/schema.md)，写作规范见 [writing-tips.md](references/writing-tips.md)。
 
-**写作要点**（详细见 [writing-tips.md](references/writing-tips.md)）：
-- `highlights` 每条一句话，动词开头 + 量化结果，避免形容词堆砌。
-- 时间统一用 `YYYY-MM` 或 `YYYY`，"至今"直接省略 `end`。
-- 空模块请直接不写，不要留空数组。
-
-### 2. 校验：确保 schema 合法
+### 阶段 2：校验
 
 ```bash
-cd <resume-builder skill dir>
+cd <resume-builder module dir>
 python3 scripts/validate.py <path/to/resume.yaml>
 ```
 
-校验失败会打印字段路径与错误原因；修完再进入渲染。
+校验失败时 Agent 自行修复并重试，不要把 schema 错误暴露给用户。
 
-### 3. 渲染：生成 HTML / PDF / JSON
+### 阶段 3：渲染
 
 ```bash
 python3 scripts/render.py <path/to/resume.yaml> --out-dir <output_dir> --pdf
 ```
 
 产出（在 `<output_dir>/`）：
-- `resume.html`：在浏览器打开可预览
-- `resume.pdf`：印刷级 PDF（WeasyPrint 生成，无需 headless Chromium）
-- `resume.json`：JSON Resume 兼容超集，便于第三方对接
+- `resume.html`：浏览器可预览
+- `resume.pdf`：印刷级 PDF（WeasyPrint）
+- `resume.json`：JSON Resume 兼容超集
 
-`--theme` 缺省会读取 `meta.theme`，否则用 `classic`。当前内置主题：
-- `classic` — 单栏、传统中文简历风格，适配 A4 打印
+渲染完成后主动告知用户产出路径，并询问是否需要调整内容或换主题。
 
-要托管 HTML 让用户在线预览，可再走 `deploy` skill 部署 `resume.html`。
+`--theme` 缺省读 `meta.theme`，否则用 `classic`。内置主题见 [themes.md](references/themes.md)。
 
-### 4. 发飞书：一键发飞书文档给导师/HR review
+### 阶段 4（可选）：发飞书
 
-当用户要求"发飞书/发到飞书/分享简历给XX review"时，执行以下流程：
+当用户说"发飞书/分享简历给XX review"时：
 
-**步骤 a：生成 Markdown 版简历**
+1. 生成 Markdown：`python3 scripts/to_markdown.py <resume.yaml> --out-dir <output_dir>`
+2. 用 `lark-doc` skill 创建飞书文档，标题格式 `简历 - {姓名} - {日期}`
+3. 若指定了接收人，用 `lark-im` skill 发送文档链接
 
-```bash
-python3 scripts/to_markdown.py <path/to/resume.yaml> --out-dir <output_dir>
-```
+> 需要用户已完成 lark-cli 登录。未认证时提示走 `lark-shared` skill。
 
-或在渲染时一并生成：
+## 迭代修改
 
-```bash
-python3 scripts/render.py <path/to/resume.yaml> --out-dir <output_dir> --pdf --markdown
-```
-
-产出 `<output_dir>/resume.md`。
-
-**步骤 b：调用 `lark-doc` skill 发布为飞书文档**
-
-1. 读取 `resume.md` 内容
-2. 使用 `lark-doc` skill 创建飞书文档，标题格式为 `简历 - {姓名} - {日期}`
-3. 将 Markdown 内容写入文档正文
-
-**步骤 c（可选）：分享给指定人**
-
-若用户指明了接收人（导师/HR），使用 `lark-im` skill 发送消息，附上文档链接，说明"请帮忙 review 这份简历"。
-
-> **注意**：发飞书操作需要用户已完成 lark-cli 登录认证。若未认证，提示用户先走 `lark-shared` skill 完成登录。
+用户后续说"把实习那段改一下""加个项目""换个主题"时：
+- Agent 直接修改 `resume.yaml` 对应部分
+- 重新校验 + 渲染
+- 告知用户已更新，无需重新走完整收集流程
 
 ## 主题定制
 
-- 主题目录：`assets/themes/<theme-name>/`，需包含 `template.html.j2` 和 `style.css`。
-- 模板使用 Jinja2，数据入口变量为 `data`，字段结构与 schema 一致。
-- 新增主题时把 `template.html.j2` 保持"数据即渲染"，样式差异全部放到 `style.css`。
-- 特别注意：Jinja2 中读 dict 里名为 `items` 的键要用 `data['items']`，避免撞名 `.items()` 方法。
+- 主题目录：`assets/themes/<theme-name>/`，含 `template.html.j2` + `style.css`
+- 模板用 Jinja2，数据入口变量为 `data`，结构与 schema 一致
+- Jinja2 中读 dict 里名为 `items` 的键要用 `data['items']`，避免撞名 `.items()` 方法
 
-## 与其他模块/skill 的协作
+## 与其他模块的协作
 
-- `career-planner` 模块生成规划后若用户需要简历，会切换到本模块，并把 `profile.yaml` 中的信息映射到 `resume.yaml`。
-- `resume-optimizer`（后续）会在本模块产出的 `resume.json` 上做 JD 匹配、ATS 检查、bullet 量化。
-- `lark-doc`：发飞书文档时使用，将 Markdown 简历创建为飞书在线文档。
-- `lark-im`：用户指定分享对象时，发送文档链接和消息。
-- `lark-shared`：飞书认证与身份切换。
+- `career-planner` 完成画像后可自动映射 `profile.yaml → resume.yaml`，无缝衔接本模块
+- `resume-optimizer`（后续）在本模块产出的 `resume.json` 上做 JD 匹配与 ATS 检查
+- `lark-doc` / `lark-im` / `lark-shared`：飞书发布链路
 
 ## 目录导航
 
-- [assets/schema/resume.schema.json](assets/schema/resume.schema.json) — JSON Schema（Draft 2020-12）
-- [assets/themes/classic/](assets/themes/classic/) — 默认主题
+- [assets/schema/resume.schema.json](assets/schema/resume.schema.json) — JSON Schema
+- [assets/themes/](assets/themes/) — 内置主题集
 - [assets/examples/zh-fresh-grad.yaml](assets/examples/zh-fresh-grad.yaml) — 应届生示例
-- [references/schema.md](references/schema.md) — 字段详解与常见坑
-- [references/writing-tips.md](references/writing-tips.md) — bullet 写作与量化建议
+- [references/schema.md](references/schema.md) — 字段详解（Agent 内部参考）
+- [references/writing-tips.md](references/writing-tips.md) — bullet 写作规范
 - [references/themes.md](references/themes.md) — 主题体系与定制指南
-- [scripts/validate.py](scripts/validate.py) — YAML → schema 校验
-- [scripts/render.py](scripts/render.py) — YAML → HTML/PDF/JSON/Markdown
-- [scripts/to_markdown.py](scripts/to_markdown.py) — YAML → Markdown（飞书发布用）
+- [scripts/validate.py](scripts/validate.py) — schema 校验
+- [scripts/render.py](scripts/render.py) — 渲染 HTML/PDF/JSON/Markdown
+- [scripts/to_markdown.py](scripts/to_markdown.py) — Markdown 导出（飞书用）
