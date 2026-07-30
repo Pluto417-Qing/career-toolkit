@@ -55,8 +55,8 @@ html, body {
 .contact.meta { color: #777; font-size: 8pt; }
 
 .avatar {
-  width: 56px;
-  height: 56px;
+  width: 80px;
+  height: 80px;
   border-radius: 4px;
   object-fit: cover;
   border: 1px solid #ddd;
