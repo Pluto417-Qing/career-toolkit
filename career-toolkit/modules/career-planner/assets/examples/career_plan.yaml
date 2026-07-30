@@ -1,0 +1,64 @@
+meta:
+  name: 张三
+  goal: 就业
+  target: 前端工程师 @ 一线互联网
+  holland_code: IRC
+  generated: 2026-07-30
+
+riasec:
+  R: 72.5
+  I: 85.0
+  A: 45.0
+  S: 52.5
+  E: 60.0
+  C: 77.5
+
+milestones:
+  - month: 1
+    label: 简历定稿 & 项目梳理
+    category: prep
+    details: 完成结构化简历，梳理 2-3 个核心项目的 STAR 描述
+  - month: 2
+    label: 算法刷题 & Mock 面
+    category: prep
+    details: LeetCode Top 100 完成，每周 1 次模拟面试
+  - month: 3
+    label: 提前批投递启动
+    category: action
+    details: 互联网大厂提前批集中投递，目标 5-8 家
+  - month: 4
+    label: 提前批面试
+    category: action
+    details: 技术面 + 项目深挖准备，每天 1 道系统设计题
+  - month: 5
+    label: 正式秋招开放
+    category: action
+    details: 扩大投递范围，同步准备 HR 面常见问题
+  - month: 6
+    label: 面试高峰期
+    category: action
+    details: 密集面试阶段，保持节奏，及时复盘每场面试
+  - month: 7
+    label: Offer 收割 & 对比
+    category: decision
+    details: 对比 offer 维度（薪资/成长/团队/城市），做出选择
+  - month: 8
+    label: 签约三方
+    category: decision
+    details: 确认最终选择，签约三方协议
+  - month: 9
+    label: 入职前技能补强
+    category: growth
+    details: 针对目标岗位技术栈做深入学习（如微前端/性能优化）
+  - month: 10
+    label: 开源贡献 / Side Project
+    category: growth
+    details: 在目标领域产出可见成果，为入职积累素材
+  - month: 11
+    label: 毕业设计推进
+    category: academic
+    details: 毕设开题并推进，确保不影响毕业
+  - month: 12
+    label: 入职准备
+    category: growth
+    details: 熟悉团队技术栈、阅读新人文档、准备入职材料

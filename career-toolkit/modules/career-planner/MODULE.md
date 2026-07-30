@@ -27,6 +27,8 @@
 
 ### Step 2：测评
 
+#### 2a. Holland RIASEC（兴趣方向）
+
 引导用户做 Holland RIASEC 简版（60 题，可拆成 3 组 20 题）：
 
 1. 把题库读出来给用户看：[assets/assessments/holland-riasec.yaml](assets/assessments/holland-riasec.yaml)
@@ -45,6 +47,27 @@
 4. 把 Code 回填到 `profile.yaml` 的 `assessment.holland`。
 
 Holland Code 是**参考锚点，不是判决**——需要结合用户已有经历、约束与偏好综合解读。
+
+#### 2b. MBTI 简化版（工作风格补充维度）
+
+Holland 解答"适合做什么方向"，MBTI 补充回答"适合怎样的工作风格和环境"。
+
+1. 题库：[assets/assessments/mbti-simplified.yaml](assets/assessments/mbti-simplified.yaml)（40 题，可拆 2 组 20 题）
+2. 回答方式与 Holland 一致，收集到 `./career/mbti_answers.yaml`：
+   ```yaml
+   answers:
+     1: 4
+     2: 3
+     ...
+   ```
+3. 打分：
+   ```bash
+   python3 scripts/score_mbti.py ./career/mbti_answers.yaml > ./career/mbti_result.json
+   ```
+   输出结构：4 维度 0-100 分（50 为中点）、4 字母类型、各维度偏好强度、职业风格建议。
+4. 把类型回填到 `profile.yaml` 的 `assessment.mbti`。
+
+**组合解读**：Holland Code 定方向（如 I+C → 后端/数据），MBTI 定风格（如 INTJ → 深度独立、架构导向）。两者交叉可产生更精准的岗位推荐。
 
 ### Step 3：路径规划
 
@@ -65,6 +88,26 @@ Holland Code 是**参考锚点，不是判决**——需要结合用户已有经
 - 需要立即启动的 2-3 个行动
 
 产出：`./career/career_plan.md`。若用户明确要求"帮我生成飞书文档 / 报告"，用 `lark-doc` skill 把 markdown 发布成飞书文档。
+
+### Step 3.5（可选）：可视化报告
+
+当用户希望输出"更像顾问"的规划报告时，生成带 RIASEC 雷达图 + 时间线的 HTML 可视化：
+
+1. 整理 `./career/career_plan.yaml`（结构见 [assets/examples/career_plan.yaml](assets/examples/career_plan.yaml)）：
+   - `meta`：姓名、目标、Holland Code
+   - `riasec`：六维度 0-100 分（从 holland_result.json 取）
+   - `milestones`：12 个月里程碑（月份 + 标签 + 分类 + 详情）
+
+2. 渲染 HTML：
+   ```bash
+   python3 scripts/render_plan_visual.py ./career/career_plan.yaml --out ./career/career_plan_visual.html
+   ```
+
+3. 发布到飞书（使用 `lark-htmlbox` skill）：
+   - 读取生成的 HTML 文件内容
+   - 通过 `lark-htmlbox` 将 HTML 嵌入飞书文档，呈现雷达图 + 时间线的可视化报告
+
+里程碑分类（`category`）决定颜色：`prep`(蓝) / `action`(橙) / `decision`(绿) / `growth`(紫) / `academic`(灰)。
 
 ### Step 4（可选）：生成简历
 
@@ -93,7 +136,11 @@ Holland Code 是**参考锚点，不是判决**——需要结合用户已有经
 ## 目录导航
 
 - [assets/assessments/holland-riasec.yaml](assets/assessments/holland-riasec.yaml) — Holland 60 题
+- [assets/assessments/mbti-simplified.yaml](assets/assessments/mbti-simplified.yaml) — MBTI 简化 40 题
 - [assets/examples/profile.yaml](assets/examples/profile.yaml) — profile 示例
 - [references/collect-profile.md](references/collect-profile.md) — 画像收集策略
 - [references/path-playbooks/](references/path-playbooks/) — 各路径 playbook
 - [scripts/score_holland.py](scripts/score_holland.py) — Holland 打分脚本
+- [scripts/score_mbti.py](scripts/score_mbti.py) — MBTI 打分脚本
+- [scripts/render_plan_visual.py](scripts/render_plan_visual.py) — 可视化报告渲染（RIASEC 雷达图 + 时间线 HTML）
+- [assets/examples/career_plan.yaml](assets/examples/career_plan.yaml) — 可视化报告输入示例

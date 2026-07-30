@@ -1,6 +1,6 @@
 ---
 name: career-toolkit
-description: 一站式职业发展工具包。包含两个核心模块：(1) career-planner — 职业规划智能体，引导式收集用户画像、Holland RIASEC 测评、多路径可行性对比、3-6-12 个月行动规划；(2) resume-builder — 简历生成器，YAML 结构化数据、7 套 HTML 主题（classic/modern/academic/minimal/compact/elegant/infographic）、WeasyPrint PDF 导出、JSON Resume 兼容输出。适用场景：用户提到"职业规划、生涯规划、就业还是考研、考公规划、留学规划、Holland 测评、找工作方向、毕业选择、写简历、做简历、生成简历、简历模板、resume、CV、导出 PDF、预览简历"或对未来方向感到迷茫时使用。
+description: 一站式职业发展工具包。包含三个核心模块：(1) career-planner — 职业规划智能体，引导式收集用户画像、Holland RIASEC 测评、多路径可行性对比、3-6-12 个月行动规划；(2) resume-builder — 简历生成器，YAML 结构化数据、7 套 HTML 主题（classic/modern/academic/minimal/compact/elegant/infographic）、WeasyPrint PDF 导出、JSON Resume 兼容输出；(3) resume-optimizer — 求职强化，JD 关键词匹配与覆盖率分析、Bullet 量化改写、中文 ATS 合规检查。适用场景：用户提到"职业规划、生涯规划、就业还是考研、考公规划、留学规划、Holland 测评、找工作方向、毕业选择、写简历、做简历、生成简历、简历模板、resume、CV、导出 PDF、预览简历、匹配 JD、关键词覆盖率、ATS 检查、简历体检、量化改写、优化 bullet"或对未来方向感到迷茫时使用。
 author: 袁箐鸿
 ---
 
@@ -14,6 +14,7 @@ author: 袁箐鸿
 |---|---|---|
 | **career-planner** | [modules/career-planner/MODULE.md](modules/career-planner/MODULE.md) | 画像收集 → Holland 测评 → 路径规划 → 行动报告 |
 | **resume-builder** | [modules/resume-builder/MODULE.md](modules/resume-builder/MODULE.md) | YAML 简历 → Schema 校验 → HTML/PDF/JSON 多端导出 |
+| **resume-optimizer** | [modules/resume-optimizer/MODULE.md](modules/resume-optimizer/MODULE.md) | JD 匹配 → Bullet 量化改写 → 中文 ATS 检查 |
 
 ## 路由规则
 
@@ -30,6 +31,12 @@ author: 袁箐鸿
 触发词：写简历、做简历、生成简历、简历模板、resume、CV、导出 PDF、预览简历、换主题、修改简历、发飞书、简历发飞书、分享简历、发给导师、发给 HR
 
 加载：[modules/resume-builder/MODULE.md](modules/resume-builder/MODULE.md)
+
+### → resume-optimizer
+
+触发词：匹配 JD、JD 匹配、关键词覆盖率、这个岗位合适吗、ATS 检查、简历体检、格式合规、量化改写、改 bullet、优化经历描述、简历诊断、简历优化
+
+加载：[modules/resume-optimizer/MODULE.md](modules/resume-optimizer/MODULE.md)
 
 ### 联动场景
 
@@ -49,3 +56,6 @@ author: 袁箐鸿
   - 校验：`python3 modules/resume-builder/scripts/validate.py <resume.yaml>`
   - 渲染：`python3 modules/resume-builder/scripts/render.py <resume.yaml> --out-dir ./resume/out --pdf`
   - Holland 评分：`python3 modules/career-planner/scripts/score_holland.py <answers.yaml>`
+  - JD 匹配：`python3 modules/resume-optimizer/scripts/jd_match.py <resume.yaml> --jd <jd.txt>`
+  - Bullet 诊断：`python3 modules/resume-optimizer/scripts/bullet_rewrite.py <resume.yaml>`
+  - ATS 检查：`python3 modules/resume-optimizer/scripts/ats_check.py <resume.yaml>`

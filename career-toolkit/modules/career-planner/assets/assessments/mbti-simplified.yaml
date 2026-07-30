@@ -1,0 +1,114 @@
+# MBTI 简化版测评题库（Holland 补充维度）
+# 40 题版：每题一句陈述，用户从 1-5 打分（1=非常不同意，5=非常同意）
+# 每个维度 10 题，分成正/反两极各 5 题
+# 得分高表示偏向该维度的后一极（I/N/F/P）
+#
+# 四维度：
+#   EI (Extraversion–Introversion)  精力来源：外向/内向
+#   SN (Sensing–iNtuition)          信息获取：实感/直觉
+#   TF (Thinking–Feeling)           决策方式：思维/情感
+#   JP (Judging–Perceiving)         生活态度：判断/知觉
+
+version: 1
+scale: [1, 5]
+dimensions:
+  EI:
+    name: 外向–内向 E–I
+    pole_low: E
+    pole_high: I
+    pole_low_label: 外向 Extraversion
+    pole_high_label: 内向 Introversion
+    description: 精力来源——偏好外部互动还是内在思考
+  SN:
+    name: 实感–直觉 S–N
+    pole_low: S
+    pole_high: N
+    pole_low_label: 实感 Sensing
+    pole_high_label: 直觉 iNtuition
+    description: 信息获取——偏好具体事实还是抽象模式
+  TF:
+    name: 思维–情感 T–F
+    pole_low: T
+    pole_high: F
+    pole_low_label: 思维 Thinking
+    pole_high_label: 情感 Feeling
+    description: 决策方式——偏好逻辑分析还是价值感受
+  JP:
+    name: 判断–知觉 J–P
+    pole_low: J
+    pole_high: P
+    pole_low_label: 判断 Judging
+    pole_high_label: 知觉 Perceiving
+    description: 生活态度——偏好计划有序还是灵活开放
+
+items:
+  # ---- EI：分数高 → 偏 I ----
+  - {id: 1,  dim: EI, pole: I, text: 长时间社交后我需要独处来恢复精力}
+  - {id: 2,  dim: EI, pole: I, text: 我更喜欢一对一深聊而不是大型聚会}
+  - {id: 3,  dim: EI, pole: I, text: 我倾向于先想清楚再开口}
+  - {id: 4,  dim: EI, pole: I, text: 我在安静的环境中效率更高}
+  - {id: 5,  dim: EI, pole: I, text: 陌生场合我通常选择观察而非主动搭话}
+  - {id: 6,  dim: EI, pole: E, text: 和一群人讨论问题让我更兴奋}
+  - {id: 7,  dim: EI, pole: E, text: 我经常主动组织或加入社交活动}
+  - {id: 8,  dim: EI, pole: E, text: 独自工作太久我会感到无聊}
+  - {id: 9,  dim: EI, pole: E, text: 我倾向于边说边想来整理思路}
+  - {id: 10, dim: EI, pole: E, text: 认识新朋友对我来说是轻松愉快的事}
+
+  # ---- SN：分数高 → 偏 N ----
+  - {id: 11, dim: SN, pole: N, text: 我关注事物的深层含义多于表面信息}
+  - {id: 12, dim: SN, pole: N, text: 我喜欢想象未来的可能性}
+  - {id: 13, dim: SN, pole: N, text: 我容易看到事物之间的隐含联系}
+  - {id: 14, dim: SN, pole: N, text: 我对抽象理论和概念模型感兴趣}
+  - {id: 15, dim: SN, pole: N, text: 我宁愿学新方法也不愿意重复已验证的做法}
+  - {id: 16, dim: SN, pole: S, text: 我做事更依赖已验证的经验和事实}
+  - {id: 17, dim: SN, pole: S, text: 我关注细节和精确数据}
+  - {id: 18, dim: SN, pole: S, text: 我更擅长解决当前具体问题而非构想远景}
+  - {id: 19, dim: SN, pole: S, text: 比起"为什么"，我更想知道"怎么做"}
+  - {id: 20, dim: SN, pole: S, text: 我信任自己亲身体验过的东西}
+
+  # ---- TF：分数高 → 偏 F ----
+  - {id: 21, dim: TF, pole: F, text: 做决策时我会优先考虑对人的影响}
+  - {id: 22, dim: TF, pole: F, text: 我容易感受到他人的情绪变化}
+  - {id: 23, dim: TF, pole: F, text: 团队和谐对我来说比效率更重要}
+  - {id: 24, dim: TF, pole: F, text: 被批评时我会先感到受伤，再去分析对错}
+  - {id: 25, dim: TF, pole: F, text: 我认为"正确但伤人"的话不如不说}
+  - {id: 26, dim: TF, pole: T, text: 我做选择时更看重逻辑一致性}
+  - {id: 27, dim: TF, pole: T, text: 我能就事论事地给出不留情面的反馈}
+  - {id: 28, dim: TF, pole: T, text: 我认为公平比同情更重要}
+  - {id: 29, dim: TF, pole: T, text: 我倾向于用数据和事实来说服别人}
+  - {id: 30, dim: TF, pole: T, text: 面对冲突我会先分析谁有道理}
+
+  # ---- JP：分数高 → 偏 P ----
+  - {id: 31, dim: JP, pole: P, text: 我喜欢保留选项到最后一刻再决定}
+  - {id: 32, dim: JP, pole: P, text: 严格的计划让我感到束缚}
+  - {id: 33, dim: JP, pole: P, text: 我更擅长应对突发状况而不是按步骤做}
+  - {id: 34, dim: JP, pole: P, text: 截止日期对我来说是弹性的参考}
+  - {id: 35, dim: JP, pole: P, text: 我享受在做的过程中探索新方向}
+  - {id: 36, dim: JP, pole: J, text: 我习惯提前做好计划和 todo list}
+  - {id: 37, dim: JP, pole: J, text: 事情完成后才能真正放松}
+  - {id: 38, dim: JP, pole: J, text: 我对不确定的安排感到不安}
+  - {id: 39, dim: JP, pole: J, text: 我倾向于尽早做出决定并执行}
+  - {id: 40, dim: JP, pole: J, text: 我喜欢把事情归类、排序、有条理}
+
+interpretation:
+  # 每维度 50 分满分：pole_high 方向题得分 + (6 - pole_low 方向题得分)
+  # 归一化到 0-100，50 为中点
+  # > 50 偏 pole_high (I/N/F/P)，< 50 偏 pole_low (E/S/T/J)
+  type_threshold: 50
+  career_hints:
+    INTJ: [系统架构师, 战略分析, 独立研究, 后端/基础设施]
+    INTP: [算法研究, 数据科学, 技术专家, 学术研究]
+    INFJ: [用户研究, 心理咨询, 教育设计, 内容策略]
+    INFP: [UX写作, 品牌策划, 公益方向, 自由创作]
+    ISTJ: [审计, 质量保证, 项目管理, 运维]
+    ISFJ: [客户成功, 行政管理, 护理/教育, HR运营]
+    ISTP: [安全研究, 嵌入式开发, 运维/SRE, 技术支持]
+    ISFP: [UI设计, 内容创作, 产品运营, 摄影/视觉]
+    ENTJ: [技术管理, 创业, 咨询, 产品总监]
+    ENTP: [产品经理, 增长黑客, 技术布道, 创业]
+    ENFJ: [培训师, HR-BP, 社区运营, 教育管理]
+    ENFP: [市场营销, 品牌传播, 用户运营, 活动策划]
+    ESTJ: [项目经理, 运营管理, 供应链, 财务管理]
+    ESFJ: [销售, 客户关系, 行政主管, 公关]
+    ESTP: [BD/商务, 销售, 危机公关, 体育管理]
+    ESFP: [活动执行, 内容运营, 市场推广, 直播/媒体]
