@@ -25,11 +25,14 @@ html, body {
 
 /* ===== Header ===== */
 .header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
   margin-bottom: 28px;
   padding-bottom: 20px;
 }
 
-.header-main { text-align: left; }
+.header-main { flex: 1; text-align: left; }
 
 .name {
   font-size: 28pt;
@@ -67,12 +70,11 @@ html, body {
 .contact.meta { color: #999; font-size: 8.5pt; }
 
 .avatar {
-  width: 64px;
-  height: 64px;
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
   object-fit: cover;
-  float: right;
-  margin-top: 4px;
+  order: 1;
 }
 
 /* ===== Sections ===== */
