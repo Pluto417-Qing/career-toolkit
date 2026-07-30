@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 {%- set lang = data.meta.language if data.meta and data.meta.language else 'zh' -%}
 {%- set _i18n = {
-  'zh': {'title':'简历','summary':'个人简介','education':'教育经历','work':'工作/实习经历','projects':'项目经历','research':'科研经历','skills':'技能','awards':'获奖/荣誉','publications':'论文/出版','languages':'语言能力','activities':'组织/志愿经历','present':'至今','rank':'排名','courses':'主修课程：','advisor':'导师：','tech':'技术栈：','sep':'、'},
-  'en': {'title':'Resume','summary':'Summary','education':'Education','work':'Experience','projects':'Projects','research':'Research','skills':'Skills','awards':'Awards & Honors','publications':'Publications','languages':'Languages','activities':'Activities','present':'Present','rank':'Rank','courses':'Courses: ','advisor':'Advisor: ','tech':'Tech: ','sep':', '},
-  'zh-en': {'title':'简历 Resume','summary':'个人简介 / Summary','education':'教育经历 / Education','work':'工作/实习经历 / Experience','projects':'项目经历 / Projects','research':'科研经历 / Research','skills':'技能 / Skills','awards':'获奖/荣誉 / Awards','publications':'论文/出版 / Publications','languages':'语言能力 / Languages','activities':'组织/志愿经历 / Activities','present':'至今','rank':'排名','courses':'主修课程：','advisor':'导师：','tech':'技术栈：','sep':'、'}
+  'zh': {'title':'简历','summary':'个人简介','education':'教育背景','work':'工作/实习经历','projects':'项目经历','research':'科研经历','skills':'技能','awards':'获奖荣誉','publications':'论文/出版','languages':'语言能力','activities':'组织/志愿经历','present':'至今','rank':'排名','courses':'相关课程：','advisor':'导师：','tech':'','sep':'、'},
+  'en': {'title':'Resume','summary':'Summary','education':'Education','work':'Experience','projects':'Projects','research':'Research','skills':'Skills','awards':'Awards & Honors','publications':'Publications','languages':'Languages','activities':'Activities','present':'Present','rank':'Rank','courses':'Courses: ','advisor':'Advisor: ','tech':'','sep':', '},
+  'zh-en': {'title':'简历 Resume','summary':'个人简介 / Summary','education':'教育背景 / Education','work':'工作/实习经历 / Experience','projects':'项目经历 / Projects','research':'科研经历 / Research','skills':'技能 / Skills','awards':'获奖荣誉 / Awards','publications':'论文/出版 / Publications','languages':'语言能力 / Languages','activities':'组织/志愿经历 / Activities','present':'至今','rank':'排名','courses':'相关课程：','advisor':'导师：','tech':'','sep':'、'}
 } -%}
 {%- set t = _i18n[lang] if lang in _i18n else _i18n['zh'] -%}
 <title>{{ data.basics.name }} - {{ t.title }}</title>
@@ -21,24 +21,29 @@
   <header class="header">
     <div class="header-main">
       <h1 class="name">{{ data.basics.name }}{% if data.basics.english_name %} <span class="english-name">{{ data.basics.english_name }}</span>{% endif %}</h1>
-      {% if data.basics.label %}<div class="label">{{ data.basics.label }}</div>{% endif %}
+      {% if data.basics.label %}<div class="label">{{ data.basics.label }}{% if data.basics.location %}<span class="sep">|</span>{{ data.basics.location }}{% endif %}</div>{% endif %}
       <div class="contact">
-        {% if data.basics.phone %}<span>📞 {{ data.basics.phone }}</span>{% endif %}
-        {% if data.basics.email %}<span>✉️ {{ data.basics.email }}</span>{% endif %}
-        {% if data.basics.location %}<span>📍 {{ data.basics.location }}</span>{% endif %}
-        {% if data.basics.website %}<span>🌐 {{ data.basics.website }}</span>{% endif %}
+        {%- set contact_items = [] -%}
+        {%- if data.basics.phone %}{% set _ = contact_items.append(data.basics.phone) %}{% endif -%}
+        {%- if data.basics.email %}{% set _ = contact_items.append(data.basics.email) %}{% endif -%}
+        {{ contact_items | join('&nbsp;&nbsp;|&nbsp;&nbsp;') }}
+        {%- if data.basics.website %}
+        {% if contact_items %}&nbsp;&nbsp;|&nbsp;&nbsp;{% endif %}<a href="{{ data.basics.website }}">{{ data.basics.website | replace('https://', '') | replace('http://', '') }}</a>
+        {%- endif %}
+        {%- if data.basics.profiles %}
+          {%- for p in data.basics.profiles %}
+          &nbsp;&nbsp;|&nbsp;&nbsp;<a href="{{ p.url }}">{{ p.network }}/{{ p.username or p.url | replace('https://', '') }}</a>
+          {%- endfor %}
+        {%- endif %}
       </div>
-      {% if data.basics.profiles %}
-      <div class="contact">
-        {% for p in data.basics.profiles %}
-          <span>{{ p.network }}: <a href="{{ p.url }}">{{ p.username or p.url }}</a></span>
-        {% endfor %}
+      {% if data.basics.gender or data.basics.birth %}
+      <div class="contact meta">
+        {%- set meta_items = [] -%}
+        {%- if data.basics.gender %}{% set _ = meta_items.append(data.basics.gender) %}{% endif -%}
+        {%- if data.basics.birth %}{% set _ = meta_items.append(data.basics.birth) %}{% endif -%}
+        {{ meta_items | join('&nbsp;&nbsp;|&nbsp;&nbsp;') }}
       </div>
       {% endif %}
-      <div class="contact meta">
-        {% if data.basics.gender %}<span>{{ data.basics.gender }}</span>{% endif %}
-        {% if data.basics.birth %}<span>{{ data.basics.birth }}</span>{% endif %}
-      </div>
     </div>
     {% if data.basics.avatar %}
     <img class="avatar" src="{{ data.basics.avatar }}" alt="avatar">
@@ -47,7 +52,7 @@
 
   {% macro date_range(start, end) -%}
     {%- if start or end -%}
-      <span class="date">{{ start or '' }}{% if end %} — {{ end }}{% elif start %} — {{ t.present }}{% endif %}</span>
+      <span class="date">{{ start or '' }}{% if end %} – {{ end }}{% elif start %} – {{ t.present }}{% endif %}</span>
     {%- endif -%}
   {%- endmacro %}
 
@@ -74,18 +79,20 @@
       <div class="entry-head">
         <div class="entry-title">
           <strong>{{ edu.institution }}</strong>
-          {% if edu.area %}<span class="sep">·</span>{{ edu.area }}{% endif %}
-          {% if edu.degree %}<span class="sep">·</span>{{ edu.degree }}{% endif %}
+          {% if edu.area %}<span class="sep">/</span>{{ edu.area }}{% endif %}
+          {% if edu.degree %}<span class="sep">/</span>{{ edu.degree }}{% endif %}
         </div>
         <div class="entry-meta">
-          {% if edu.location %}<span>{{ edu.location }}</span>{% endif %}
           {{ date_range(edu.start, edu.end) }}
+          {% if edu.location %}<span class="sep">·</span><span>{{ edu.location }}</span>{% endif %}
         </div>
       </div>
+      {% if edu.gpa or edu.rank %}
       <div class="entry-sub">
         {% if edu.gpa %}<span>GPA: {{ edu.gpa }}</span>{% endif %}
         {% if edu.rank %}<span class="sep">·</span><span>{{ t.rank }}: {{ edu.rank }}</span>{% endif %}
       </div>
+      {% endif %}
       {% if edu.courses %}<div class="entry-sub">{{ t.courses }}{{ edu.courses | join(t.sep) }}</div>{% endif %}
       {{ highlights(edu.highlights) }}
     </div>
@@ -105,8 +112,8 @@
           {% if w.type %}<span class="tag">{{ w.type }}</span>{% endif %}
         </div>
         <div class="entry-meta">
-          {% if w.location %}<span>{{ w.location }}</span>{% endif %}
           {{ date_range(w.start, w.end) }}
+          {% if w.location %}<span class="sep">·</span><span>{{ w.location }}</span>{% endif %}
         </div>
       </div>
       {% if w.summary %}<div class="entry-sub">{{ w.summary }}</div>{% endif %}
@@ -129,8 +136,8 @@
         </div>
         <div class="entry-meta">{{ date_range(p.start, p.end) }}</div>
       </div>
+      {% if p.tech %}<div class="entry-sub tech">{{ p.tech | join(', ') }}</div>{% endif %}
       {% if p.summary %}<div class="entry-sub">{{ p.summary }}</div>{% endif %}
-      {% if p.tech %}<div class="entry-sub tech">{{ t.tech }}{{ p.tech | join(' · ') }}</div>{% endif %}
       {{ highlights(p.highlights) }}
     </div>
     {% endfor %}
@@ -159,12 +166,14 @@
   {% if data.skills %}
   <section class="section">
     <h2 class="section-title">{{ t.skills }}</h2>
-    <ul class="skill-list">
+    <table class="skill-table">
       {% for s in data.skills %}
-      <li><strong>{{ s.name }}{% if s.level %}（{{ s.level }}）{% endif %}：</strong>
-      {{ (s.keywords or []) | join(t.sep) }}</li>
+      <tr>
+        <td>{{ s.name }}</td>
+        <td>{{ (s.keywords or []) | join(t.sep) }}</td>
+      </tr>
       {% endfor %}
-    </ul>
+    </table>
   </section>
   {% endif %}
 
@@ -173,7 +182,7 @@
     <h2 class="section-title">{{ t.awards }}</h2>
     <ul class="highlights">
       {% for a in data.awards %}
-      <li><strong>{{ a.title }}</strong>{% if a.awarder %} - {{ a.awarder }}{% endif %}{% if a.date %} <span class="date">({{ a.date }})</span>{% endif %}{% if a.summary %} — {{ a.summary }}{% endif %}</li>
+      <li><strong>{{ a.title }}</strong>{% if a.awarder %}，{{ a.awarder }}{% endif %}{% if a.date %}，{{ a.date }}{% endif %}{% if a.summary %} — {{ a.summary }}{% endif %}</li>
       {% endfor %}
     </ul>
   </section>

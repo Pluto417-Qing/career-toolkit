@@ -18,30 +18,32 @@
 <div class="resume">
 
   <!-- Header -->
-  <header class="header">
+  <header class="header{% if data.basics.avatar %} has-avatar{% endif %}">
+    <div class="header-body">
+      <h1 class="name">{{ data.basics.name }}</h1>
+      {% if data.basics.english_name %}<span class="english-name">{{ data.basics.english_name }}</span>{% endif %}
+      {% if data.basics.label %}<div class="label">{{ data.basics.label }}</div>{% endif %}
+      <div class="contact">
+        {% if data.basics.phone %}<span>{{ data.basics.phone }}</span>{% endif %}
+        {% if data.basics.email %}<span>{{ data.basics.email }}</span>{% endif %}
+        {% if data.basics.location %}<span>{{ data.basics.location }}</span>{% endif %}
+        {% if data.basics.website %}<span><a href="{{ data.basics.website }}">{{ data.basics.website }}</a></span>{% endif %}
+      </div>
+      {% if data.basics.profiles %}
+      <div class="contact">
+        {% for p in data.basics.profiles %}
+          <span>{{ p.network }}: <a href="{{ p.url }}">{{ p.username or p.url }}</a></span>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <div class="contact meta">
+        {% if data.basics.gender %}<span>{{ data.basics.gender }}</span>{% endif %}
+        {% if data.basics.birth %}<span>{{ data.basics.birth }}</span>{% endif %}
+      </div>
+    </div>
     {% if data.basics.avatar %}
     <img class="avatar" src="{{ data.basics.avatar }}" alt="avatar">
     {% endif %}
-    <h1 class="name">{{ data.basics.name }}</h1>
-    {% if data.basics.english_name %}<span class="english-name">{{ data.basics.english_name }}</span>{% endif %}
-    {% if data.basics.label %}<div class="label">{{ data.basics.label }}</div>{% endif %}
-    <div class="contact">
-      {% if data.basics.phone %}<span>{{ data.basics.phone }}</span>{% endif %}
-      {% if data.basics.email %}<span>{{ data.basics.email }}</span>{% endif %}
-      {% if data.basics.location %}<span>{{ data.basics.location }}</span>{% endif %}
-      {% if data.basics.website %}<span><a href="{{ data.basics.website }}">{{ data.basics.website }}</a></span>{% endif %}
-    </div>
-    {% if data.basics.profiles %}
-    <div class="contact">
-      {% for p in data.basics.profiles %}
-        <span>{{ p.network }}: <a href="{{ p.url }}">{{ p.username or p.url }}</a></span>
-      {% endfor %}
-    </div>
-    {% endif %}
-    <div class="contact meta">
-      {% if data.basics.gender %}<span>{{ data.basics.gender }}</span>{% endif %}
-      {% if data.basics.birth %}<span>{{ data.basics.birth }}</span>{% endif %}
-    </div>
   </header>
 
   {% macro date_range(start, end) -%}

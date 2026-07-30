@@ -6,6 +6,7 @@ basics:
   name: 张三
   english_name: Zhang San
   label: 前端工程师 · 应届生
+  avatar: photo.jpg
   gender: 男
   birth: 2003-05
   phone: "138 xxxx 8888"

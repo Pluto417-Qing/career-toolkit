@@ -11,7 +11,9 @@ Outputs:
 """
 
 import argparse
+import base64
 import json
+import mimetypes
 import sys
 from pathlib import Path
 
@@ -25,6 +27,21 @@ THEMES_DIR = SKILL_DIR / "assets" / "themes"
 def load_yaml(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as f:
         return yaml.safe_load(f)
+
+
+def embed_avatar(data: dict, resume_dir: Path) -> dict:
+    """Resolve avatar path relative to resume.yaml and convert to base64 data URI."""
+    avatar = (data.get("basics") or {}).get("avatar")
+    if not avatar or avatar.startswith("data:") or avatar.startswith("http"):
+        return data
+    avatar_path = (resume_dir / avatar).resolve()
+    if not avatar_path.is_file():
+        print(f"⚠️  avatar not found: {avatar_path}", file=sys.stderr)
+        return data
+    mime = mimetypes.guess_type(str(avatar_path))[0] or "image/jpeg"
+    b64 = base64.b64encode(avatar_path.read_bytes()).decode()
+    data["basics"]["avatar"] = f"data:{mime};base64,{b64}"
+    return data
 
 
 def render_html(data: dict, theme: str) -> str:
@@ -64,6 +81,7 @@ def main() -> int:
         return 2
 
     data = load_yaml(resume_path)
+    embed_avatar(data, resume_dir=resume_path.parent)
     theme = args.theme or (data.get("meta") or {}).get("theme") or "classic"
 
     out_dir = Path(args.out_dir).resolve()
@@ -81,7 +99,7 @@ def main() -> int:
 
     if args.pdf:
         pdf_path = out_dir / "resume.pdf"
-        to_pdf(html, pdf_path, base_url=THEMES_DIR / theme)
+        to_pdf(html, pdf_path, base_url=resume_path.parent)
         print(f"✅ PDF written:  {pdf_path}")
 
     if args.markdown:

@@ -1,8 +1,8 @@
-/* Classic Resume Theme — WeasyPrint / Browser friendly */
+/* Classic Resume Theme — Clean professional styling */
 
 @page {
   size: A4;
-  margin: 14mm 16mm;
+  margin: 15mm 18mm;
 }
 
 * { box-sizing: border-box; }
@@ -11,66 +11,68 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", "Helvetica Neue", Arial, sans-serif;
-  font-size: 10.5pt;
-  color: #222;
+  font-size: 10pt;
+  color: #1a1a1a;
   line-height: 1.5;
   background: #fff;
 }
 
 .resume {
-  max-width: 800px;
+  max-width: 760px;
   margin: 0 auto;
-  padding: 16px 20px;
+  padding: 0 12px;
 }
 
+/* ===== Header ===== */
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  border-bottom: 2px solid #333;
+  text-align: center;
   padding-bottom: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #222;
 }
-.header-main { flex: 1; }
+.header-main { width: 100%; }
 .name {
   font-size: 22pt;
   font-weight: 700;
-  margin: 0 0 4px 0;
+  margin: 0 0 3px 0;
   color: #111;
+  letter-spacing: 3px;
 }
-.english-name { font-size: 13pt; font-weight: 400; color: #666; margin-left: 8px; }
-.label { font-size: 11pt; color: #555; margin-bottom: 6px; }
+.english-name { font-size: 11pt; font-weight: 400; color: #555; margin-left: 8px; }
+.label { font-size: 10.5pt; color: #333; margin-bottom: 6px; }
 .contact {
   font-size: 9.5pt;
-  color: #444;
-  margin-top: 4px;
+  color: #333;
+  margin-top: 3px;
+  line-height: 1.7;
 }
-.contact span { margin-right: 12px; white-space: nowrap; }
-.contact.meta { color: #777; font-size: 9pt; }
+.contact span { margin: 0 8px; white-space: nowrap; }
+.contact.meta { color: #555; font-size: 9pt; }
 .avatar {
-  width: 78px;
-  height: 78px;
-  border-radius: 6px;
+  width: 72px;
+  height: 72px;
+  border-radius: 4px;
   object-fit: cover;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
 }
 
+/* ===== Sections ===== */
 .section {
-  margin-top: 12px;
+  margin-top: 10px;
   page-break-inside: avoid;
 }
 .section-title {
-  font-size: 12pt;
+  font-size: 11pt;
   font-weight: 700;
-  color: #1a4a7a;
-  border-bottom: 1px solid #cfd8e3;
-  padding-bottom: 3px;
+  color: #111;
+  border-bottom: 1px solid #333;
+  padding-bottom: 2px;
   margin: 8px 0 6px 0;
   letter-spacing: 1px;
 }
-.summary { margin: 4px 0; color: #333; }
+.summary { margin: 4px 0; color: #222; font-size: 10pt; }
 
+/* ===== Entries ===== */
 .entry {
   margin-bottom: 8px;
   page-break-inside: avoid;
@@ -78,40 +80,61 @@ html, body {
 .entry-head {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   align-items: baseline;
   flex-wrap: wrap;
 }
-.entry-title { font-size: 10.5pt; }
+.entry-title { font-size: 10pt; }
 .entry-title strong { font-weight: 700; }
-.entry-meta { font-size: 9.5pt; color: #666; white-space: nowrap; }
+.entry-meta { font-size: 9.5pt; color: #444; white-space: nowrap; }
 .entry-sub {
-  font-size: 10pt;
-  color: #444;
-  margin: 2px 0 2px 0;
+  font-size: 9.5pt;
+  color: #333;
+  margin: 1px 0;
 }
-.entry-sub.tech { color: #666; font-style: italic; }
-.sep { color: #999; margin: 0 4px; }
-.date { color: #666; }
+.entry-sub.tech { color: #444; font-style: normal; font-size: 9pt; }
+.sep { color: #888; margin: 0 4px; }
+.date { color: #444; }
 .tag {
   display: inline-block;
-  font-size: 8.5pt;
-  padding: 1px 6px;
-  margin-left: 6px;
-  background: #eef3f9;
-  color: #1a4a7a;
-  border-radius: 3px;
+  font-size: 8pt;
+  padding: 0 5px;
+  margin-left: 5px;
+  color: #444;
+  border: 0.5pt solid #999;
+  border-radius: 1px;
 }
 
+/* ===== Lists ===== */
 .highlights, .skill-list {
-  margin: 4px 0 4px 0;
-  padding-left: 20px;
+  margin: 2px 0;
+  padding-left: 18px;
 }
 .highlights li, .skill-list li {
-  margin: 2px 0;
-  font-size: 10pt;
-  line-height: 1.55;
+  margin: 1.5px 0;
+  font-size: 9.5pt;
+  line-height: 1.5;
 }
 
-a { color: #1a4a7a; text-decoration: none; }
-a:hover { text-decoration: underline; }
+/* ===== Skills table ===== */
+.skill-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  margin: 4px 0;
+}
+.skill-table td {
+  padding: 2px 8px 2px 0;
+  vertical-align: top;
+  line-height: 1.5;
+}
+.skill-table td:first-child {
+  font-weight: 700;
+  white-space: nowrap;
+  width: 1%;
+  padding-right: 16px;
+}
+
+/* ===== Links ===== */
+a { color: #1a1a1a; text-decoration: none; border-bottom: 0.5px solid #888; }
+a:hover { border-bottom-color: #111; }

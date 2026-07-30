@@ -1,6 +1,6 @@
 ---
 name: career-toolkit
-description: 一站式职业发展工具包。包含三个核心模块：(1) career-planner — 职业规划智能体，引导式收集用户画像、Holland RIASEC 测评、多路径可行性对比、3-6-12 个月行动规划；(2) resume-builder — 简历生成器，YAML 结构化数据、7 套 HTML 主题（classic/modern/academic/minimal/compact/elegant/infographic）、WeasyPrint PDF 导出、JSON Resume 兼容输出；(3) resume-optimizer — 求职强化，JD 关键词匹配与覆盖率分析、Bullet 量化改写、中文 ATS 合规检查。适用场景：用户提到"职业规划、生涯规划、就业还是考研、考公规划、留学规划、Holland 测评、找工作方向、毕业选择、写简历、做简历、生成简历、简历模板、resume、CV、导出 PDF、预览简历、匹配 JD、关键词覆盖率、ATS 检查、简历体检、量化改写、优化 bullet"或对未来方向感到迷茫时使用。
+description: 职业规划 + 简历生成 + 求职优化。Holland 测评与行动规划；7 套主题简历渲染、PDF 导出；JD 关键词匹配、ATS 检查、Bullet 量化改写。触发词：职业规划、生涯规划、考研就业、写简历、生成简历、导出 PDF、匹配 JD、ATS 检查、简历优化、量化改写、毕业迷茫。
 author: 袁箐鸿
 ---
 
