@@ -27,7 +27,7 @@ author: 袁箐鸿
 
 ### → resume-builder
 
-触发词：写简历、做简历、生成简历、简历模板、resume、CV、导出 PDF、预览简历、换主题、修改简历
+触发词：写简历、做简历、生成简历、简历模板、resume、CV、导出 PDF、预览简历、换主题、修改简历、发飞书、简历发飞书、分享简历、发给导师、发给 HR
 
 加载：[modules/resume-builder/MODULE.md](modules/resume-builder/MODULE.md)
 

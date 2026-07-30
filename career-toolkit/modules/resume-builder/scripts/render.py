@@ -55,6 +55,7 @@ def main() -> int:
     ap.add_argument("--theme", default=None, help="theme name (default: from data.meta.theme or 'classic')")
     ap.add_argument("--out-dir", default="./out", help="output directory")
     ap.add_argument("--pdf", action="store_true", help="also render PDF via WeasyPrint")
+    ap.add_argument("--markdown", action="store_true", help="also render Markdown (for Feishu doc publishing)")
     args = ap.parse_args()
 
     resume_path = Path(args.resume).resolve()
@@ -82,6 +83,12 @@ def main() -> int:
         pdf_path = out_dir / "resume.pdf"
         to_pdf(html, pdf_path, base_url=THEMES_DIR / theme)
         print(f"✅ PDF written:  {pdf_path}")
+
+    if args.markdown:
+        from to_markdown import to_markdown
+        md_path = out_dir / "resume.md"
+        md_path.write_text(to_markdown(data), encoding="utf-8")
+        print(f"✅ Markdown written: {md_path}")
 
     print(f"\n👉 在浏览器打开预览：file://{html_path}")
     return 0

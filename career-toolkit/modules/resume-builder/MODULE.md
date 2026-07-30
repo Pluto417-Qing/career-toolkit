@@ -64,6 +64,36 @@ python3 scripts/render.py <path/to/resume.yaml> --out-dir <output_dir> --pdf
 
 要托管 HTML 让用户在线预览，可再走 `deploy` skill 部署 `resume.html`。
 
+### 4. 发飞书：一键发飞书文档给导师/HR review
+
+当用户要求"发飞书/发到飞书/分享简历给XX review"时，执行以下流程：
+
+**步骤 a：生成 Markdown 版简历**
+
+```bash
+python3 scripts/to_markdown.py <path/to/resume.yaml> --out-dir <output_dir>
+```
+
+或在渲染时一并生成：
+
+```bash
+python3 scripts/render.py <path/to/resume.yaml> --out-dir <output_dir> --pdf --markdown
+```
+
+产出 `<output_dir>/resume.md`。
+
+**步骤 b：调用 `lark-doc` skill 发布为飞书文档**
+
+1. 读取 `resume.md` 内容
+2. 使用 `lark-doc` skill 创建飞书文档，标题格式为 `简历 - {姓名} - {日期}`
+3. 将 Markdown 内容写入文档正文
+
+**步骤 c（可选）：分享给指定人**
+
+若用户指明了接收人（导师/HR），使用 `lark-im` skill 发送消息，附上文档链接，说明"请帮忙 review 这份简历"。
+
+> **注意**：发飞书操作需要用户已完成 lark-cli 登录认证。若未认证，提示用户先走 `lark-shared` skill 完成登录。
+
 ## 主题定制
 
 - 主题目录：`assets/themes/<theme-name>/`，需包含 `template.html.j2` 和 `style.css`。
@@ -71,10 +101,13 @@ python3 scripts/render.py <path/to/resume.yaml> --out-dir <output_dir> --pdf
 - 新增主题时把 `template.html.j2` 保持"数据即渲染"，样式差异全部放到 `style.css`。
 - 特别注意：Jinja2 中读 dict 里名为 `items` 的键要用 `data['items']`，避免撞名 `.items()` 方法。
 
-## 与其他模块的协作
+## 与其他模块/skill 的协作
 
 - `career-planner` 模块生成规划后若用户需要简历，会切换到本模块，并把 `profile.yaml` 中的信息映射到 `resume.yaml`。
 - `resume-optimizer`（后续）会在本模块产出的 `resume.json` 上做 JD 匹配、ATS 检查、bullet 量化。
+- `lark-doc`：发飞书文档时使用，将 Markdown 简历创建为飞书在线文档。
+- `lark-im`：用户指定分享对象时，发送文档链接和消息。
+- `lark-shared`：飞书认证与身份切换。
 
 ## 目录导航
 
@@ -85,4 +118,5 @@ python3 scripts/render.py <path/to/resume.yaml> --out-dir <output_dir> --pdf
 - [references/writing-tips.md](references/writing-tips.md) — bullet 写作与量化建议
 - [references/themes.md](references/themes.md) — 主题体系与定制指南
 - [scripts/validate.py](scripts/validate.py) — YAML → schema 校验
-- [scripts/render.py](scripts/render.py) — YAML → HTML/PDF/JSON
+- [scripts/render.py](scripts/render.py) — YAML → HTML/PDF/JSON/Markdown
+- [scripts/to_markdown.py](scripts/to_markdown.py) — YAML → Markdown（飞书发布用）

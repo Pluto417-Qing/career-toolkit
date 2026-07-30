@@ -22,6 +22,24 @@ assets/themes/<theme-name>/
 | `elegant` | 衬线标题 + 无衬线正文、铜棕色调、左竖线装饰 | 管理/文职/外企/高端猎头投递 |
 | `infographic` | 左面板技能进度条 + 右主栏时间线、绿色主题 | 互联网/产品/运营、强调可视化 |
 
+## 多语言支持
+
+所有内置主题均支持通过 `meta.language` 切换界面语言：
+
+| 值 | 效果 |
+|---|---|
+| `zh`（默认） | 中文标签：教育经历、项目经历… |
+| `en` | 英文标签：Education、Projects… |
+| `zh-en` | 双语标签：教育经历 / Education… |
+
+```yaml
+meta:
+  language: en   # 切换为英文简历
+  theme: classic
+```
+
+实现方式：每个模板顶部维护一个 `_i18n` 字典（zh / en / zh-en 三组），通过 `{% set t = _i18n[lang] %}` 选取，section 标题和内联标签统一使用 `{{ t.xxx }}`。新增主题时复制该结构即可。
+
 ## 新增主题步骤
 
 1. 复制 `classic/` 到 `assets/themes/<my-theme>/`

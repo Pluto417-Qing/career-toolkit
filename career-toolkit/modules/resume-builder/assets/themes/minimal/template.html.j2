@@ -2,7 +2,14 @@
 <html lang="{{ data.meta.language if data.meta and data.meta.language else 'zh' }}">
 <head>
 <meta charset="UTF-8">
-<title>{{ data.basics.name }} - 简历</title>
+{%- set lang = data.meta.language if data.meta and data.meta.language else 'zh' -%}
+{%- set _i18n = {
+  'zh': {'title':'简历','summary':'简介','education':'教育','work':'经历','projects':'项目','research':'研究','skills':'技能','awards':'荣誉','publications':'发表','languages':'语言','activities':'活动','present':'至今','rank':'排名','advisor':'导师：','sep':'、'},
+  'en': {'title':'Resume','summary':'Summary','education':'Education','work':'Experience','projects':'Projects','research':'Research','skills':'Skills','awards':'Honors','publications':'Publications','languages':'Languages','activities':'Activities','present':'Present','rank':'Rank','advisor':'Advisor: ','sep':', '},
+  'zh-en': {'title':'简历 Resume','summary':'简介 / Summary','education':'教育 / Education','work':'经历 / Experience','projects':'项目 / Projects','research':'研究 / Research','skills':'技能 / Skills','awards':'荣誉 / Honors','publications':'发表 / Publications','languages':'语言 / Languages','activities':'活动 / Activities','present':'至今','rank':'排名','advisor':'导师：','sep':'、'}
+} -%}
+{%- set t = _i18n[lang] if lang in _i18n else _i18n['zh'] -%}
+<title>{{ data.basics.name }} - {{ t.title }}</title>
 <style>
 {% include 'style.css' %}
 </style>
@@ -38,9 +45,9 @@
     </div>
   </header>
 
-  {% macro range(start, end) -%}
+  {% macro date_range(start, end) -%}
     {%- if start or end -%}
-      <span class="date">{{ start or '' }}{% if end %} — {{ end }}{% elif start %} — 至今{% endif %}</span>
+      <span class="date">{{ start or '' }}{% if end %} — {{ end }}{% elif start %} — {{ t.present }}{% endif %}</span>
     {%- endif -%}
   {%- endmacro %}
 
@@ -54,14 +61,14 @@
 
   {% if data.basics.summary %}
   <section class="section">
-    <h2 class="section-title">简介</h2>
+    <h2 class="section-title">{{ t.summary }}</h2>
     <p class="summary">{{ data.basics.summary }}</p>
   </section>
   {% endif %}
 
   {% if data.education %}
   <section class="section">
-    <h2 class="section-title">教育</h2>
+    <h2 class="section-title">{{ t.education }}</h2>
     {% for edu in data.education %}
     <div class="entry">
       <div class="entry-head">
@@ -70,11 +77,11 @@
           {% if edu.area %}<span class="sep">·</span>{{ edu.area }}{% endif %}
           {% if edu.degree %}<span class="sep">·</span>{{ edu.degree }}{% endif %}
         </div>
-        <div class="entry-meta">{{ range(edu.start, edu.end) }}</div>
+        <div class="entry-meta">{{ date_range(edu.start, edu.end) }}</div>
       </div>
       <div class="entry-sub">
         {% if edu.gpa %}<span>GPA: {{ edu.gpa }}</span>{% endif %}
-        {% if edu.rank %}<span class="sep">·</span>排名: {{ edu.rank }}{% endif %}
+        {% if edu.rank %}<span class="sep">·</span>{{ t.rank }}: {{ edu.rank }}{% endif %}
       </div>
       {% if edu.courses %}<div class="entry-sub">{{ edu.courses | join(' / ') }}</div>{% endif %}
       {{ highlights(edu.highlights) }}
@@ -85,7 +92,7 @@
 
   {% if data.work %}
   <section class="section">
-    <h2 class="section-title">经历</h2>
+    <h2 class="section-title">{{ t.work }}</h2>
     {% for w in data.work %}
     <div class="entry">
       <div class="entry-head">
@@ -94,7 +101,7 @@
           {% if w.position %}<span class="sep">·</span>{{ w.position }}{% endif %}
           {% if w.type %}<span class="tag">{{ w.type }}</span>{% endif %}
         </div>
-        <div class="entry-meta">{{ range(w.start, w.end) }}</div>
+        <div class="entry-meta">{{ date_range(w.start, w.end) }}</div>
       </div>
       {% if w.summary %}<div class="entry-sub">{{ w.summary }}</div>{% endif %}
       {{ highlights(w.highlights) }}
@@ -105,7 +112,7 @@
 
   {% if data.projects %}
   <section class="section">
-    <h2 class="section-title">项目</h2>
+    <h2 class="section-title">{{ t.projects }}</h2>
     {% for p in data.projects %}
     <div class="entry">
       <div class="entry-head">
@@ -113,7 +120,7 @@
           <strong>{{ p.name }}</strong>
           {% if p.role %}<span class="sep">·</span>{{ p.role }}{% endif %}
         </div>
-        <div class="entry-meta">{{ range(p.start, p.end) }}</div>
+        <div class="entry-meta">{{ date_range(p.start, p.end) }}</div>
       </div>
       {% if p.summary %}<div class="entry-sub">{{ p.summary }}</div>{% endif %}
       {% if p.tech %}<div class="entry-sub tech">{{ p.tech | join(' · ') }}</div>{% endif %}
@@ -125,7 +132,7 @@
 
   {% if data.research %}
   <section class="section">
-    <h2 class="section-title">研究</h2>
+    <h2 class="section-title">{{ t.research }}</h2>
     {% for r in data.research %}
     <div class="entry">
       <div class="entry-head">
@@ -133,9 +140,9 @@
           <strong>{{ r.title }}</strong>
           {% if r.organization %}<span class="sep">·</span>{{ r.organization }}{% endif %}
         </div>
-        <div class="entry-meta">{{ range(r.start, r.end) }}</div>
+        <div class="entry-meta">{{ date_range(r.start, r.end) }}</div>
       </div>
-      {% if r.advisor %}<div class="entry-sub">导师：{{ r.advisor }}</div>{% endif %}
+      {% if r.advisor %}<div class="entry-sub">{{ t.advisor }}{{ r.advisor }}</div>{% endif %}
       {{ highlights(r.highlights) }}
     </div>
     {% endfor %}
@@ -144,10 +151,10 @@
 
   {% if data.skills %}
   <section class="section">
-    <h2 class="section-title">技能</h2>
+    <h2 class="section-title">{{ t.skills }}</h2>
     <ul class="skill-list">
       {% for s in data.skills %}
-      <li><strong>{{ s.name }}</strong>{% if s.keywords %} — {{ s.keywords | join('、') }}{% endif %}</li>
+      <li><strong>{{ s.name }}</strong>{% if s.keywords %} — {{ s.keywords | join(t.sep) }}{% endif %}</li>
       {% endfor %}
     </ul>
   </section>
@@ -155,7 +162,7 @@
 
   {% if data.awards %}
   <section class="section">
-    <h2 class="section-title">荣誉</h2>
+    <h2 class="section-title">{{ t.awards }}</h2>
     <ul class="highlights">
       {% for a in data.awards %}
       <li>{{ a.title }}{% if a.awarder %}<span class="sep">·</span>{{ a.awarder }}{% endif %}{% if a.date %} <span class="date">({{ a.date }})</span>{% endif %}</li>
@@ -166,7 +173,7 @@
 
   {% if data.publications %}
   <section class="section">
-    <h2 class="section-title">发表</h2>
+    <h2 class="section-title">{{ t.publications }}</h2>
     <ul class="highlights">
       {% for p in data.publications %}
       <li>{{ p.name }}{% if p.publisher %}, {{ p.publisher }}{% endif %}{% if p.release_date %} ({{ p.release_date }}){% endif %}</li>
@@ -177,7 +184,7 @@
 
   {% if data.languages %}
   <section class="section">
-    <h2 class="section-title">语言</h2>
+    <h2 class="section-title">{{ t.languages }}</h2>
     <ul class="skill-list">
       {% for l in data.languages %}
       <li>{{ l.language }}{% if l.level %} — {{ l.level }}{% endif %}{% if l.score %} ({{ l.score }}){% endif %}</li>
@@ -188,12 +195,12 @@
 
   {% if data.activities %}
   <section class="section">
-    <h2 class="section-title">活动</h2>
+    <h2 class="section-title">{{ t.activities }}</h2>
     {% for a in data.activities %}
     <div class="entry">
       <div class="entry-head">
         <div class="entry-title"><strong>{{ a.organization }}</strong>{% if a.role %}<span class="sep">·</span>{{ a.role }}{% endif %}</div>
-        <div class="entry-meta">{{ range(a.start, a.end) }}</div>
+        <div class="entry-meta">{{ date_range(a.start, a.end) }}</div>
       </div>
       {{ highlights(a.highlights) }}
     </div>
