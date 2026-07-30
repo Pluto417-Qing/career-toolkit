@@ -1,102 +1,106 @@
-# Career Toolkit
+# Career Toolkit — Skill Pack
 
-一站式职业发展工具包，覆盖从「方向规划」到「简历产出」的完整链路。
+> 职业规划 + 简历生成，一键安装到 TRAE，完全本地运行。
 
-## 功能模块
+<!-- 将 demo/overview.gif 替换为实际录制的演示 GIF -->
+![Demo](demo/overview.gif)
 
-### Career Planner — 职业规划智能体
+---
 
-引导式收集用户画像，结合 Holland RIASEC 测评，输出多路径可行性对比和 3-6-12 个月行动规划。
+## 包含模块
 
-适用场景：
-- 不知道自己适合做什么工作
-- 考研 vs 就业 vs 考公 vs 留学的抉择
-- 需要一份阶段性行动清单
+### 🎯 Career Planner — 职业规划智能体
 
-### Resume Builder — 简历生成器
+引导式对话收集用户画像 → Holland RIASEC 测评 → 多路径可行性对比 → 3-6-12 个月行动规划。
 
-YAML 结构化数据驱动，一处编写、多端导出。
+**适用场景：**
+- 不知道自己适合什么方向
+- 考研 / 就业 / 考公 / 留学的抉择
+- 需要一份可执行的阶段性行动清单
 
-- 7 套 HTML 主题：classic / modern / academic / minimal / compact / elegant / infographic
-- WeasyPrint PDF 导出
-- JSON Resume 兼容输出
+**产出：**
+- `profile.yaml` — 结构化用户画像
+- `career_plan.md` — 规划报告（含时间线 + RIASEC 雷达图）
+
+---
+
+### 📄 Resume Builder — 简历生成器
+
+对话式信息收集 → YAML 结构化简历 → Schema 校验 → 多主题渲染。
+
+**7 套主题：** classic / modern / academic / minimal / compact / elegant / infographic
+
+**导出格式：** HTML 预览 · PDF 打印 · JSON Resume 标准 · Markdown（飞书兼容）
+
+**产出：**
+- `resume.yaml` — 结构化简历数据
+- `resume.html` — HTML 预览
+- `resume.pdf` — PDF 导出（需 WeasyPrint）
+
+---
 
 ## 快速开始
 
-### 职业规划
-
-与 AI 对话，说出你的困惑即可启动：
-
-> "我是大三计算机专业的，不知道毕业该考研还是找工作"
-
-产出文件：
-```
-./career/profile.yaml       # 用户画像
-./career/career_plan.md     # 规划报告
-```
-
-### 简历生成
-
-告诉 AI 你想做简历，按引导填写信息：
-
-> "帮我写一份简历" / "生成简历"
-
-产出文件：
-```
-./resume/resume.yaml        # 结构化简历数据
-./resume/out/resume.html    # HTML 预览
-./resume/out/resume.pdf     # PDF 导出
-```
-
-## 命令行工具
-
 ```bash
-# Holland 测评评分
-python3 modules/career-planner/scripts/score_holland.py <answers.yaml>
+# 1. 克隆或拷贝到 TRAE user_skills 目录
+cp -r career-toolkit ~/Desktop/user_skills/
 
-# 简历 Schema 校验
-python3 modules/resume-builder/scripts/validate.py <resume.yaml>
-
-# 简历渲染（HTML + PDF）
-python3 modules/resume-builder/scripts/render.py <resume.yaml> --out-dir ./resume/out --pdf
+# 2. 运行安装脚本
+cd ~/Desktop/user_skills/career-toolkit
+bash setup.sh
 ```
 
-## 项目结构
+安装完成后在 TRAE 对话中直接说：
+
+| 你说的话 | 触发模块 |
+|---|---|
+| "我是大三的，不知道该考研还是找工作" | Career Planner |
+| "帮我做个简历" | Resume Builder |
+| "帮我匹配这个 JD" | Resume Optimizer（附赠） |
+
+---
+
+## 系统要求
+
+| 项目 | 要求 |
+|---|---|
+| Python | 3.8+ |
+| 磁盘空间 | ~5MB（不含 WeasyPrint） |
+| 网络 | **不需要**（核心功能离线可用） |
+| 操作系统 | macOS / Linux / Windows (WSL) |
+
+---
+
+## 详细安装指引
+
+→ 见 [INSTALL.md](INSTALL.md)
+
+---
+
+## 文件结构
 
 ```
 career-toolkit/
-├── SKILL.md                          # Skill 入口与路由规则
-├── modules/
-│   ├── career-planner/
-│   │   ├── MODULE.md                 # 模块完整文档
-│   │   ├── scripts/
-│   │   │   └── score_holland.py      # Holland 评分脚本
-│   │   ├── assets/
-│   │   │   ├── assessments/          # Holland RIASEC 题库
-│   │   │   └── examples/             # profile.yaml 示例
-│   │   └── references/
-│   │       ├── collect-profile.md    # 画像收集策略
-│   │       └── path-playbooks/       # 路径 Playbook（就业/考公/考研）
-│   └── resume-builder/
-│       ├── MODULE.md                 # 模块完整文档
-│       ├── scripts/
-│       │   ├── validate.py           # Schema 校验
-│       │   ├── render.py            # Jinja2 渲染 + PDF 导出
-│       │   └── to_markdown.py       # YAML → Markdown（飞书发布用）
-│       ├── assets/
-│       │   ├── schema/               # JSON Schema
-│       │   ├── themes/               # 7 套 HTML 主题模板
-│       │   └── examples/             # 简历 YAML 示例
-│       └── references/
-│           ├── schema.md             # 字段说明
-│           ├── themes.md             # 主题预览与选择指南
-│           └── writing-tips.md       # 简历写作要点
+├── SKILL.md                    # Skill 入口定义（TRAE 自动识别）
+├── setup.sh                    # 一键安装脚本
+├── INSTALL.md                  # 详细安装指引
+├── demo/                       # 演示 GIF 资源
+│   └── PLACEHOLDER.md
+└── modules/
+    ├── career-planner/         # 职业规划智能体
+    │   ├── MODULE.md
+    │   ├── scripts/            # Holland/MBTI 评分 + 可视化
+    │   ├── assets/             # 题库 + 示例
+    │   └── references/         # Playbook（就业/考研/考公）
+    └── resume-builder/         # 简历生成器
+        ├── MODULE.md
+        ├── scripts/            # 校验 + 渲染 + Markdown 转换
+        ├── assets/             # Schema + 7 套主题 + 示例
+        └── references/         # 字段说明 + 写作指南
 ```
 
-## 依赖
+---
 
-- Python 3.8+
-- PyYAML
-- Jinja2
-- jsonschema
-- WeasyPrint（PDF 导出需要）
+## 许可
+
+MIT
