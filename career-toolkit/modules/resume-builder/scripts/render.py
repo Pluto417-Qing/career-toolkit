@@ -71,6 +71,7 @@ def main() -> int:
     ap.add_argument("resume", help="path to resume.yaml")
     ap.add_argument("--theme", default=None, help="theme name (default: from data.meta.theme or 'classic')")
     ap.add_argument("--out-dir", default="./out", help="output directory")
+    ap.add_argument("--no-avatar", action="store_true", help="strip avatar from output (use text-only header layout)")
     ap.add_argument("--pdf", action="store_true", help="also render PDF via WeasyPrint")
     ap.add_argument("--markdown", action="store_true", help="also render Markdown (for Feishu doc publishing)")
     args = ap.parse_args()
@@ -82,6 +83,10 @@ def main() -> int:
 
     data = load_yaml(resume_path)
     embed_avatar(data, resume_dir=resume_path.parent)
+
+    if args.no_avatar:
+        data.get("basics", {}).pop("avatar", None)
+
     theme = args.theme or (data.get("meta") or {}).get("theme") or "classic"
 
     out_dir = Path(args.out_dir).resolve()

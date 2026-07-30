@@ -18,32 +18,27 @@
 <div class="resume">
 
   <!-- Header -->
-  <header class="header">
+  <header class="header{% if data.basics.avatar %} has-avatar{% endif %}">
     <div class="header-main">
       <h1 class="name">{{ data.basics.name }}{% if data.basics.english_name %} <span class="english-name">{{ data.basics.english_name }}</span>{% endif %}</h1>
-      {% if data.basics.label %}<div class="label">{{ data.basics.label }}{% if data.basics.location %}<span class="sep">|</span>{{ data.basics.location }}{% endif %}</div>{% endif %}
+      {% if data.basics.label %}<div class="label">{{ data.basics.label }}</div>{% endif %}
       <div class="contact">
         {%- set contact_items = [] -%}
-        {%- if data.basics.phone %}{% set _ = contact_items.append(data.basics.phone) %}{% endif -%}
-        {%- if data.basics.email %}{% set _ = contact_items.append(data.basics.email) %}{% endif -%}
-        {{ contact_items | join('&nbsp;&nbsp;|&nbsp;&nbsp;') }}
-        {%- if data.basics.website %}
-        {% if contact_items %}&nbsp;&nbsp;|&nbsp;&nbsp;{% endif %}<a href="{{ data.basics.website }}">{{ data.basics.website | replace('https://', '') | replace('http://', '') }}</a>
-        {%- endif %}
+        {%- if data.basics.phone %}{% set _ = contact_items.append('📞 ' ~ data.basics.phone) %}{% endif -%}
+        {%- if data.basics.email %}{% set _ = contact_items.append('✉ ' ~ data.basics.email) %}{% endif -%}
+        {%- if data.basics.location %}{% set _ = contact_items.append('📍 ' ~ data.basics.location) %}{% endif -%}
+        {{ contact_items | join('&emsp;') }}
+      </div>
+      <div class="contact">
+        {%- set link_items = [] -%}
+        {%- if data.basics.website %}{% set _ = link_items.append('<a href="' ~ data.basics.website ~ '">' ~ data.basics.website | replace('https://', '') | replace('http://', '') ~ '</a>') %}{% endif -%}
         {%- if data.basics.profiles %}
           {%- for p in data.basics.profiles %}
-          &nbsp;&nbsp;|&nbsp;&nbsp;<a href="{{ p.url }}">{{ p.network }}/{{ p.username or p.url | replace('https://', '') }}</a>
+            {%- set _ = link_items.append('<a href="' ~ p.url ~ '">' ~ p.network ~ ': ' ~ (p.username or p.url | replace('https://', '')) ~ '</a>') -%}
           {%- endfor %}
         {%- endif %}
+        {{ link_items | join('&emsp;') }}
       </div>
-      {% if data.basics.gender or data.basics.birth %}
-      <div class="contact meta">
-        {%- set meta_items = [] -%}
-        {%- if data.basics.gender %}{% set _ = meta_items.append(data.basics.gender) %}{% endif -%}
-        {%- if data.basics.birth %}{% set _ = meta_items.append(data.basics.birth) %}{% endif -%}
-        {{ meta_items | join('&nbsp;&nbsp;|&nbsp;&nbsp;') }}
-      </div>
-      {% endif %}
     </div>
     {% if data.basics.avatar %}
     <img class="avatar" src="{{ data.basics.avatar }}" alt="avatar">
