@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8"><title>张三 - 简历</title>
+<style>
+/* Infographic Resume Theme — Visual skill bars & icon-driven layout */
+
+@page {
+  size: A4;
+  margin: 12mm 14mm;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  font-size: 10pt;
+  color: #333;
+  line-height: 1.5;
+  background: #fff;
+}
+
+.resume {
+  display: flex;
+  min-height: 297mm;
+}
+
+/* ===== Left Panel ===== */
+.panel-left {
+  width: 200px;
+  min-width: 200px;
+  background: #f0fdf4;
+  padding: 24px 16px;
+  border-right: 3px solid #16a34a;
+}
+
+.panel-left .avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #16a34a;
+  display: block;
+  margin: 0 auto 14px auto;
+}
+
+.panel-left .name {
+  font-size: 14pt;
+  font-weight: 700;
+  color: #111;
+  text-align: center;
+  margin: 0 0 2px 0;
+}
+
+.panel-left .english-name {
+  font-size: 9pt;
+  color: #666;
+  text-align: center;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.panel-left .label {
+  font-size: 9pt;
+  color: #16a34a;
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.panel-left .panel-section {
+  margin-top: 16px;
+}
+
+.panel-left .panel-title {
+  font-size: 8.5pt;
+  font-weight: 700;
+  color: #16a34a;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin: 0 0 8px 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #bbf7d0;
+}
+
+.panel-left .contact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.panel-left .contact-list li {
+  font-size: 8.5pt;
+  margin: 4px 0;
+  color: #444;
+  word-break: break-all;
+}
+
+/* ===== Skill Bars ===== */
+.skill-bar-group {
+  margin-bottom: 10px;
+}
+
+.skill-bar-label {
+  font-size: 8.5pt;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 3px;
+}
+
+.skill-bar {
+  height: 6px;
+  background: #dcfce7;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.skill-bar-fill {
+  height: 100%;
+  background: #16a34a;
+  border-radius: 3px;
+}
+
+.skill-keywords-list {
+  list-style: none;
+  margin: 3px 0 0 0;
+  padding: 0;
+}
+
+.skill-keywords-list li {
+  display: inline-block;
+  font-size: 7.5pt;
+  background: #dcfce7;
+  color: #166534;
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin: 1px 2px;
+}
+
+/* Language items */
+.lang-item {
+  font-size: 8.5pt;
+  color: #444;
+  margin: 4px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.lang-level {
+  font-size: 8pt;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+/* ===== Right Main ===== */
+.panel-right {
+  flex: 1;
+  padding: 24px 24px 24px 26px;
+}
+
+.panel-right .section {
+  margin-bottom: 14px;
+  page-break-inside: avoid;
+}
+
+.panel-right .section-title {
+  font-size: 11.5pt;
+  font-weight: 700;
+  color: #16a34a;
+  margin: 0 0 8px 0;
+  padding-bottom: 4px;
+  border-bottom: 2px solid #bbf7d0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.panel-right .section-icon {
+  font-size: 13pt;
+}
+
+.panel-right .summary {
+  font-size: 9.5pt;
+  color: #444;
+  margin: 0 0 8px 0;
+  line-height: 1.6;
+}
+
+.panel-right .entry {
+  margin-bottom: 10px;
+  page-break-inside: avoid;
+  padding-left: 12px;
+  border-left: 2px solid #bbf7d0;
+}
+
+.panel-right .entry-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.panel-right .entry-title { font-size: 10.5pt; }
+.panel-right .entry-title strong { font-weight: 700; color: #1a1a1a; }
+.panel-right .entry-meta { font-size: 9pt; color: #666; white-space: nowrap; }
+.panel-right .entry-sub { font-size: 9.5pt; color: #555; margin: 2px 0; }
+.panel-right .entry-sub.tech { color: #666; font-style: italic; }
+
+.sep { color: #aaa; margin: 0 4px; }
+.date { color: #666; }
+.tag {
+  display: inline-block;
+  font-size: 7.5pt;
+  padding: 1px 6px;
+  margin-left: 5px;
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+}
+
+.panel-right .highlights {
+  margin: 3px 0;
+  padding-left: 16px;
+}
+
+.panel-right .highlights li {
+  margin: 2px 0;
+  font-size: 9.5pt;
+  line-height: 1.5;
+  color: #374151;
+}
+
+.panel-right .highlights li::marker { color: #16a34a; }
+
+.panel-right a { color: #16a34a; text-decoration: none; }
+.panel-right a:hover { text-decoration: underline; }
+
+.panel-left a { color: #16a34a; text-decoration: none; }</style>
+</head>
+<body>
+<div class="resume">
+
+  <!-- Left Panel -->
+  <aside class="panel-left">
+    <h1 class="name">张三</h1>
+<span class="english-name">Zhang San</span><div class="label">前端工程师 · 应届生</div>
+    <div class="panel-section">
+      <h3 class="panel-title">联系方式</h3>
+      <ul class="contact-list">
+<li>📞 138 xxxx 8888</li><li>✉️ zhangsan@example.com</li><li>📍 北京</li><li>🌐 https://example.com</li><li>👤 男</li><li>🎂 2003-05</li>      </ul>
+    </div>
+
+    <div class="panel-section">
+      <h3 class="panel-title">社交主页</h3>
+      <ul class="contact-list">
+        <li><a href="https://github.com/zhangsan">GitHub</a></li>
+        <li><a href="https://linkedin.com/in/zhangsan">LinkedIn</a></li>
+      </ul>
+    </div>
+
+    <div class="panel-section">
+      <h3 class="panel-title">技能</h3>
+      <div class="skill-bar-group">
+        <div class="skill-bar-label">编程语言</div>
+        <ul class="skill-keywords-list">
+<li>TypeScript</li><li>JavaScript</li><li>Python</li><li>Go</li>        </ul>
+      </div>
+      <div class="skill-bar-group">
+        <div class="skill-bar-label">前端框架</div>
+        <ul class="skill-keywords-list">
+<li>React</li><li>Vue</li><li>Next.js</li>        </ul>
+      </div>
+      <div class="skill-bar-group">
+        <div class="skill-bar-label">工程化</div>
+        <ul class="skill-keywords-list">
+<li>Webpack</li><li>Vite</li><li>Rollup</li><li>ESLint</li><li>Jest</li>        </ul>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <h3 class="panel-title">语言</h3>
+      <div class="lang-item">
+        <span>英语</span>
+        <span class="lang-level">CET-6</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Right Panel -->
+  <div class="panel-right">
+
+
+
+  <section class="section">
+    <h2 class="section-title"><span class="section-icon">💡</span>个人简介</h2>
+    <p class="summary">计算机科学本科应届生，两段一线互联网前端实习经历，熟悉 React / TypeScript 与工程化。追求"能落地、有度量"的工程实践。</p>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="section-icon">🎓</span>教育经历</h2>
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">
+          <strong>某某大学</strong>
+<span class="sep">·</span>计算机科学与技术<span class="sep">·</span>本科        </div>
+        <div class="entry-meta"><span class="date">2022-09 — 2026-06</span></div>
+      </div>
+      <div class="entry-sub">
+<span>GPA: 3.7/4.0</span><span class="sep">·</span>排名: 15/120      </div>
+<div class="entry-sub">数据结构、操作系统、计算机网络、数据库系统、编译原理</div>          <ul class="highlights">
+<li>连续 3 年校级一等奖学金</li><li>校级 ACM 集训队队员</li>    </ul>
+
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="section-icon">💼</span>工作经历</h2>
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">
+          <strong>某互联网公司</strong>
+<span class="sep">·</span>前端开发实习生<span class="tag">实习</span>        </div>
+        <div class="entry-meta">
+<span>北京</span>           <span class="date">2025-06 — 2025-09</span>
+        </div>
+      </div>
+<div class="entry-sub">负责 XX 中台的通用表单引擎重构。</div>          <ul class="highlights">
+<li>独立完成 30+ 表单场景的 schema 化改造，代码行数下降 45%</li><li>引入运行时校验框架，将线上表单类问题下降 60%</li><li>沉淀 4 篇技术文档，作为团队 onboarding 材料</li>    </ul>
+
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title"><span class="section-icon">🚀</span>项目经历</h2>
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">
+          <strong>MiniReact</strong>
+<span class="sep">·</span>独立作者<span class="tag">个人</span>        </div>
+        <div class="entry-meta"><span class="date">2024-11 — 2025-02</span></div>
+      </div>
+<div class="entry-sub">从零实现 React 核心机制的教学向仓库</div><div class="entry-sub tech">TypeScript · Rollup</div>          <ul class="highlights">
+<li>实现 Fiber 架构、Hooks、Concurrent Mode 简化版</li><li>编写系列博客共 8 篇，GitHub 累计 500+ star</li>    </ul>
+
+    </div>
+  </section>
+
+
+  <section class="section">
+    <h2 class="section-title"><span class="section-icon">🏆</span>获奖与荣誉</h2>
+    <ul class="highlights">
+      <li><strong>全国大学生数学建模竞赛 · 一等奖</strong> — 中国工业与应用数学学会 <span class="date">(2024-09)</span></li>
+    </ul>
+  </section>
+
+
+
+    <section class="section">
+      <h2 class="section-title">求职意向</h2>
+      <div class="entry">
+        <div class="entry-head">
+          <div class="entry-title">
+<strong>前端工程师 / 全栈工程师</strong><span class="sep">·</span>意向城市：北京 / 上海 / 杭州          </div>
+        </div>
+<div class="entry-sub">期望方向：Web 基建、编辑器/低代码、开发者工具</div>        
+      </div>
+    </section>
+
+  </div>
+</div>
+</body>
+</html>
