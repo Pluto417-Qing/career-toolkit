@@ -8,7 +8,6 @@ on:
       - "modules/resume-builder/assets/examples/**"
       - "modules/resume-builder/assets/schema/**"
       - "modules/resume-builder/scripts/**"
-      - "modules/resume-builder/out/preview/index.html"
       - "scripts/generate_previews.py"
   workflow_dispatch:
 
@@ -43,10 +42,8 @@ jobs:
 
           for theme_dir in "$THEMES_DIR"/*/; do
             theme=$(basename "$theme_dir")
-            # With avatar
             python3 modules/resume-builder/scripts/render.py "$RESUME_YAML" \
               --theme "$theme" --out-dir "$OUT_BASE/${theme}-avatar"
-            # Without avatar
             python3 modules/resume-builder/scripts/render.py "$RESUME_YAML" \
               --theme "$theme" --out-dir "$OUT_BASE/${theme}-noavatar" --no-avatar
           done
@@ -54,15 +51,12 @@ jobs:
       - name: Generate PNG screenshots
         run: python3 scripts/generate_previews.py
 
-      - name: Commit updated previews
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add modules/resume-builder/out/
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: auto-update preview screenshots and deploy artifacts"
-            git pull --rebase origin main
-            git push
-          fi
+      - name: Copy index.html to output
+        run: cp modules/resume-builder/out/preview/index.html modules/resume-builder/out/preview/index.html 2>/dev/null || true
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: modules/resume-builder/out/preview
+          commit_message: "chore: update preview screenshots"

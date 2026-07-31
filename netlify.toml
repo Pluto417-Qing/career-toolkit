@@ -1,3 +1,6 @@
 [build]
-  publish = "modules/resume-builder/out/preview"
+  publish = "."
   command = "echo 'Static site — no build needed'"
+
+[context.production]
+  branch = "gh-pages"

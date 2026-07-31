@@ -1,0 +1,4 @@
+.github/ export-ignore
+netlify.toml export-ignore
+scripts/generate_previews.py export-ignore
+scripts/pack.sh export-ignore
