@@ -1,0 +1,62 @@
+name: Update Previews & Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "modules/resume-builder/assets/themes/**"
+      - "modules/resume-builder/assets/examples/**"
+      - "modules/resume-builder/assets/schema/**"
+      - "modules/resume-builder/scripts/**"
+      - "modules/resume-builder/out/preview/index.html"
+      - "scripts/generate_previews.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-previews:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml jinja2 jsonschema playwright
+          playwright install chromium
+
+      - name: Render all themes to HTML
+        run: |
+          RESUME_YAML="modules/resume-builder/assets/examples/zh-fresh-grad.yaml"
+          THEMES_DIR="modules/resume-builder/assets/themes"
+          OUT_BASE="modules/resume-builder/out/preview"
+
+          for theme_dir in "$THEMES_DIR"/*/; do
+            theme=$(basename "$theme_dir")
+            # With avatar
+            python3 modules/resume-builder/scripts/render.py "$RESUME_YAML" \
+              --theme "$theme" --out-dir "$OUT_BASE/${theme}-avatar"
+            # Without avatar
+            python3 modules/resume-builder/scripts/render.py "$RESUME_YAML" \
+              --theme "$theme" --out-dir "$OUT_BASE/${theme}-noavatar" --no-avatar
+          done
+
+      - name: Generate PNG screenshots
+        run: python3 scripts/generate_previews.py
+
+      - name: Commit updated previews
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add modules/resume-builder/out/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: auto-update preview screenshots and deploy artifacts"
+            git push
+          fi
