@@ -1,3 +1,4 @@
 modules/resume-builder/out/*
 !modules/resume-builder/out/preview/
 .DS_Store
+.vscode/*

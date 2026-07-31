@@ -3,22 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Resume Skill — AI 对话驱动的简历生成器</title>
+<title>Resume Skill — 对话驱动的简历生成器</title>
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #a5b4fc;
-  --bg: #0f0f1a;
-  --bg-card: #1a1a2e;
-  --bg-card-hover: #222240;
-  --text: #e2e8f0;
-  --text-muted: #94a3b8;
-  --accent: #22d3ee;
-  --gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef);
-  --radius: 16px;
+  --primary: #3a7c6a;
+  --primary-dark: #2d5f52;
+  --primary-light: #7eb8a8;
+  --bg: #121416;
+  --bg-card: #1a1d21;
+  --bg-card-hover: #24282e;
+  --text: #e8e6e3;
+  --text-muted: #9b9a97;
+  --accent: #c4915a;
+  --gradient: linear-gradient(135deg, #3a7c6a, #4a9882);
+  --radius: 12px;
 }
 
 html { scroll-behavior: smooth; }
@@ -52,9 +52,8 @@ a:hover { color: var(--accent); }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(139,92,246,0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(34,211,238,0.08) 0%, transparent 50%);
+    radial-gradient(ellipse at 30% 60%, rgba(58,124,106,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 30%, rgba(196,145,90,0.06) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -64,8 +63,8 @@ a:hover { color: var(--accent); }
   display: inline-block;
   padding: 6px 16px;
   border-radius: 20px;
-  background: rgba(99,102,241,0.15);
-  border: 1px solid rgba(99,102,241,0.3);
+  background: rgba(58,124,106,0.1);
+  border: 1px solid rgba(58,124,106,0.25);
   font-size: 0.85rem;
   color: var(--primary-light);
   margin-bottom: 24px;
@@ -74,12 +73,10 @@ a:hover { color: var(--accent); }
 .hero h1 {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 800;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text);
   line-height: 1.2;
   margin-bottom: 20px;
+  letter-spacing: -0.02em;
 }
 
 .hero p {
@@ -105,11 +102,11 @@ a:hover { color: var(--accent); }
 }
 
 .btn-primary {
-  background: var(--gradient);
+  background: var(--primary);
   color: #fff;
-  box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+  box-shadow: 0 2px 12px rgba(58,124,106,0.25);
 }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99,102,241,0.5); color: #fff; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(58,124,106,0.3); color: #fff; }
 
 .btn-secondary {
   background: rgba(255,255,255,0.05);
@@ -154,8 +151,8 @@ a:hover { color: var(--accent); }
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--gradient);
+  height: 2px;
+  background: var(--primary);
   opacity: 0;
   transition: opacity 0.3s;
 }
@@ -164,13 +161,13 @@ a:hover { color: var(--accent); }
 
 .feature-icon {
   width: 48px; height: 48px;
-  border-radius: 12px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
   margin-bottom: 20px;
-  background: rgba(99,102,241,0.1);
+  background: rgba(58,124,106,0.08);
 }
 
 .feature-card h3 { font-size: 1.15rem; margin-bottom: 10px; }
@@ -195,7 +192,7 @@ a:hover { color: var(--accent); }
   right: 16.7%;
   height: 2px;
   background: linear-gradient(90deg, var(--primary), var(--accent));
-  opacity: 0.3;
+  opacity: 0.2;
 }
 
 .step {
@@ -248,6 +245,7 @@ a:hover { color: var(--accent); }
   background: var(--primary);
   border-color: var(--primary);
   color: #fff;
+  font-weight: 500;
 }
 
 .gallery-preview {
@@ -265,7 +263,7 @@ a:hover { color: var(--accent); }
   border: 1px solid rgba(255,255,255,0.06);
   transition: all 0.3s;
 }
-.preview-card:hover { border-color: var(--primary); box-shadow: 0 8px 40px rgba(99,102,241,0.15); }
+.preview-card:hover { border-color: rgba(58,124,106,0.4); box-shadow: 0 4px 24px rgba(0,0,0,0.2); }
 
 .preview-card-header {
   padding: 12px 20px;
@@ -295,12 +293,12 @@ a:hover { color: var(--accent); }
   position: absolute;
   top: 0;
   left: 0;
-  width: 166.67%;
-  height: 166.67%;
+  width: 133.33%;
+  height: 133.33%;
   border: none;
   display: block;
   background: #fff;
-  transform: scale(0.6);
+  transform: scale(0.75);
   transform-origin: top left;
 }
 
@@ -311,7 +309,7 @@ a:hover { color: var(--accent); }
 .quickstart { padding: 120px 0; background: rgba(255,255,255,0.01); }
 
 .code-block {
-  background: #1e1e2e;
+  background: #1a1d21;
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: var(--radius);
   overflow: hidden;
@@ -341,10 +339,10 @@ a:hover { color: var(--accent); }
   color: #c9d1d9;
   overflow-x: auto;
 }
-.code-body .comment { color: #6a737d; }
-.code-body .keyword { color: #ff7b72; }
-.code-body .string { color: #a5d6ff; }
-.code-body .prompt { color: #7ee787; }
+.code-body .comment { color: #6b7280; }
+.code-body .keyword { color: #e8916e; }
+.code-body .string { color: #7eb8a8; }
+.code-body .prompt { color: #c4915a; }
 
 /* ===== Modules ===== */
 .modules { padding: 120px 0; }
@@ -363,11 +361,11 @@ a:hover { color: var(--accent); }
   text-align: center;
   transition: all 0.3s;
 }
-.module-card:hover { transform: translateY(-4px); border-color: rgba(99,102,241,0.3); }
+.module-card:hover { transform: translateY(-4px); border-color: rgba(58,124,106,0.25); }
 .module-card .icon { font-size: 2rem; margin-bottom: 16px; }
 .module-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
 .module-card p { color: var(--text-muted); font-size: 0.9rem; }
-.module-card.highlight { border-color: var(--primary); background: rgba(99,102,241,0.05); }
+.module-card.highlight { border-color: var(--primary); background: rgba(58,124,106,0.04); }
 
 /* ===== Footer ===== */
 .footer {
@@ -408,7 +406,7 @@ a:hover { color: var(--accent); }
 <!-- Hero -->
 <section class="hero">
   <div class="hero-content">
-    <div class="hero-badge">Trae AI Skill</div>
+    <div class="hero-badge">Skill</div>
     <h1>Resume Skill</h1>
     <p>用自然对话生成专业简历——你只需聊天，AI 负责收集、组织、校验、渲染为精美 HTML 与印刷级 PDF。</p>
     <div class="hero-buttons">
@@ -623,7 +621,7 @@ a:hover { color: var(--accent); }
   <div class="container">
     <div class="section-header fade-in">
       <h2>快速开始</h2>
-      <p>在 Trae IDE 中直接使用</p>
+      <p>在 IDE 中直接使用</p>
     </div>
     <div class="code-block fade-in">
       <div class="code-header">
@@ -637,7 +635,7 @@ a:hover { color: var(--accent); }
         <div><span class="comment"># 2. 安装依赖</span></div>
         <div><span class="prompt">$</span> pip install PyYAML Jinja2 jsonschema</div>
         <br>
-        <div><span class="comment"># 3. 在 Trae 中打开，开始对话</span></div>
+        <div><span class="comment"># 3. 在编辑器中打开，开始对话</span></div>
         <div><span class="comment">#    直接告诉 AI："帮我生成一份简历"</span></div>
         <div><span class="comment">#    AI 会自动读取 Skill 配置并引导你完成</span></div>
       </div>
