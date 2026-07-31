@@ -20,7 +20,7 @@ html, body {
 .resume {
   max-width: 800px;
   margin: 0 auto;
-  padding: 10px 14px;
+  padding: 24px 14px 10px;
 }
 
 /* ===== Header ===== */
