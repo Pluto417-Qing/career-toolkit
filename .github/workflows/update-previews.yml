@@ -63,5 +63,6 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "chore: auto-update preview screenshots and deploy artifacts"
+            git pull --rebase origin main
             git push
           fi

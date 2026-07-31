@@ -13,21 +13,23 @@
 
 <table>
 <tr>
-<td align="center"><img src="modules/resume-builder/out/preview/classic-avatar/resume.png" width="240"/><br/><b>Classic</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/modern-avatar/resume.png" width="240"/><br/><b>Modern</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/minimal-avatar/resume.png" width="240"/><br/><b>Minimal</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/elegant-avatar/resume.png" width="240"/><br/><b>Elegant</b></td>
+<td align="center"><img src="modules/resume-builder/out/preview/classic-avatar/resume.png" width="320"/><br/><b>Classic</b></td>
+<td align="center"><img src="modules/resume-builder/out/preview/modern-avatar/resume.png" width="320"/><br/><b>Modern</b></td>
+<td align="center"><img src="modules/resume-builder/out/preview/minimal-avatar/resume.png" width="320"/><br/><b>Minimal</b></td>
 </tr>
 <tr>
-<td align="center"><img src="modules/resume-builder/out/preview/compact-avatar/resume.png" width="240"/><br/><b>Compact</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/academic-avatar/resume.png" width="240"/><br/><b>Academic</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/infographic-avatar/resume.png" width="240"/><br/><b>Infographic</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/creative-avatar/resume.png" width="240"/><br/><b>Creative</b></td>
+<td align="center"><img src="modules/resume-builder/out/preview/elegant-avatar/resume.png" width="320"/><br/><b>Elegant</b></td>
+<td align="center"><img src="modules/resume-builder/out/preview/compact-avatar/resume.png" width="320"/><br/><b>Compact</b></td>
+<td align="center"><img src="modules/resume-builder/out/preview/academic-avatar/resume.png" width="320"/><br/><b>Academic</b></td>
 </tr>
 <tr>
-<td align="center"><img src="modules/resume-builder/out/preview/executive-avatar/resume.png" width="240"/><br/><b>Executive</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/metro-avatar/resume.png" width="240"/><br/><b>Metro</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/tech-avatar/resume.png" width="240"/><br/><b>Tech</b></td>
+<td align="center"><img src="modules/resume-builder/out/preview/infographic-avatar/resume.png" width="320"/><br/><b>Infographic</b></td>
+<td align="center"><img src="modules/resume-builder/out/preview/creative-avatar/resume.png" width="320"/><br/><b>Creative</b></td>
+<td align="center"><img src="modules/resume-builder/out/preview/executive-avatar/resume.png" width="320"/><br/><b>Executive</b></td>
+</tr>
+<tr>
+<td align="center"><img src="modules/resume-builder/out/preview/metro-avatar/resume.png" width="320"/><br/><b>Metro</b></td>
+<td align="center"><img src="modules/resume-builder/out/preview/tech-avatar/resume.png" width="320"/><br/><b>Tech</b></td>
 <td></td>
 </tr>
 </table>
@@ -88,21 +90,6 @@ pip install weasyprint  # 可选，PDF 导出
 | 优化层 | 关键词提取 + 规则引擎 |
 
 全离线，不依赖外部 API。模块间通过文件解耦，可单独使用。
-
----
-
-## 文件结构
-
-```
-career-toolkit/
-├── SKILL.md              # Agent 入口
-├── manifest.json
-├── scripts/
-└── modules/
-    ├── career-planner/   # 职业规划
-    ├── resume-builder/   # 简历生成
-    └── resume-optimizer/ # 求职优化
-```
 
 ---
 
