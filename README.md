@@ -61,21 +61,33 @@
 
 ## 安装
 
-跟 Agent 说：
+在你使用的 Agent 中直接发送：
 
 ```
-帮我安装这个 skill: https://github.com/<your-username>/career-toolkit
+帮我安装这个 skill: https://github.com/Pluto417-Qing/resume-skill
 ```
 
-<details>
-<summary>手动安装</summary>
+### 手动安装
 
 ```bash
-git clone https://github.com/<your-username>/career-toolkit.git ~/.trae/skills/career-toolkit
-pip install pyyaml jinja2 jsonschema
+git clone https://github.com/Pluto417-Qing/resume-skill.git
+cd resume-skill
+pip install PyYAML Jinja2 jsonschema
 pip install weasyprint  # 可选，PDF 导出
 ```
-</details>
+
+### 各 Agent / IDE 接入方式
+
+| Agent / IDE | 接入方法 |
+|---|---|
+| Trae | 克隆到 `~/.trae/skills/career-toolkit` |
+| Cursor | 克隆到 `~/.cursor/skills/career-toolkit`，或在 `.cursor/rules/` 中引用 |
+| Windsurf | 克隆到 `~/.windsurf/skills/career-toolkit` |
+| Claude Code | 将仓库路径加入项目 `AGENTS.md` 或 `~/.claude/settings.json` 的 skills 列表 |
+| Codex (OpenAI) | 在 `codex.yaml` 中注册为 tool，或放入 `~/.codex/skills/` |
+| OpenClaw | 在 `.openclaw/config.yaml` 的 `skills` 字段添加本地路径或远程 URL |
+| Hermes | 在 `hermes.config.json` 的 `plugins` 中添加仓库路径 |
+| 通用 | 克隆到任意目录，在你的 Agent 配置中指向该路径即可 |
 
 ---
 

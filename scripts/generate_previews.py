@@ -12,6 +12,7 @@ from pathlib import Path
 
 PREVIEW_DIR = Path(__file__).resolve().parent.parent / "modules" / "resume-builder" / "out" / "preview"
 VIEWPORT = {"width": 800, "height": 1130}
+DEVICE_SCALE_FACTOR = 3
 
 
 def main() -> int:
@@ -30,7 +31,7 @@ def main() -> int:
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        page = browser.new_page(viewport=VIEWPORT)
+        page = browser.new_page(viewport=VIEWPORT, device_scale_factor=DEVICE_SCALE_FACTOR)
 
         for html_path in html_files:
             png_path = html_path.with_suffix(".png")
