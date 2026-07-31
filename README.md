@@ -13,23 +13,23 @@
 
 <table>
 <tr>
-<td align="center"><img src="modules/resume-builder/out/preview/classic-avatar/resume.png" width="320"/><br/><b>Classic</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/modern-avatar/resume.png" width="320"/><br/><b>Modern</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/minimal-avatar/resume.png" width="320"/><br/><b>Minimal</b></td>
+<td align="center"><img src="https://raw.githubusercontent.com/Pluto417-Qing/career-toolkit/gh-pages/classic-avatar/resume.png" width="320"/><br/><b>Classic</b></td>
+<td align="center"><img src="https://raw.githubusercontent.com/Pluto417-Qing/career-toolkit/gh-pages/modern-avatar/resume.png" width="320"/><br/><b>Modern</b></td>
+<td align="center"><img src="https://raw.githubusercontent.com/Pluto417-Qing/career-toolkit/gh-pages/minimal-avatar/resume.png" width="320"/><br/><b>Minimal</b></td>
 </tr>
 <tr>
-<td align="center"><img src="modules/resume-builder/out/preview/elegant-avatar/resume.png" width="320"/><br/><b>Elegant</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/compact-avatar/resume.png" width="320"/><br/><b>Compact</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/academic-avatar/resume.png" width="320"/><br/><b>Academic</b></td>
+<td align="center"><img src="https://raw.githubusercontent.com/Pluto417-Qing/career-toolkit/gh-pages/elegant-avatar/resume.png" width="320"/><br/><b>Elegant</b></td>
+<td align="center"><img src="https://raw.githubusercontent.com/Pluto417-Qing/career-toolkit/gh-pages/compact-avatar/resume.png" width="320"/><br/><b>Compact</b></td>
+<td align="center"><img src="https://raw.githubusercontent.com/Pluto417-Qing/career-toolkit/gh-pages/academic-avatar/resume.png" width="320"/><br/><b>Academic</b></td>
 </tr>
 <tr>
-<td align="center"><img src="modules/resume-builder/out/preview/infographic-avatar/resume.png" width="320"/><br/><b>Infographic</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/creative-avatar/resume.png" width="320"/><br/><b>Creative</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/executive-avatar/resume.png" width="320"/><br/><b>Executive</b></td>
+<td align="center"><img src="https://raw.githubusercontent.com/Pluto417-Qing/career-toolkit/gh-pages/infographic-avatar/resume.png" width="320"/><br/><b>Infographic</b></td>
+<td align="center"><img src="https://raw.githubusercontent.com/Pluto417-Qing/career-toolkit/gh-pages/creative-avatar/resume.png" width="320"/><br/><b>Creative</b></td>
+<td align="center"><img src="https://raw.githubusercontent.com/Pluto417-Qing/career-toolkit/gh-pages/executive-avatar/resume.png" width="320"/><br/><b>Executive</b></td>
 </tr>
 <tr>
-<td align="center"><img src="modules/resume-builder/out/preview/metro-avatar/resume.png" width="320"/><br/><b>Metro</b></td>
-<td align="center"><img src="modules/resume-builder/out/preview/tech-avatar/resume.png" width="320"/><br/><b>Tech</b></td>
+<td align="center"><img src="https://raw.githubusercontent.com/Pluto417-Qing/career-toolkit/gh-pages/metro-avatar/resume.png" width="320"/><br/><b>Metro</b></td>
+<td align="center"><img src="https://raw.githubusercontent.com/Pluto417-Qing/career-toolkit/gh-pages/tech-avatar/resume.png" width="320"/><br/><b>Tech</b></td>
 <td></td>
 </tr>
 </table>
