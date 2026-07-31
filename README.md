@@ -1,8 +1,21 @@
+<div align="center">
+
 # Career Toolkit
+
+---
 
 **把 AI 变成你的职业教练，从方向规划到简历落地，一条对话搞定。**
 
 不是丢给你一堆模板自己填，而是有人陪你想清楚方向、挖出经历、排进一页纸。
+
+![type](https://img.shields.io/badge/type-Agent%20Skill-purple)
+![output](https://img.shields.io/badge/output-HTML%20→%20PDF-gray)
+![python](https://img.shields.io/badge/python-3.8+-blue)
+![license](https://img.shields.io/badge/license-MIT-green)
+
+---
+
+</div>
 
 ## 你大概遇到过这些
 
