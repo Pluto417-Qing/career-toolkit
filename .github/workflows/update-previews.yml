@@ -7,6 +7,7 @@ on:
       - "modules/resume-builder/assets/themes/**"
       - "modules/resume-builder/assets/examples/**"
       - "modules/resume-builder/assets/schema/**"
+      - "modules/resume-builder/assets/site/**"
       - "modules/resume-builder/scripts/**"
       - "scripts/generate_previews.py"
   workflow_dispatch:
@@ -52,7 +53,7 @@ jobs:
         run: python3 scripts/generate_previews.py
 
       - name: Copy index.html to output
-        run: cp modules/resume-builder/out/preview/index.html modules/resume-builder/out/preview/index.html 2>/dev/null || true
+        run: cp modules/resume-builder/assets/site/index.html modules/resume-builder/out/preview/index.html
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4

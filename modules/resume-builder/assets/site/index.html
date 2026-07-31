@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Skill — 对话驱动的简历生成器</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --primary: #3a7c6a;
+  --primary-dark: #2d5f52;
+  --primary-light: #7eb8a8;
+  --bg: #121416;
+  --bg-card: #1a1d21;
+  --bg-card-hover: #24282e;
+  --text: #e8e6e3;
+  --text-muted: #9b9a97;
+  --accent: #c4915a;
+  --gradient: linear-gradient(135deg, #3a7c6a, #4a9882);
+  --radius: 12px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+a { color: var(--primary-light); text-decoration: none; transition: color 0.2s; }
+a:hover { color: var(--accent); }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+/* ===== Hero ===== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 60%, rgba(58,124,106,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 30%, rgba(196,145,90,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero-content { position: relative; z-index: 1; }
+
+.hero-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  background: rgba(58,124,106,0.1);
+  border: 1px solid rgba(58,124,106,0.25);
+  font-size: 0.85rem;
+  color: var(--primary-light);
+  margin-bottom: 24px;
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto 40px;
+}
+
+.hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(58,124,106,0.25);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(58,124,106,0.3); color: #fff; }
+
+.btn-secondary {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--text);
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.1); color: #fff; transform: translateY(-2px); }
+
+/* ===== Features ===== */
+.features { padding: 120px 0; }
+
+.section-header {
+  text-align: center;
+  margin-bottom: 64px;
+}
+.section-header h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.section-header p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--primary);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.feature-card:hover { background: var(--bg-card-hover); transform: translateY(-4px); }
+.feature-card:hover::before { opacity: 1; }
+
+.feature-icon {
+  width: 48px; height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  background: rgba(58,124,106,0.08);
+}
+
+.feature-card h3 { font-size: 1.15rem; margin-bottom: 10px; }
+.feature-card p { color: var(--text-muted); font-size: 0.95rem; }
+
+/* ===== How It Works ===== */
+.how-it-works { padding: 120px 0; background: rgba(255,255,255,0.01); }
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  margin-top: 64px;
+  position: relative;
+}
+
+.steps::before {
+  content: '';
+  position: absolute;
+  top: 40px;
+  left: 16.7%;
+  right: 16.7%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  opacity: 0.2;
+}
+
+.step {
+  text-align: center;
+  position: relative;
+}
+
+.step-number {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary-light);
+  margin: 0 auto 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.step h3 { font-size: 1.2rem; margin-bottom: 10px; }
+.step p { color: var(--text-muted); font-size: 0.9rem; max-width: 280px; margin: 0 auto; }
+
+/* ===== Theme Gallery ===== */
+.gallery { padding: 120px 0; }
+
+.gallery-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.gallery-tab {
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.gallery-tab:hover { border-color: var(--primary); color: var(--text); }
+.gallery-tab.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  font-weight: 500;
+}
+
+.gallery-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.preview-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: all 0.3s;
+}
+.preview-card:hover { border-color: rgba(58,124,106,0.4); box-shadow: 0 4px 24px rgba(0,0,0,0.2); }
+
+.preview-card-header {
+  padding: 12px 20px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.preview-card-header .dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+.preview-card-header .dot:nth-child(1) { background: #ef4444; }
+.preview-card-header .dot:nth-child(2) { background: #eab308; }
+.preview-card-header .dot:nth-child(3) { background: #22c55e; }
+.preview-card-header span { margin-left: 8px; font-size: 0.85rem; color: var(--text-muted); }
+
+.preview-card .iframe-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  aspect-ratio: 210 / 297;
+}
+
+.preview-card iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 133.33%;
+  height: 133.33%;
+  border: none;
+  display: block;
+  background: #fff;
+  transform: scale(0.75);
+  transform-origin: top left;
+}
+
+.preview-pair { display: none; }
+.preview-pair.active { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+/* ===== Quick Start ===== */
+.quickstart { padding: 120px 0; background: rgba(255,255,255,0.01); }
+
+.code-block {
+  background: #1a1d21;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  overflow: hidden;
+  max-width: 800px;
+  margin: 40px auto 0;
+}
+
+.code-header {
+  padding: 12px 20px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.code-header .dot { width: 10px; height: 10px; border-radius: 50%; }
+.code-header .dot:nth-child(1) { background: #ef4444; }
+.code-header .dot:nth-child(2) { background: #eab308; }
+.code-header .dot:nth-child(3) { background: #22c55e; }
+.code-header span { margin-left: auto; font-size: 0.8rem; color: var(--text-muted); }
+
+.code-body {
+  padding: 24px;
+  font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: #c9d1d9;
+  overflow-x: auto;
+}
+.code-body .comment { color: #6b7280; }
+.code-body .keyword { color: #e8916e; }
+.code-body .string { color: #7eb8a8; }
+.code-body .prompt { color: #c4915a; }
+
+/* ===== Modules ===== */
+.modules { padding: 120px 0; }
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.module-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius);
+  padding: 28px;
+  text-align: center;
+  transition: all 0.3s;
+}
+.module-card:hover { transform: translateY(-4px); border-color: rgba(58,124,106,0.25); }
+.module-card .icon { font-size: 2rem; margin-bottom: 16px; }
+.module-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+.module-card p { color: var(--text-muted); font-size: 0.9rem; }
+.module-card.highlight { border-color: var(--primary); background: rgba(58,124,106,0.04); }
+
+/* ===== Footer ===== */
+.footer {
+  padding: 48px 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 16px; }
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .steps { grid-template-columns: 1fr; gap: 32px; }
+  .steps::before { display: none; }
+  .preview-pair.active { grid-template-columns: 1fr; }
+  .gallery-preview { grid-template-columns: 1fr; }
+  .modules-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 2.2rem; }
+}
+
+/* ===== Animations ===== */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s, transform 0.6s;
+}
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">Skill</div>
+    <h1>Resume Skill</h1>
+    <p>用自然对话生成专业简历——你只需聊天，AI 负责收集、组织、校验、渲染为精美 HTML 与印刷级 PDF。</p>
+    <div class="hero-buttons">
+      <a href="#gallery" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        查看主题
+      </a>
+      <a href="https://github.com/Pluto417-Qing/resume-skill" target="_blank" class="btn btn-secondary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="features">
+  <div class="container">
+    <div class="section-header fade-in">
+      <h2>为什么选择 Resume Skill</h2>
+      <p>重新定义简历制作体验</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card fade-in">
+        <div class="feature-icon">💬</div>
+        <h3>对话驱动</h3>
+        <p>无需了解任何模板语法——像聊天一样，AI 逐步引导你梳理经历，自动生成结构化数据。</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">🎨</div>
+        <h3>11 种精美主题</h3>
+        <p>从经典单栏到现代双栏、学术长 CV 到信息图表，覆盖求职、留学、创意各类场景。</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">📄</div>
+        <h3>多格式导出</h3>
+        <p>一键输出 HTML 在线预览、印刷级 PDF、JSON Resume 标准格式，满足不同投递需求。</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">🔗</div>
+        <h3>生态集成</h3>
+        <p>与 Career Planner 职业画像联动，支持飞书文档分享，Resume Optimizer 做 ATS 诊断。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-it-works">
+  <div class="container">
+    <div class="section-header fade-in">
+      <h2>三步完成简历</h2>
+      <p>从聊天到 PDF，全程自动化</p>
+    </div>
+    <div class="steps">
+      <div class="step fade-in">
+        <div class="step-number">1</div>
+        <h3>对话收集</h3>
+        <p>AI 按「基础信息 → 教育 → 经历 → 技能」节奏提问，你只需自然回答。</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-number">2</div>
+        <h3>校验渲染</h3>
+        <p>自动进行 Schema 校验，选择主题后渲染为排版精美的 HTML 页面。</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-number">3</div>
+        <h3>导出分享</h3>
+        <p>输出 PDF / JSON / Markdown，可直接发飞书或投递到招聘平台。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Theme Gallery -->
+<section class="gallery" id="gallery">
+  <div class="container">
+    <div class="section-header fade-in">
+      <h2>主题画廊</h2>
+      <p>点击切换主题，左右对比有头像与无头像效果</p>
+    </div>
+    <div class="gallery-tabs" id="galleryTabs">
+      <button class="gallery-tab active" data-theme="classic">Classic</button>
+      <button class="gallery-tab" data-theme="modern">Modern</button>
+      <button class="gallery-tab" data-theme="academic">Academic</button>
+      <button class="gallery-tab" data-theme="elegant">Elegant</button>
+      <button class="gallery-tab" data-theme="minimal">Minimal</button>
+      <button class="gallery-tab" data-theme="compact">Compact</button>
+      <button class="gallery-tab" data-theme="infographic">Infographic</button>
+      <button class="gallery-tab" data-theme="creative">Creative</button>
+      <button class="gallery-tab" data-theme="executive">Executive</button>
+      <button class="gallery-tab" data-theme="metro">Metro</button>
+      <button class="gallery-tab" data-theme="tech">Tech</button>
+    </div>
+    <div id="galleryContent">
+      <div class="preview-pair active" data-theme="classic">
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>classic — 有头像</span></div>
+          <div class="iframe-wrapper"><iframe src="classic-avatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>classic — 无头像</span></div>
+          <div class="iframe-wrapper"><iframe src="classic-noavatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="preview-pair" data-theme="modern">
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>modern — 有头像</span></div>
+          <div class="iframe-wrapper"><iframe src="modern-avatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>modern — 无头像</span></div>
+          <div class="iframe-wrapper"><iframe src="modern-noavatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="preview-pair" data-theme="academic">
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>academic — 有头像</span></div>
+          <div class="iframe-wrapper"><iframe src="academic-avatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>academic — 无头像</span></div>
+          <div class="iframe-wrapper"><iframe src="academic-noavatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="preview-pair" data-theme="elegant">
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>elegant — 有头像</span></div>
+          <div class="iframe-wrapper"><iframe src="elegant-avatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>elegant — 无头像</span></div>
+          <div class="iframe-wrapper"><iframe src="elegant-noavatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="preview-pair" data-theme="minimal">
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>minimal — 有头像</span></div>
+          <div class="iframe-wrapper"><iframe src="minimal-avatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>minimal — 无头像</span></div>
+          <div class="iframe-wrapper"><iframe src="minimal-noavatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="preview-pair" data-theme="compact">
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>compact — 有头像</span></div>
+          <div class="iframe-wrapper"><iframe src="compact-avatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>compact — 无头像</span></div>
+          <div class="iframe-wrapper"><iframe src="compact-noavatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="preview-pair" data-theme="infographic">
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>infographic — 有头像</span></div>
+          <div class="iframe-wrapper"><iframe src="infographic-avatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>infographic — 无头像</span></div>
+          <div class="iframe-wrapper"><iframe src="infographic-noavatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="preview-pair" data-theme="creative">
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>creative — 有头像</span></div>
+          <div class="iframe-wrapper"><iframe src="creative-avatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>creative — 无头像</span></div>
+          <div class="iframe-wrapper"><iframe src="creative-noavatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="preview-pair" data-theme="executive">
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>executive — 有头像</span></div>
+          <div class="iframe-wrapper"><iframe src="executive-avatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>executive — 无头像</span></div>
+          <div class="iframe-wrapper"><iframe src="executive-noavatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="preview-pair" data-theme="metro">
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>metro — 有头像</span></div>
+          <div class="iframe-wrapper"><iframe src="metro-avatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>metro — 无头像</span></div>
+          <div class="iframe-wrapper"><iframe src="metro-noavatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+      </div>
+      <div class="preview-pair" data-theme="tech">
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>tech — 有头像</span></div>
+          <div class="iframe-wrapper"><iframe src="tech-avatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-header"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>tech — 无头像</span></div>
+          <div class="iframe-wrapper"><iframe src="tech-noavatar/resume.html" loading="lazy"></iframe></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quick Start -->
+<section class="quickstart">
+  <div class="container">
+    <div class="section-header fade-in">
+      <h2>快速开始</h2>
+      <p>在 IDE 中直接使用</p>
+    </div>
+    <div class="code-block fade-in">
+      <div class="code-header">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span>Terminal</span>
+      </div>
+      <div class="code-body">
+        <div><span class="comment"># 1. 克隆项目</span></div>
+        <div><span class="prompt">$</span> git clone https://github.com/Pluto417-Qing/resume-skill.git</div>
+        <br>
+        <div><span class="comment"># 2. 安装依赖</span></div>
+        <div><span class="prompt">$</span> pip install PyYAML Jinja2 jsonschema</div>
+        <br>
+        <div><span class="comment"># 3. 在编辑器中打开，开始对话</span></div>
+        <div><span class="comment">#    直接告诉 AI："帮我生成一份简历"</span></div>
+        <div><span class="comment">#    AI 会自动读取 Skill 配置并引导你完成</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Modules -->
+<section class="modules">
+  <div class="container">
+    <div class="section-header fade-in">
+      <h2>Career Toolkit 全家桶</h2>
+      <p>三个模块协同工作，覆盖从规划到投递的完整流程</p>
+    </div>
+    <div class="modules-grid">
+      <div class="module-card fade-in">
+        <div class="icon">🧭</div>
+        <h3>Career Planner</h3>
+        <p>Holland 六型测评 + 职业画像，帮你明确方向</p>
+      </div>
+      <div class="module-card highlight fade-in">
+        <div class="icon">📝</div>
+        <h3>Resume Builder</h3>
+        <p>对话驱动简历生成，11 种主题 + PDF 导出</p>
+      </div>
+      <div class="module-card fade-in">
+        <div class="icon">🎯</div>
+        <h3>Resume Optimizer</h3>
+        <p>JD 匹配 + ATS 诊断 + Bullet 量化改写</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-links">
+      <a href="https://github.com/Pluto417-Qing/resume-skill" target="_blank">GitHub</a>
+      <a href="https://github.com/Pluto417-Qing/resume-skill/issues" target="_blank">Issues</a>
+      <a href="#gallery">主题预览</a>
+    </div>
+    <p>Made by 袁箐鸿 · Resume Skill &copy; 2025</p>
+  </div>
+</footer>
+
+<script>
+// Tab switching
+const tabs = document.querySelectorAll('.gallery-tab');
+const pairs = document.querySelectorAll('.preview-pair');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const theme = tab.dataset.theme;
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    pairs.forEach(p => {
+      p.classList.toggle('active', p.dataset.theme === theme);
+    });
+  });
+});
+
+// Scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
