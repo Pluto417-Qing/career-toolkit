@@ -25,10 +25,15 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install CJK fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-cjk
+
       - name: Install dependencies
         run: |
           pip install pyyaml jinja2 jsonschema playwright
-          playwright install chromium
+          playwright install chromium --with-deps
 
       - name: Render all themes to HTML
         run: |
