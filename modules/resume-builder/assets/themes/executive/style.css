@@ -1,0 +1,173 @@
+/* Executive Resume Theme — Premium navy & gold for senior professionals */
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: "Noto Sans CJK SC", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  font-size: 10pt;
+  color: #2c2c2c;
+  line-height: 1.55;
+  background: #fff;
+}
+
+.resume {
+  max-width: 100%;
+}
+
+/* ===== Header ===== */
+.header {
+  background: #1a2332;
+  color: #fff;
+  padding: 30px 40px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  border-bottom: 4px solid #c9a84c;
+}
+
+.header-main { flex: 1; }
+
+.name {
+  font-size: 24pt;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #fff;
+  letter-spacing: 3px;
+}
+
+.english-name { font-size: 11pt; font-weight: 300; color: #c9a84c; margin-left: 10px; }
+.label { font-size: 11pt; color: #c9a84c; margin-bottom: 10px; font-weight: 500; letter-spacing: 1px; }
+
+.contact {
+  font-size: 9pt;
+  color: rgba(255,255,255,0.8);
+  margin-top: 6px;
+}
+
+.contact span { margin-right: 14px; white-space: nowrap; }
+.contact.meta { color: rgba(255,255,255,0.6); font-size: 8.5pt; margin-top: 4px; }
+.contact a { color: #c9a84c; text-decoration: none; }
+
+.avatar {
+  width: 100px;
+  height: 130px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 2px solid #c9a84c;
+}
+
+/* ===== Content ===== */
+.content {
+  padding: 22px 40px 30px 40px;
+}
+
+/* ===== Sections ===== */
+.section {
+  margin-top: 16px;
+  page-break-inside: avoid;
+}
+
+.section-title {
+  font-size: 11.5pt;
+  font-weight: 700;
+  color: #1a2332;
+  margin: 0 0 8px 0;
+  padding-bottom: 4px;
+  border-bottom: 2px solid #c9a84c;
+  letter-spacing: 1px;
+}
+
+.summary {
+  margin: 4px 0;
+  color: #3a3a3a;
+  font-size: 10pt;
+  line-height: 1.7;
+}
+
+/* ===== Entries ===== */
+.entry {
+  margin-bottom: 12px;
+  page-break-inside: avoid;
+  padding-left: 12px;
+  border-left: 2px solid #e8dfc4;
+}
+
+.entry-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.entry-title { font-size: 10.5pt; }
+.entry-title strong { font-weight: 700; color: #1a2332; }
+.entry-meta { font-size: 9pt; color: #888; white-space: nowrap; }
+
+.entry-sub {
+  font-size: 9.5pt;
+  color: #555;
+  margin: 2px 0;
+}
+.entry-sub.tech { color: #666; font-style: italic; }
+
+.sep { color: #ccc; margin: 0 5px; }
+.date { color: #888; }
+.tag {
+  display: inline-block;
+  font-size: 8pt;
+  padding: 2px 8px;
+  margin-left: 6px;
+  background: #1a2332;
+  color: #c9a84c;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+/* ===== Lists ===== */
+.highlights, .skill-list {
+  margin: 4px 0;
+  padding-left: 18px;
+}
+
+.highlights li, .skill-list li {
+  margin: 2px 0;
+  font-size: 9.5pt;
+  line-height: 1.55;
+  color: #3a3a3a;
+}
+
+.highlights li::marker { color: #c9a84c; }
+
+/* ===== Skill Table ===== */
+.skill-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  margin: 4px 0;
+}
+
+.skill-table td {
+  padding: 4px 8px;
+  vertical-align: top;
+  border-bottom: 1px solid #f0ebe0;
+}
+
+.skill-table td:first-child {
+  font-weight: 700;
+  white-space: nowrap;
+  color: #1a2332;
+  width: 1%;
+  padding-right: 16px;
+}
+
+/* ===== Links ===== */
+a { color: #1a2332; text-decoration: none; border-bottom: 1px solid #c9a84c; }
+a:hover { color: #c9a84c; }

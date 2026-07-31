@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="{{ data.meta.language if data.meta and data.meta.language else 'zh' }}">
+<head>
+<meta charset="UTF-8">
+{%- set lang = data.meta.language if data.meta and data.meta.language else 'zh' -%}
+{%- set _i18n = {
+  'zh': {'title':'简历','summary':'个人简介','education':'教育背景','work':'工作/实习经历','projects':'项目经历','research':'科研经历','skills':'技能','awards':'获奖荣誉','publications':'论文/出版','languages':'语言能力','activities':'组织/志愿经历','present':'至今','rank':'排名','courses':'相关课程：','advisor':'导师：','tech':'','sep':'、'},
+  'en': {'title':'Resume','summary':'Summary','education':'Education','work':'Experience','projects':'Projects','research':'Research','skills':'Skills','awards':'Awards & Honors','publications':'Publications','languages':'Languages','activities':'Activities','present':'Present','rank':'Rank','courses':'Courses: ','advisor':'Advisor: ','tech':'','sep':', '},
+  'zh-en': {'title':'简历 Resume','summary':'个人简介 / Summary','education':'教育背景 / Education','work':'工作/实习经历 / Experience','projects':'项目经历 / Projects','research':'科研经历 / Research','skills':'技能 / Skills','awards':'获奖荣誉 / Awards','publications':'论文/出版 / Publications','languages':'语言能力 / Languages','activities':'组织/志愿经历 / Activities','present':'至今','rank':'排名','courses':'相关课程：','advisor':'导师：','tech':'','sep':'、'}
+} -%}
+{%- set t = _i18n[lang] if lang in _i18n else _i18n['zh'] -%}
+<title>{{ data.basics.name }} - {{ t.title }}</title>
+<style>
+{% include 'style.css' %}
+</style>
+</head>
+<body>
+<div class="resume">
+
+  <!-- Header Banner -->
+  <header class="header">
+    <div class="header-main">
+      <h1 class="name">{{ data.basics.name }}{% if data.basics.english_name %} <span class="english-name">{{ data.basics.english_name }}</span>{% endif %}</h1>
+      {% if data.basics.label %}<div class="label">{{ data.basics.label }}</div>{% endif %}
+      <div class="contact">
+        {%- set contact_items = [] -%}
+        {%- if data.basics.phone %}{% set _ = contact_items.append('📞 ' ~ data.basics.phone) %}{% endif -%}
+        {%- if data.basics.email %}{% set _ = contact_items.append('✉ ' ~ data.basics.email) %}{% endif -%}
+        {%- if data.basics.location %}{% set _ = contact_items.append('📍 ' ~ data.basics.location) %}{% endif -%}
+        {{ contact_items | join('&emsp;') }}
+      </div>
+      <div class="contact meta">
+        {%- set link_items = [] -%}
+        {%- if data.basics.website %}{% set _ = link_items.append('<a href="' ~ data.basics.website ~ '">' ~ data.basics.website | replace('https://', '') | replace('http://', '') ~ '</a>') %}{% endif -%}
+        {%- if data.basics.profiles %}
+          {%- for p in data.basics.profiles %}
+            {%- set _ = link_items.append('<a href="' ~ p.url ~ '">' ~ p.network ~ ': ' ~ (p.username or p.url | replace('https://', '')) ~ '</a>') -%}
+          {%- endfor %}
+        {%- endif %}
+        {{ link_items | join('&emsp;') }}
+      </div>
+    </div>
+    {% if data.basics.avatar %}
+    <img class="avatar" src="{{ data.basics.avatar }}" alt="avatar">
+    {% endif %}
+  </header>
+
+  <div class="content">
+
+  {% macro date_range(start, end) -%}
+    {%- if start or end -%}
+      <span class="date">{{ start or '' }}{% if end %} – {{ end }}{% elif start %} – {{ t.present }}{% endif %}</span>
+    {%- endif -%}
+  {%- endmacro %}
+
+  {% macro highlights(items) -%}
+    {% if items %}
+    <ul class="highlights">
+      {% for h in items %}<li>{{ h }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  {%- endmacro %}
+
+  {% if data.basics.summary %}
+  <section class="section">
+    <h2 class="section-title">{{ t.summary }}</h2>
+    <p class="summary">{{ data.basics.summary }}</p>
+  </section>
+  {% endif %}
+
+  {% if data.education %}
+  <section class="section">
+    <h2 class="section-title">{{ t.education }}</h2>
+    {% for edu in data.education %}
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">
+          <strong>{{ edu.institution }}</strong>
+          {% if edu.area %}<span class="sep">/</span>{{ edu.area }}{% endif %}
+          {% if edu.degree %}<span class="sep">/</span>{{ edu.degree }}{% endif %}
+        </div>
+        <div class="entry-meta">
+          {{ date_range(edu.start, edu.end) }}
+          {% if edu.location %}<span class="sep">·</span><span>{{ edu.location }}</span>{% endif %}
+        </div>
+      </div>
+      {% if edu.gpa or edu.rank %}
+      <div class="entry-sub">
+        {% if edu.gpa %}<span>GPA: {{ edu.gpa }}</span>{% endif %}
+        {% if edu.rank %}<span class="sep">·</span><span>{{ t.rank }}: {{ edu.rank }}</span>{% endif %}
+      </div>
+      {% endif %}
+      {% if edu.courses %}<div class="entry-sub">{{ t.courses }}{{ edu.courses | join(t.sep) }}</div>{% endif %}
+      {{ highlights(edu.highlights) }}
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  {% if data.work %}
+  <section class="section">
+    <h2 class="section-title">{{ t.work }}</h2>
+    {% for w in data.work %}
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">
+          <strong>{{ w.organization }}</strong>
+          {% if w.position %}<span class="sep">·</span>{{ w.position }}{% endif %}
+          {% if w.type %}<span class="tag">{{ w.type }}</span>{% endif %}
+        </div>
+        <div class="entry-meta">
+          {{ date_range(w.start, w.end) }}
+          {% if w.location %}<span class="sep">·</span><span>{{ w.location }}</span>{% endif %}
+        </div>
+      </div>
+      {% if w.summary %}<div class="entry-sub">{{ w.summary }}</div>{% endif %}
+      {{ highlights(w.highlights) }}
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  {% if data.projects %}
+  <section class="section">
+    <h2 class="section-title">{{ t.projects }}</h2>
+    {% for p in data.projects %}
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">
+          <strong>{{ p.name }}</strong>
+          {% if p.role %}<span class="sep">·</span>{{ p.role }}{% endif %}
+          {% if p.type %}<span class="tag">{{ p.type }}</span>{% endif %}
+        </div>
+        <div class="entry-meta">{{ date_range(p.start, p.end) }}</div>
+      </div>
+      {% if p.tech %}<div class="entry-sub tech">{{ p.tech | join(', ') }}</div>{% endif %}
+      {% if p.summary %}<div class="entry-sub">{{ p.summary }}</div>{% endif %}
+      {{ highlights(p.highlights) }}
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  {% if data.research %}
+  <section class="section">
+    <h2 class="section-title">{{ t.research }}</h2>
+    {% for r in data.research %}
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title">
+          <strong>{{ r.title }}</strong>
+          {% if r.organization %}<span class="sep">·</span>{{ r.organization }}{% endif %}
+        </div>
+        <div class="entry-meta">{{ date_range(r.start, r.end) }}</div>
+      </div>
+      {% if r.advisor %}<div class="entry-sub">{{ t.advisor }}{{ r.advisor }}</div>{% endif %}
+      {{ highlights(r.highlights) }}
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  {% if data.skills %}
+  <section class="section">
+    <h2 class="section-title">{{ t.skills }}</h2>
+    <table class="skill-table">
+      {% for s in data.skills %}
+      <tr>
+        <td>{{ s.name }}</td>
+        <td>{{ (s.keywords or []) | join(t.sep) }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </section>
+  {% endif %}
+
+  {% if data.awards %}
+  <section class="section">
+    <h2 class="section-title">{{ t.awards }}</h2>
+    <ul class="highlights">
+      {% for a in data.awards %}
+      <li><strong>{{ a.title }}</strong>{% if a.awarder %}，{{ a.awarder }}{% endif %}{% if a.date %}，{{ a.date }}{% endif %}{% if a.summary %} — {{ a.summary }}{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if data.publications %}
+  <section class="section">
+    <h2 class="section-title">{{ t.publications }}</h2>
+    <ul class="highlights">
+      {% for p in data.publications %}
+      <li><strong>{{ p.name }}</strong>{% if p.publisher %}. {{ p.publisher }}{% endif %}{% if p.release_date %} ({{ p.release_date }}){% endif %}{% if p.summary %} — {{ p.summary }}{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if data.languages %}
+  <section class="section">
+    <h2 class="section-title">{{ t.languages }}</h2>
+    <ul class="skill-list">
+      {% for l in data.languages %}
+      <li>{{ l.language }}{% if l.level %}：{{ l.level }}{% endif %}{% if l.score %} ({{ l.score }}){% endif %}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if data.activities %}
+  <section class="section">
+    <h2 class="section-title">{{ t.activities }}</h2>
+    {% for a in data.activities %}
+    <div class="entry">
+      <div class="entry-head">
+        <div class="entry-title"><strong>{{ a.organization }}</strong>{% if a.role %}<span class="sep">·</span>{{ a.role }}{% endif %}</div>
+        <div class="entry-meta">{{ date_range(a.start, a.end) }}</div>
+      </div>
+      {{ highlights(a.highlights) }}
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  {% if data.custom_sections %}
+    {% for cs in data.custom_sections %}
+    <section class="section">
+      <h2 class="section-title">{{ cs.title }}</h2>
+      {% for it in cs['items'] or [] %}
+      <div class="entry">
+        {% if it.heading or it.subheading or it.date %}
+        <div class="entry-head">
+          <div class="entry-title">
+            {% if it.heading %}<strong>{{ it.heading }}</strong>{% endif %}
+            {% if it.subheading %}<span class="sep">·</span>{{ it.subheading }}{% endif %}
+          </div>
+          {% if it.date %}<div class="entry-meta"><span class="date">{{ it.date }}</span></div>{% endif %}
+        </div>
+        {% endif %}
+        {% if it.summary %}<div class="entry-sub">{{ it.summary }}</div>{% endif %}
+        {{ highlights(it.highlights) }}
+      </div>
+      {% endfor %}
+    </section>
+    {% endfor %}
+  {% endif %}
+
+  </div>
+</div>
+</body>
+</html>
