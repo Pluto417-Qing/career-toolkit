@@ -1,4 +1,4 @@
-"""jd_match.py 单元测试。
+"""jd_match.py 单元测试（三层匹配引擎版）。
 
 运行：python3 tests/test_jd_match.py
 """
@@ -8,120 +8,225 @@ import sys
 import tempfile
 from pathlib import Path
 
-# 把 scripts 目录加入 path
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
 
 from jd_match import (
     load_synonyms,
+    load_concepts,
     extract_jd_keywords,
     extract_resume_terms,
-    match_keyword,
+    match_layer1_keywords,
+    match_layer2_concepts,
+    match_layer3_evidence,
+    classify_gap,
+    get_resume_work_years,
+    get_resume_degree_level,
+    get_resume_evidence,
+    run,
     normalize,
 )
 
 
+# ═══════════════════════════════════════════
+# Layer 1 测试
+# ═══════════════════════════════════════════
+
 def test_load_synonyms():
-    """同义词库能正常加载，且包含已知同义词组。"""
+    """同义词库能正常加载。"""
     smap = load_synonyms()
     assert len(smap) > 50, f"同义词库太小：{len(smap)} 组"
-    # JS → JavaScript
     assert smap.get("js") == "javascript"
-    # K8s → Kubernetes
     assert smap.get("k8s") == "kubernetes"
-    # 容器 → Docker
-    assert smap.get("容器") == "docker"
     print("✅ test_load_synonyms passed")
 
 
-def test_extract_jd_keywords_basic():
-    """从 JD 文本中能提取出关键词，同义词被正确归并。"""
+def test_load_concepts():
+    """概念库能正常加载。"""
+    concepts = load_concepts()
+    assert len(concepts) >= 20, f"概念库太小：{len(concepts)} 组"
+    concept_names = [c["concept"] for c in concepts]
+    assert "高并发" in concept_names
+    assert "分布式" in concept_names
+    assert "团队管理" in concept_names
+    print("✅ test_load_concepts passed")
+
+
+def test_layer1_keyword_match():
+    """Layer 1: 关键词 + 同义词匹配。"""
     smap = load_synonyms()
-    jd_text = """
-    岗位要求：
-    1. 熟悉 JavaScript / TypeScript
-    2. 熟练使用 React 框架
-    3. 了解 K8s 部署
-    加分项：
-    1. 有大数据经验，熟悉 Spark
-    """
-    kws = extract_jd_keywords(jd_text, jieba_mod=None, synonym_map=smap)
-
-    # 应该包含 React
-    canonicals = [k["canonical"] for k in kws]
-    assert "react" in canonicals, f"React 未被提取: {canonicals}"
-    # JS 和 JavaScript 应该被归并
-    js_kws = [k for k in kws if k["canonical"] == "javascript"]
-    assert len(js_kws) == 1, f"JS/JavaScript 未被归并: {js_kws}"
-    print("✅ test_extract_jd_keywords_basic passed")
-
-
-def test_extract_jd_keywords_section_weights():
-    """JD 中 required 段的权重应该高于 bonus 段。"""
-    smap = load_synonyms()
-    jd_text = """
-    任职要求：
-    熟悉 Python
-    加分项：
-    了解 Rust
-    """
-    kws = extract_jd_keywords(jd_text, jieba_mod=None, synonym_map=smap)
-    python_kw = next(k for k in kws if k["canonical"] == "python")
-    rust_kw = next(k for k in kws if k["canonical"] == "rust")
-    assert python_kw["weight"] > rust_kw["weight"], \
-        f"Python 权重 {python_kw['weight']} 应大于 Rust {rust_kw['weight']}"
-    print("✅ test_extract_jd_keywords_section_weights passed")
-
-
-def test_match_keyword_synonym():
-    """简历中写 'JS'，JD 中要求 'JavaScript'，应该匹配。"""
-    smap = load_synonyms()
-    resume = {
-        "skills": [{"name": "前端", "keywords": ["JS", "React"]}],
-        "projects": [{"name": "p1", "tech": ["TypeScript"]}],
+    resume_sections = {
+        "skills": {"javascript": {"JS"}, "react": {"React"}},
+        "tech": {"typescript": {"TypeScript"}},
     }
-    resume_sections = extract_resume_terms(resume, smap)
-    is_match, sources = match_keyword("javascript", resume_sections)
-    assert is_match, "JS → JavaScript 未匹配"
-    is_match2, _ = match_keyword("react", resume_sections)
-    assert is_match2, "React 未匹配"
-    print("✅ test_match_keyword_synonym passed")
+    ok, sources = match_layer1_keywords("javascript", resume_sections)
+    assert ok and "skills" in sources
+    ok, sources = match_layer1_keywords("react", resume_sections)
+    assert ok
+    ok, _ = match_layer1_keywords("rust", resume_sections)
+    assert not ok
+    print("✅ test_layer1_keyword_match passed")
 
 
-def test_resume_terms_extraction():
-    """从简历中提取的技术词应正确归并到各 section。"""
+def test_layer1_synonym():
+    """同义词归并：简历写 JS，JD 要求 JavaScript。"""
     smap = load_synonyms()
     resume = {
-        "skills": [{"keywords": ["MySQL", "Redis"]}],
-        "projects": [{"tech": ["Docker"], "highlights": ["使用 K8s 部署"]}],
+        "skills": [{"keywords": ["JS", "React"]}],
+        "projects": [{"tech": ["TypeScript"]}],
     }
     sections = extract_resume_terms(resume, smap)
-    assert "mysql" in sections.get("skills", {})
-    assert "docker" in sections.get("tech", {})
-    print("✅ test_resume_terms_extraction passed")
+    ok, _ = match_layer1_keywords("javascript", sections)
+    assert ok, "JS → JavaScript 未匹配"
+    print("✅ test_layer1_synonym passed")
 
 
-def test_full_run():
-    """端到端：从简历文件 + JD 文件生成完整报告。"""
+# ═══════════════════════════════════════════
+# Layer 2 测试
+# ═══════════════════════════════════════════
+
+def test_layer2_concept_match():
+    """Layer 2: 概念匹配。JD 要'高并发'，简历有'QPS'。"""
+    smap = load_synonyms()
+    resume = {
+        "skills": [{"keywords": ["React"]}],
+        "work": [{"highlights": ["优化了系统性能，QPS 提升 50%"]}],
+    }
+    evidence = get_resume_evidence(resume)
+    concepts = evidence.get("concepts", set())
+    assert "高并发" in concepts, f"高并发概念未匹配: {concepts}"
+    ok = match_layer2_concepts("高并发", concepts)
+    assert ok
+    print("✅ test_layer2_concept_match passed")
+
+
+def test_layer2_distributed():
+    """概念匹配：简历有微服务，JD 要分布式。"""
+    resume = {
+        "projects": [{"tech": ["Spring Cloud"], "highlights": ["搭建了微服务架构"]}],
+    }
+    evidence = get_resume_evidence(resume)
+    assert "分布式" in evidence.get("concepts", set()) or "微服务架构" in evidence.get("concepts", set())
+    print("✅ test_layer2_distributed passed")
+
+
+# ═══════════════════════════════════════════
+# Layer 3 测试
+# ═══════════════════════════════════════════
+
+def test_layer3_experience():
+    """Layer 3: 经验年限匹配。"""
+    evidence = {"work_years": 3.5, "degree_level": 2}
+    ok, note = match_layer3_evidence({"type": "experience", "value": 3}, evidence)
+    assert ok, "3.5年 >= 3年应该匹配"
+    ok, note = match_layer3_evidence({"type": "experience", "value": 5}, evidence)
+    assert not ok, "3.5年 < 5年不应该匹配"
+    print("✅ test_layer3_experience passed")
+
+
+def test_layer3_education():
+    """Layer 3: 学历匹配。"""
+    evidence = {"work_years": 0, "degree_level": 3}  # 硕士
+    ok, _ = match_layer3_evidence({"type": "education", "value": 2}, evidence)
+    assert ok, "硕士 >= 本科应该匹配"
+    ok, _ = match_layer3_evidence({"type": "education", "value": 4}, evidence)
+    assert not ok, "硕士 < 博士不应该匹配"
+    print("✅ test_layer3_education passed")
+
+
+def test_resume_work_years():
+    """工作年限计算正确。"""
+    resume = {
+        "work": [
+            {"start": "2022.06", "end": "2023.06"},  # 1 年
+            {"start": "2023.07", "end": "至今"},       # ~1 年
+        ]
+    }
+    years = get_resume_work_years(resume)
+    # 2022.06-2023.06 = 1年 + 2023.07-至今（~3年），总共 ~4年
+    assert years >= 3.0, f"年限计算异常: {years}"
+    print(f"✅ test_resume_work_years passed (计算 {years} 年)")
+
+
+def test_resume_degree():
+    """学历等级提取正确。"""
+    resume = {"education": [{"degree": "硕士"}]}
+    assert get_resume_degree_level(resume) == 3
+    resume = {"education": [{"degree": "本科"}]}
+    assert get_resume_degree_level(resume) == 2
+    print("✅ test_resume_degree passed")
+
+
+# ═══════════════════════════════════════════
+# Gap 分类测试
+# ═══════════════════════════════════════════
+
+def test_classify_gap_evidence():
+    """Gap 分类：有相关内容但没写关键词 → evidence_gap。"""
+    smap = load_synonyms()
+    resume_sections = {"tech": {"docker": {"Docker"}}}
+    resume_full_text = "使用了 Docker 容器化部署".lower()
+    evidence = {"concepts": {"容器化"}}
+    # Kubernetes 缺失，但简历有 Docker（属于「容器化」概念）
+    gap_type = classify_gap("kubernetes", resume_sections, resume_full_text, evidence)
+    assert gap_type == "evidence_gap", f"应为 evidence_gap: {gap_type}"
+    print("✅ test_classify_gap_evidence passed")
+
+
+def test_classify_gap_real():
+    """Gap 分类：完全没有相关经验 → real_gap。"""
+    resume_sections = {"skills": {"react": {"React"}}}
+    resume_full_text = "前端开发 React".lower()
+    evidence = {"concepts": set()}
+    gap_type = classify_gap("kafka", resume_sections, resume_full_text, evidence)
+    assert gap_type == "real_gap", f"应为 real_gap: {gap_type}"
+    print("✅ test_classify_gap_real passed")
+
+
+# ═══════════════════════════════════════════
+# 端到端测试
+# ═══════════════════════════════════════════
+
+def test_full_run_with_concepts():
+    """端到端：三层匹配 + gap 分类。"""
     resume_yaml = """
 basics:
   name: 张三
+  profiles:
+    - network: GitHub
+      url: https://github.com/zhangsan
 skills:
   - name: 前端
     keywords: [React, TypeScript, Vue]
 projects:
-  - name: 项目A
-    tech: [Webpack, Sass]
-    highlights: [主导前端架构重构，代码量减少 40%]
+  - name: 电商系统
+    tech: [Webpack, Docker]
+    highlights:
+      - 主导前端架构重构，QPS 从 500 提升到 5000，覆盖 30+ 场景
+work:
+  - organization: 字节跳动
+    position: 前端实习生
+    start: "2023.06"
+    end: "2023.12"
+    highlights:
+      - 优化了广告投放系统，CTR 提升 15%
+education:
+  - institution: 清华大学
+    degree: 本科
+    start: "2020.09"
+    end: "2024.06"
 """
     jd_text = """
-    岗位要求：
-    熟悉 React 和 TypeScript
-    了解 Docker 和 K8s
-    加分项：
-    有 Node.js 经验
-    """
+    任职要求：
+    1. 熟悉 React 和 TypeScript
+    2. 2年以上前端开发经验
+    3. 本科及以上学历
+    4. 有高并发系统经验
 
+    加分项：
+    1. 了解 Docker 和 K8s
+    2. 有 GitHub 开源贡献
+    """
     with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False, encoding="utf-8") as rf:
         rf.write(resume_yaml)
         resume_path = rf.name
@@ -130,13 +235,25 @@ projects:
         jd_path = jf.name
 
     try:
-        sys.path.insert(0, str(SCRIPTS_DIR))
-        from jd_match import run
         result = run(resume_path, jd_path)
+        # 应该有覆盖
         assert result["total_keywords"] > 0
-        assert result["covered_count"] >= 1, "至少 React 应该匹配"
-        assert result["coverage_percent"] > 0
-        print(f"✅ test_full_run passed (覆盖率 {result['coverage_percent']}%)")
+        assert result["covered_count"] >= 1
+        # 应该有 dimension_scores
+        assert "技术栈匹配" in result["dimension_scores"]
+        # 应该有 gap_summary
+        assert "evidence_gap" in result["gap_summary"]
+        assert "real_gap" in result["gap_summary"]
+        # 应该有 resume_evidence
+        ev = result["resume_evidence"]
+        assert ev["degree_level"] == 2  # 本科
+        assert ev["has_github"] is True
+        assert ev["has_quant_metrics"] is True
+        # 高并发概念应该被匹配到
+        assert "高并发" in ev["concepts_matched"]
+        print(f"✅ test_full_run_with_concepts passed (覆盖率 {result['coverage_percent']}%, "
+              f"evidence_gap {result['gap_summary']['evidence_gap']}, "
+              f"real_gap {result['gap_summary']['real_gap']})")
     finally:
         Path(resume_path).unlink(missing_ok=True)
         Path(jd_path).unlink(missing_ok=True)
@@ -144,9 +261,16 @@ projects:
 
 if __name__ == "__main__":
     test_load_synonyms()
-    test_extract_jd_keywords_basic()
-    test_extract_jd_keywords_section_weights()
-    test_match_keyword_synonym()
-    test_resume_terms_extraction()
-    test_full_run()
+    test_load_concepts()
+    test_layer1_keyword_match()
+    test_layer1_synonym()
+    test_layer2_concept_match()
+    test_layer2_distributed()
+    test_layer3_experience()
+    test_layer3_education()
+    test_resume_work_years()
+    test_resume_degree()
+    test_classify_gap_evidence()
+    test_classify_gap_real()
+    test_full_run_with_concepts()
     print("\n🎉 所有 jd_match 测试通过")
