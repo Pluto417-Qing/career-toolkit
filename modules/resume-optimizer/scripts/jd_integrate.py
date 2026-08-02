@@ -95,21 +95,22 @@ def score_relevance(gap_keyword: str, bullet: dict, synonym_map: dict) -> float:
     """计算 gap 关键词与某个 bullet 的相关度。
 
     返回 0-1 分数：
-    - 1.0：bullet 已有同义词，只需要补写规范名
-    - 0.8：bullet 的 tech 列表中有概念关联词
-    - 0.6：bullet 文本中有概念关联词
+    - 1.0：bullet tech 列表已有同义词，只需补写规范名
+    - 0.9：关键词本身直接出现在 bullet 文本中
+    - 0.8：bullet tech 列表有概念关联词
+    - 0.7：关键词的同义词出现在 bullet 文本中
+    - 0.6：bullet 文本中有同概念的其他关联词
     - 0.4：bullet 所属 entry 的 summary 中有相关内容
-    - 0.2：同 section 的其他 entry 有相关内容
     - 0.0：无关联
     """
     smap = synonym_map
     kw_lower = normalize(gap_keyword)
+    kw_canon = smap.get(kw_lower, kw_lower)
 
     # 检查 bullet 的 tech 列表
     for tech in bullet.get("tech", []):
         tech_lower = normalize(tech)
         tech_canon = smap.get(tech_lower, tech_lower)
-        kw_canon = smap.get(kw_lower, kw_lower)
         if tech_canon == kw_canon:
             return 1.0
         # 概念关联检查
@@ -118,6 +119,15 @@ def score_relevance(gap_keyword: str, bullet: dict, synonym_map: dict) -> float:
             related = [normalize(r) if isinstance(r, str) else "" for r in concept.get("related", [])]
             if kw_canon in related and tech_canon in related:
                 return 0.8
+
+    # 关键词本身直接出现在 bullet 文本中
+    if kw_lower in bullet["text_lower"]:
+        return 0.9
+
+    # 关键词的同义词出现在 bullet 文本中
+    for syn, canon in smap.items():
+        if canon == kw_canon and syn != kw_lower and syn in bullet["text_lower"]:
+            return 0.7
 
     # 检查 bullet 文本中是否有概念关联词
     concepts = load_concepts()
@@ -321,7 +331,7 @@ def detect_stuffing(suggestions: list[dict]) -> list[dict]:
 def run(resume_path: str, match_path: str) -> dict:
     with open(resume_path, "r", encoding="utf-8") as f:
         resume = yaml.safe_load(f)
-    with open(match_path, "r", encoding="utf-8") as f:
+    with open(match_path, "r", encoding="utf-8-sig") as f:
         match_result = json.load(f)
 
     synonym_map = load_synonyms()

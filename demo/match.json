@@ -1,0 +1,292 @@
+﻿{
+  "overall_score": 52.9,
+  "dimension_scores": {
+    "技术栈匹配": 52.9,
+    "经验学历": 100
+  },
+  "total_keywords": 17,
+  "covered_count": 9,
+  "missing_count": 8,
+  "coverage_percent": 52.9,
+  "covered": [
+    {
+      "keyword": "React",
+      "canonical": "react",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 1,
+      "matched_in": [
+        "skills"
+      ]
+    },
+    {
+      "keyword": "TypeScript",
+      "canonical": "typescript",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 1,
+      "matched_in": [
+        "skills",
+        "tech"
+      ]
+    },
+    {
+      "keyword": "Webpack",
+      "canonical": "webpack",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 1,
+      "matched_in": [
+        "skills"
+      ]
+    },
+    {
+      "keyword": "Vite",
+      "canonical": "vite",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 1,
+      "matched_in": [
+        "skills"
+      ]
+    },
+    {
+      "keyword": "高并发",
+      "canonical": "高并发",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 2,
+      "matched_in": [
+        "concept"
+      ]
+    },
+    {
+      "keyword": "性能优化",
+      "canonical": "性能优化",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 2,
+      "matched_in": [
+        "concept"
+      ]
+    },
+    {
+      "keyword": "Docker",
+      "canonical": "docker",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "matched_concept": "容器化",
+      "match_layer": 2,
+      "matched_in": [
+        "concept"
+      ]
+    },
+    {
+      "keyword": "Kubernetes",
+      "canonical": "kubernetes",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "matched_concept": "容器化",
+      "match_layer": 2,
+      "matched_in": [
+        "concept"
+      ]
+    },
+    {
+      "keyword": "开源",
+      "canonical": "开源",
+      "section": "bonus",
+      "weight": 0.5,
+      "occurrences": 1,
+      "matched_concept": "开源贡献",
+      "match_layer": 2,
+      "matched_in": [
+        "concept"
+      ]
+    }
+  ],
+  "missing": [
+    {
+      "keyword": "工程化",
+      "canonical": "工程化",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "real_gap"
+    },
+    {
+      "keyword": "SSR",
+      "canonical": "ssr",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "real_gap"
+    },
+    {
+      "keyword": "微服务架构",
+      "canonical": "微服务",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "real_gap"
+    },
+    {
+      "keyword": "服务端",
+      "canonical": "服务端",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "evidence_gap"
+    },
+    {
+      "keyword": "计算机相关",
+      "canonical": "计算机相关",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "real_gap"
+    },
+    {
+      "keyword": "GraphQL",
+      "canonical": "graphql",
+      "section": "bonus",
+      "weight": 0.5,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "real_gap"
+    },
+    {
+      "keyword": "实践经验",
+      "canonical": "实践经验",
+      "section": "bonus",
+      "weight": 0.5,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "real_gap"
+    },
+    {
+      "keyword": "CI/CD",
+      "canonical": "ci/cd",
+      "section": "bonus",
+      "weight": 0.5,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "real_gap"
+    }
+  ],
+  "gap_summary": {
+    "evidence_gap": 1,
+    "partial_gap": 0,
+    "real_gap": 7
+  },
+  "evidence_gaps": [
+    {
+      "keyword": "服务端",
+      "canonical": "服务端",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "evidence_gap"
+    }
+  ],
+  "real_gaps": [
+    {
+      "keyword": "工程化",
+      "canonical": "工程化",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "real_gap"
+    },
+    {
+      "keyword": "SSR",
+      "canonical": "ssr",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "real_gap"
+    },
+    {
+      "keyword": "微服务架构",
+      "canonical": "微服务",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "real_gap"
+    },
+    {
+      "keyword": "计算机相关",
+      "canonical": "计算机相关",
+      "section": "required",
+      "weight": 2.0,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "real_gap"
+    },
+    {
+      "keyword": "GraphQL",
+      "canonical": "graphql",
+      "section": "bonus",
+      "weight": 0.5,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "real_gap"
+    },
+    {
+      "keyword": "实践经验",
+      "canonical": "实践经验",
+      "section": "bonus",
+      "weight": 0.5,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "real_gap"
+    },
+    {
+      "keyword": "CI/CD",
+      "canonical": "ci/cd",
+      "section": "bonus",
+      "weight": 0.5,
+      "occurrences": 1,
+      "match_layer": 0,
+      "gap_type": "real_gap"
+    }
+  ],
+  "rewrite_suggestions": [
+    {
+      "keyword": "服务端",
+      "section": "required",
+      "suggestion": "简历中已有相关内容（highlights: 基于 next.js 实现服务端渲染，优化首屏加载性能，fcp 从 2.1s 降至 0.8s，支持万级日活用户），建议明确写出「服务端」并补充使用场景和规模"
+    }
+  ],
+  "resume_evidence": {
+    "work_years": 0.5,
+    "degree_level": 2,
+    "has_github": true,
+    "has_management": false,
+    "has_quant_metrics": true,
+    "concepts_matched": [
+      "高并发",
+      "开源贡献",
+      "性能优化",
+      "容器化",
+      "代码质量"
+    ]
+  }
+}

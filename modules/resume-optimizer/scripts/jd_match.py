@@ -102,18 +102,37 @@ def try_jieba():
 SOFT_SKILLS = {
     "沟通", "协作", "团队合作", "抗压", "自驱", "主动", "责任心",
     "学习能力", "表达能力", "团队精神", "责任心强", "积极主动",
+    "有耐心", "细心", "踏实", "勤奋", "乐观", "开朗",
 }
 
 STOPWORDS = {
+    # 动词/形容词
     "熟悉", "了解", "掌握", "精通", "熟练", "使用", "具备", "能够", "负责",
-    "参与", "完成", "岗位要求", "任职资格", "工作职责", "职位描述", "加分项",
-    "优先考虑", "工作内容", "基本要求", "技能要求", "必备条件", "有经验",
-    "相关经验", "开发经验", "以上学历", "本科及以上", "硕士及以上",
+    "参与", "完成", "进行", "实现", "支持", "包括", "推动", "建设", "提升",
+    "具有", "拥有", "需要", "要求", "希望", "期望", "推动", "协作",
+    # 段落标题
+    "岗位要求", "任职资格", "工作职责", "职位描述", "加分项", "岗位职责",
+    "优先考虑", "工作内容", "基本要求", "技能要求", "必备条件", "任职要求",
+    # 经验/学历相关短语
+    "有经验", "相关经验", "开发经验", "以上学历", "本科及以上", "硕士及以上",
     "年以上", "工作经验", "相关工作", "优先", "有较强", "有良好",
-    "进行", "实现", "支持", "包括", "以及", "等", "及", "和", "与", "或",
-    "具有", "拥有", "需要", "要求", "希望", "期望", "理想", "合适",
+    "相关", "专业", "经验", "学历", "学位",
+    # 通用名词（非技术）
     "我们", "团队", "公司", "平台", "业务", "产品", "系统", "项目",
     "能力", "精神", "意识", "思维", "观念", "态度",
+    "质量", "效率", "体系", "流程", "模块", "方案", "手段", "方式",
+    "内容", "结果", "目标", "方向", "问题", "需求",
+    "人员", "工程师", "开发", "校招", "社招", "实习", "经历",
+    "字节", "跳动", "腾讯", "阿里", "百度", "美团", "京东", "网易",
+    "大厂", "贡献者", "分项",
+    # 介词/连词/代词
+    "以及", "等", "及", "和", "与", "或", "理想", "合适",
+    # 薪资福利
+    "薪资", "薪酬", "待遇", "福利", "五险", "一金", "免费", "三餐",
+    "补贴", "股票", "期权", "k", "k-45k",
+    # 公司/产品名
+    "抖音", "电商", "商家", "后台", "营销", "活动", "看板",
+    "研发", "交付", "高质量", "设计", "数据",
 }
 
 SECTION_WEIGHT = {
@@ -129,9 +148,21 @@ zh_pattern = re.compile(r"[\u4e00-\u9fff]{2,}")
 
 
 def extract_jd_keywords(jd_text: str, jieba_mod, synonym_map: dict[str, str]) -> list[dict]:
-    """从 JD 文本中提取关键词。"""
+    """从 JD 文本中提取关键词。
+
+    只从 requirements 和 bonus 段提取，跳过职责描述和公司介绍。
+    中文词需在已知词库中或 >=3 字符才保留，避免噪音。
+    """
+    # 构建已知词集合（用于过滤中文噪音词）
+    known_zh_words = set(synonym_map.keys())
+    for concept in load_concepts():
+        known_zh_words.add(normalize(concept.get("concept", "")))
+        for r in concept.get("related", []):
+            if isinstance(r, str):
+                known_zh_words.add(normalize(r))
+
     lines = jd_text.strip().splitlines()
-    section = "required"
+    section = "unclassified"
     keywords = []
     seen = set()
 
@@ -150,6 +181,10 @@ def extract_jd_keywords(jd_text: str, jieba_mod, synonym_map: dict[str, str]) ->
         elif resp_re.search(stripped):
             section = "responsibilities"
 
+        # 只从 requirements 和 bonus 段提取关键词
+        if section not in ("required", "bonus"):
+            continue
+
         tokens = en_pattern.findall(stripped)
         zh_text = en_pattern.sub(" ", stripped)
         if jieba_mod is not None:
@@ -162,6 +197,12 @@ def extract_jd_keywords(jd_text: str, jieba_mod, synonym_map: dict[str, str]) ->
             norm = normalize(token)
             if len(norm) < 2 or norm in SOFT_SKILLS or norm in STOPWORDS or norm.isdigit():
                 continue
+            # 中文词过滤：2 字符的中文词必须在已知词库中
+            is_english = bool(re.match(r"^[a-z0-9+#./_-]+$", norm))
+            if not is_english and len(norm) < 3:
+                if norm not in known_zh_words:
+                    continue
+
             canonical = synonym_map.get(norm, norm)
             if canonical not in seen:
                 seen.add(canonical)

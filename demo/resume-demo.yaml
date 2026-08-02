@@ -1,0 +1,71 @@
+meta:
+  language: zh
+  theme: modern
+
+basics:
+  name: 李明
+  label: 前端工程师 · 应届生
+  phone: "13800138000"
+  email: liming@stu.tsinghua.edu.cn
+  profiles:
+    - network: GitHub
+      url: https://github.com/liming-thu
+  summary: 清华大学计算机系本科，两段大厂前端实习，擅长 React 工程化与性能优化。
+
+education:
+  - institution: 清华大学
+    area: 计算机科学与技术
+    degree: 本科
+    gpa: 3.82/4.0
+    start: "2022-09"
+    end: "2026-06"
+    courses: [数据结构, 算法设计, 操作系统, 计算机网络]
+
+work:
+  - organization: 字节跳动
+    position: 前端开发实习生
+    department: 商业化技术
+    start: "2025-06"
+    end: "2025-09"
+    tech: [React, TypeScript, Docker, Webpack, Jenkins]
+    highlights:
+      - 独立完成 30+ 广告投放场景的 schema 化改造，前端代码行数下降 45%
+      - 引入运行时校验框架，将线上表单类问题减少 60%
+      - 使用 Docker 容器化部署前端构建环境，通过 Jenkins 搭建自动化流水线，构建效率提升 3 倍
+
+  - organization: 腾讯
+    position: 前端开发实习生
+    department: 云开发事业部
+    start: "2024-06"
+    end: "2024-09"
+    tech: [Vue, Vite, Next.js]
+    highlights:
+      - 主导 12 个可视化组件的封装与文档建设，组件复用率提升至 85%
+      - 基于 Next.js 实现服务端渲染，优化首屏加载性能，FCP 从 2.1s 降至 0.8s，支持万级日活用户
+
+projects:
+  - name: MiniReact
+    role: 独立作者
+    tech: [TypeScript, Rollup]
+    url: https://github.com/liming-thu/mini-react
+    highlights:
+      - 实现 Fiber 架构、Hooks 简化版，GitHub 累计 520+ star
+      - 编写系列技术博客共 8 篇，月访问量 2000+
+
+skills:
+  - name: 编程语言
+    keywords: [TypeScript, JavaScript, Python]
+  - name: 前端框架
+    keywords: [React, Vue, Next.js]
+  - name: 工程化
+    keywords: [Webpack, Vite, ESLint, Jest]
+
+awards:
+  - title: 国家奖学金
+    date: "2024-12"
+    awarder: 教育部
+
+languages:
+  - language: 英语
+    level: CET-6
+    score: "612"
