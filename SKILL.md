@@ -21,26 +21,25 @@ author: 袁箐鸿
 
 ### → resume-builder
 
-触发词：写简历、做简历、生成简历、简历模板、resume、CV、导出 PDF、预览简历、换主题、修改简历、发飞书、简历发飞书、分享简历、发给导师、发给 HR
+触发词：写简历、做简历、生成简历、简历模板、resume、CV、导出 PDF、预览简历、换主题、修改简历、发飞书、简历发飞书、分享简历、发给导师、发给 HR、帮我优化简历、一键适配 JD、贴合岗位
 
 加载：[modules/resume-builder/MODULE.md](modules/resume-builder/MODULE.md)
 
 ### → resume-optimizer
 
-触发词：匹配 JD、JD 匹配、关键词覆盖率、这个岗位合适吗、JD 融入、贴合 JD、把 JD 关键词融入简历、ATS 检查、简历体检、格式合规、量化改写、改 bullet、优化经历描述、简历诊断、简历优化
+触发词：匹配 JD、JD 匹配、关键词覆盖率、这个岗位合适吗、JD 融入、贴合 JD、把 JD 关键词融入简历、ATS 检查、简历体检、格式合规、量化改写、改 bullet、优化经历描述、简历诊断、简历优化、一键优化、帮我优化简历贴合 JD
 
 加载：[modules/resume-optimizer/MODULE.md](modules/resume-optimizer/MODULE.md)
 
 ### 联动场景
 
-典型链路：
+典型链路（一键优化）：
 ```
-resume-builder 生成简历
-  → resume-optimizer: JD 匹配（三层匹配 + gap 分类）
-  → resume-optimizer: JD 融入（自然改写，不堆砌）
-  → resume-optimizer: Bullet 诊断（量化改写）
-  → resume-optimizer: ATS 检查（格式修复）
-  → resume-builder: 更新 YAML → 重新渲染
+resume-builder 生成 resume.yaml
+  → resume-optimizer: jd_optimize 一键优化
+    （匹配→融入→诊断→ATS→自动应用高置信度修改）
+  → 输出 optimized.yaml + 小报告
+  → resume-builder: 用 optimized.yaml 重新渲染 HTML/PDF
 ```
 
 ## 模块间共享约定
@@ -54,6 +53,7 @@ resume-builder 生成简历
   - 校验：`python3 modules/resume-builder/scripts/validate.py <resume.yaml>`
   - 渲染：`python3 modules/resume-builder/scripts/render.py <resume.yaml> --out-dir ./resume/out --pdf`
   - JD 解析：`python3 modules/resume-optimizer/scripts/jd_parser.py <jd.txt>`
+  - 一键优化：`python3 modules/resume-optimizer/scripts/jd_optimize.py <resume.yaml> --jd <jd.txt> --out <optimized.yaml>`
   - JD 匹配：`python3 modules/resume-optimizer/scripts/jd_match.py <resume.yaml> --jd <jd.txt>`
   - JD 融入：`python3 modules/resume-optimizer/scripts/jd_integrate.py <resume.yaml> --match <match.json>`
   - Bullet 诊断：`python3 modules/resume-optimizer/scripts/bullet_rewrite.py <resume.yaml>`

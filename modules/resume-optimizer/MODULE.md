@@ -1,15 +1,61 @@
 # Resume Optimizer
 
-对已有简历做「求职强化」—— 聚焦四个国内最实用的原子能力。
+对已有简历做「求职强化」—— 聚焦四个国内最实用的原子能力，外加一个一键编排入口。
 
-## 四项原子 Skill
+## 五项原子 Skill
 
 | # | 名称 | 触发词 | 输入 | 输出 |
 |---|------|--------|------|------|
+| 0 | **一键优化** | 帮我优化简历贴合这个 JD、一键适配 | JD 文本 + resume.yaml | **优化后 resume.yaml + 小报告** |
 | 1 | **JD 匹配** | 帮我匹配 JD、这个岗位我合适吗、关键词覆盖率 | JD 文本 + resume.yaml | 三层匹配报告 + gap 分类 + 改写建议 |
 | 2 | **JD 关键词融入** | 把 JD 关键词融入简历、帮我改得贴合 JD | 匹配结果 match.json + resume.yaml | 自然改写建议（不堆砌）+ 置信度 |
 | 3 | **Bullet 量化改写** | 帮我改 bullet、量化改写、优化经历描述 | resume.yaml 中的 highlights | 逐条改写对照 + 追问量化数据 |
 | 4 | **中文 ATS 检查** | ATS 检查、简历体检、格式合规吗 | resume.yaml（或 PDF/HTML） | 逐项合规报告 + 修复建议 |
+
+## Skill 0：一键优化（jd_optimize.py）
+
+### 定位
+
+> 用户给了 JD + 简历，想要「直接给我改好的简历 + 一份小报告」。
+
+这是最常见的场景，不需要用户分别跑 4 个脚本。jd_optimize.py 串联全流程：
+
+```
+resume.yaml + jd.txt
+  → jd_match（三层匹配 + gap 分类）
+  → jd_integrate（关键词自然融入建议）
+  → bullet_rewrite（量化诊断）
+  → ats_check（ATS 合规检查）
+  → 自动应用高置信度修改
+  → 输出：优化后 resume.yaml + 小报告
+```
+
+### 自动应用规则
+
+| 修改类型 | 自动应用条件 | 处理方式 |
+|----------|------------|---------|
+| evidence_gap 融入 | 置信度 ≥ 0.7 | 自动修改 bullet |
+| evidence_gap 融入 | 置信度 0.5-0.7 | 标记「需确认」 |
+| bullet 缺少动词 | NO_VERB | 自动补上合适动词 |
+| bullet 缺少量化 | NO_RESULT / NO_QUANT | 不自动修改（避免虚构数字） |
+| real_gap | 任何 | 不修改简历，只在报告中提示 |
+
+### 调用脚本
+
+```bash
+python3 scripts/jd_optimize.py resume.yaml --jd jd.txt --out optimized.yaml
+```
+
+### 输出格式
+
+- **优化后简历 YAML**（`--out` 指定路径）
+- **小报告**（打印到 stdout），包含：
+  - 优化概况（匹配度、自动应用数、待确认数、无法填补数）
+  - 已自动应用的修改（before/after 对照）
+  - 待确认的建议
+  - 无法填补的 gap
+  - Bullet 剩余问题
+  - ATS 检查结果
 
 ## 何时使用
 
@@ -202,15 +248,13 @@ python3 scripts/ats_check.py <resume.yaml>
 ## 联动 resume-builder
 
 - 本模块的输入是 `resume-builder` 的产出（`resume.yaml`）
-- JD 融入 / Bullet 改写 / ATS 修复完成后，Agent 直接更新 `resume.yaml`，可立即调用 `resume-builder` 重新渲染
+- **一键优化**完成后，Agent 直接用优化后的 YAML 调用 `resume-builder` 重新渲染
 - 典型链路：
   ```
   resume-builder 生成 resume.yaml
-    → JD 匹配（三层匹配 + gap 分类）
-    → JD 融入（自然改写建议）
-    → Bullet 诊断（量化改写）
-    → ATS 检查（格式修复）
-    → resume-builder 重新渲染
+    → jd_optimize 一键优化（匹配→融入→诊断→ATS→自动应用）
+    → 输出 optimized.yaml + 小报告
+    → resume-builder 用 optimized.yaml 重新渲染 HTML/PDF
   ```
 
 ## 目录导航
@@ -218,6 +262,7 @@ python3 scripts/ats_check.py <resume.yaml>
 - [references/jd-match.md](references/jd-match.md) — JD 三层匹配规则与 Gap 分类
 - [references/bullet-rewrite.md](references/bullet-rewrite.md) — Bullet 诊断与改写规则
 - [references/ats-check.md](references/ats-check.md) — 中文 ATS 检查规则表
+- [scripts/jd_optimize.py](scripts/jd_optimize.py) — 一键优化编排脚本
 - [scripts/jd_match.py](scripts/jd_match.py) — JD 三层匹配脚本
 - [scripts/jd_parser.py](scripts/jd_parser.py) — JD 解析器
 - [scripts/jd_integrate.py](scripts/jd_integrate.py) — JD 关键词自然融入脚本

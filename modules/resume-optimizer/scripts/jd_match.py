@@ -123,6 +123,8 @@ STOPWORDS = {
     "质量", "效率", "体系", "流程", "模块", "方案", "手段", "方式",
     "内容", "结果", "目标", "方向", "问题", "需求",
     "人员", "工程师", "开发", "校招", "社招", "实习", "经历",
+    "工程化", "计算机相关", "相关", "实践经验", "大厂", "贡献者",
+    "高质量", "研发", "交付", "协作", "推动", "建设", "提升",
     "字节", "跳动", "腾讯", "阿里", "百度", "美团", "京东", "网易",
     "大厂", "贡献者", "分项",
     # 介词/连词/代词
@@ -248,6 +250,8 @@ def extract_resume_terms(resume: dict, synonym_map: dict[str, str]) -> dict[str,
             add("highlights", h)
 
     for work in resume.get("work", []):
+        for tech in work.get("tech", []):
+            add("tech", tech)
         for h in work.get("highlights", []):
             add("highlights", h)
 

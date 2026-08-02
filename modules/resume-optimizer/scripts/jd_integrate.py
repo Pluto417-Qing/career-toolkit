@@ -232,6 +232,7 @@ def generate_rewrite_suggestion(gap: dict, best: dict, synonym_map: dict) -> dic
         "gap_type": gap.get("gap_type", "evidence_gap"),
         "target_section": bullet["section"],
         "target_entry": bullet["entry_name"],
+        "target_entry_index": bullet["entry_index"],
         "target_bullet_index": bullet["bullet_index"],
         "original_text": original,
         "suggested_text": rewrite_text,
