@@ -2,6 +2,10 @@
 
 用自然对话生成一份专业简历——用户只需聊天，Agent 负责收集、组织、校验、渲染。
 
+## 面向人群
+
+**清华大学本科生 / 研究生**。内置清华院系课程体系、经历类型模板、奖学金规范，对话收集时主动引导。
+
 ## 核心原则
 
 > **用户不需要知道 YAML、Schema、字段名。**
@@ -28,9 +32,12 @@ Agent 主动引导对话，分轮次收集以下信息（不必一次问完，�
 
 1. **破冰 & 定位**：你目前是学生还是在职？大概投什么方向？有没有现成简历/经历文档可以参考？
 2. **基础信息**：姓名、联系方式、求职意向一句话、社交主页（GitHub/LinkedIn 等）
-3. **教育背景**：学校、专业、学位、GPA/排名（可选）、毕业时间
+3. **教育背景**：学校（默认清华大学）、院系、专业、学位、GPA/排名（可选）、毕业时间
+   - **清华特色引导**：Agent 根据 [assets/tsinghua/departments.yaml](assets/tsinghua/departments.yaml) 识别用户院系后，主动推荐核心课程列表供选择
 4. **核心经历**：工作/实习/项目/科研——每段问清楚：做了什么、用了什么技术、成果如何量化
-5. **技能 & 补充**：技术栈分类、获奖、语言能力、自定义模块（考研目标、作品集等）
+   - **清华特色引导**：Agent 根据 [assets/tsinghua/experience_types.yaml](assets/tsinghua/experience_types.yaml) 主动询问常见经历（SRT/国创/挑战杯/实验室科研/ACM 等），避免遗漏
+5. **技能 & 补充**：技术栈分类、获奖、语言能力、自定义模块
+   - **获奖规范**：按 [assets/tsinghua/scholarships.yaml](assets/tsinghua/scholarships.yaml) 的命名规范和排序规则填写
 
 6. **模板选择**：信息收集接近完成时，向用户展示可选主题并询问偏好：
    - `classic`：单栏传统中文简历，适合大多数场景
@@ -99,14 +106,26 @@ python3 scripts/render.py <path/to/resume.yaml> --out-dir <output_dir> --pdf
 
 ## 与其他模块的协作
 
-- `resume-optimizer`（后续）在本模块产出的 `resume.json` 上做 JD 匹配与 ATS 检查
+- `resume-optimizer` 在本模块产出的 `resume.yaml` 上做 JD 匹配、ATS 检查、Bullet 诊断、**JD 关键词自然融入**
+- 典型链路：
+  ```
+  resume-builder 生成
+    → resume-optimizer: JD 匹配 → 三层匹配报告 + gap 分类
+    → resume-optimizer: JD 融入 → 自然改写建议（不堆砌）
+    → resume-optimizer: Bullet 诊断 → 量化改写
+    → resume-optimizer: ATS 检查 → 格式修复
+    → resume-builder: 更新 YAML → 重新渲染
+  ```
 - `lark-doc` / `lark-im` / `lark-shared`：飞书发布链路
 
 ## 目录导航
 
 - [assets/schema/resume.schema.json](assets/schema/resume.schema.json) — JSON Schema
 - [assets/themes/](assets/themes/) — 内置主题集
-- [assets/examples/zh-fresh-grad.yaml](assets/examples/zh-fresh-grad.yaml) — 应届生示例
+- [assets/examples/thu-cs-grad.yaml](assets/examples/thu-cs-grad.yaml) — 清华计算机系应届生示例
+- [assets/tsinghua/departments.yaml](assets/tsinghua/departments.yaml) — 清华院系/专业/课程映射
+- [assets/tsinghua/experience_types.yaml](assets/tsinghua/experience_types.yaml) — 清华经历类型与写作模板
+- [assets/tsinghua/scholarships.yaml](assets/tsinghua/scholarships.yaml) — 清华奖学金/荣誉体系
 - [references/schema.md](references/schema.md) — 字段详解（Agent 内部参考）
 - [references/writing-tips.md](references/writing-tips.md) — bullet 写作规范
 - [references/themes.md](references/themes.md) — 主题体系与定制指南

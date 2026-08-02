@@ -1,14 +1,15 @@
 # Resume Optimizer
 
-对已有简历做「求职强化」—— 聚焦三个国内最实用的原子能力。
+对已有简历做「求职强化」—— 聚焦四个国内最实用的原子能力。
 
-## 三项原子 Skill
+## 四项原子 Skill
 
 | # | 名称 | 触发词 | 输入 | 输出 |
 |---|------|--------|------|------|
-| 1 | **JD 匹配** | 帮我匹配 JD、这个岗位我合适吗、关键词覆盖率 | JD 文本 + resume.yaml | 覆盖率报告 + 缺失技能清单 + 优先补齐建议 |
-| 2 | **Bullet 量化改写** | 帮我改 bullet、量化改写、优化经历描述 | resume.yaml 中的 highlights | 逐条改写对照 + 追问量化数据 |
-| 3 | **中文 ATS 检查** | ATS 检查、简历体检、格式合规吗 | resume.yaml（或 PDF/HTML） | 逐项合规报告 + 修复建议 |
+| 1 | **JD 匹配** | 帮我匹配 JD、这个岗位我合适吗、关键词覆盖率 | JD 文本 + resume.yaml | 三层匹配报告 + gap 分类 + 改写建议 |
+| 2 | **JD 关键词融入** | 把 JD 关键词融入简历、帮我改得贴合 JD | 匹配结果 match.json + resume.yaml | 自然改写建议（不堆砌）+ 置信度 |
+| 3 | **Bullet 量化改写** | 帮我改 bullet、量化改写、优化经历描述 | resume.yaml 中的 highlights | 逐条改写对照 + 追问量化数据 |
+| 4 | **中文 ATS 检查** | ATS 检查、简历体检、格式合规吗 | resume.yaml（或 PDF/HTML） | 逐项合规报告 + 修复建议 |
 
 ## 何时使用
 
@@ -64,7 +65,73 @@ python3 scripts/jd_match.py <resume.yaml> --jd <jd.txt>
 
 ---
 
-## Skill 2：Bullet 量化改写
+## Skill 2：JD 关键词自然融入
+
+### 核心理念
+
+> **不是把关键词塞进简历，而是让已有经历自然地体现 JD 要求。**
+
+五条原则：
+1. 关键词融入已有经历，不新增虚假经历
+2. 单条 bullet 最多融入 1 个新关键词，避免堆砌
+3. 融入后的句子必须语义通顺，不能生硬插入
+4. 优先融入「相关度最高」的经历段
+5. 标注置信度，低置信度的建议需用户确认
+
+### 工作流
+
+1. **先跑 JD 匹配**，生成 `match.json`
+2. **读取 evidence_gap 列表**（有相关经历但没写出来的关键词）
+3. **对每个 gap，在简历中找最佳融入位置**：
+   - 相关度评分（0-1）：已有同义词 > tech 列表关联 > 文本关联 > summary 关联 > 无关联
+4. **生成改写建议**，标注策略和置信度
+5. **堆砌检测**：如果同一 bullet 被建议融入多个关键词，警告并只推荐 1 个
+
+### 五种融入策略
+
+| 策略 | 含义 | 置信度 | 示例 |
+|------|------|--------|------|
+| explicit | 已有同义词，只需写规范名 | 0.9 | 简历有 Docker，JD 要 K8s → 补写 Kubernetes |
+| tech_list | tech 列表有关联技术 | 0.7 | 简历有 Spring Cloud，JD 要微服务 |
+| enrich | 文本有概念关联词 | 0.6 | 简历有「限流」，JD 要高并发 |
+| summary | summary 有关联内容 | 0.5 | summary 提了性能优化，JD 要调优 |
+| new_context | 需新增一条 bullet | 0.3 | 需用户确认是否有真实经历 |
+
+### 调用脚本
+
+```bash
+# 先跑匹配
+python3 scripts/jd_match.py resume.yaml --jd jd.txt > match.json
+# 再跑融入
+python3 scripts/jd_integrate.py resume.yaml --match match.json
+```
+
+### 输出格式
+
+```
+## JD 关键词融入建议
+
+### 🟢 高置信度（直接可用）
+1. **Kubernetes** → work[0] 字节跳动
+   - 策略：显式补写（简历 tech 已有 Docker）
+   - 原文：独立完成 30+ 广告投放场景的 schema 化改造
+   - 建议：独立完成 30+ 广告投放场景的 schema 化改造，基于 Kubernetes 部署
+
+### 🟡 中置信度（建议确认）
+2. **微服务** → projects[0] SRT项目
+   - 策略：丰富描述
+   - 建议：补充「使用微服务架构拆分模块」
+
+### ⚠️ 堆砌警告
+work[0] 的 bullet[0] 被建议融入 2 个关键词（Kubernetes, 微服务），建议只选 1 个最相关的
+
+### ❌ 无法融入
+3. **Kafka** — 简历无相关经历，不建议虚构
+```
+
+---
+
+## Skill 3：Bullet 量化改写
 
 ### 工作流
 
@@ -94,7 +161,7 @@ python3 scripts/jd_match.py <resume.yaml> --jd <jd.txt>
 
 ---
 
-## Skill 3：中文 ATS 检查
+## Skill 4：中文 ATS 检查
 
 ### 工作流
 
@@ -135,14 +202,27 @@ python3 scripts/ats_check.py <resume.yaml>
 ## 联动 resume-builder
 
 - 本模块的输入是 `resume-builder` 的产出（`resume.yaml`）
-- Bullet 改写和 ATS 修复完成后，Agent 直接更新 `resume.yaml`，可立即调用 `resume-builder` 重新渲染
-- 典型链路：`resume-builder 生成 → resume-optimizer 强化 → resume-builder 重渲染`
+- JD 融入 / Bullet 改写 / ATS 修复完成后，Agent 直接更新 `resume.yaml`，可立即调用 `resume-builder` 重新渲染
+- 典型链路：
+  ```
+  resume-builder 生成 resume.yaml
+    → JD 匹配（三层匹配 + gap 分类）
+    → JD 融入（自然改写建议）
+    → Bullet 诊断（量化改写）
+    → ATS 检查（格式修复）
+    → resume-builder 重新渲染
+  ```
 
 ## 目录导航
 
-- [references/jd-match.md](references/jd-match.md) — JD 关键词提取与匹配规则
+- [references/jd-match.md](references/jd-match.md) — JD 三层匹配规则与 Gap 分类
 - [references/bullet-rewrite.md](references/bullet-rewrite.md) — Bullet 诊断与改写规则
 - [references/ats-check.md](references/ats-check.md) — 中文 ATS 检查规则表
-- [scripts/jd_match.py](scripts/jd_match.py) — JD 匹配脚本
+- [scripts/jd_match.py](scripts/jd_match.py) — JD 三层匹配脚本
+- [scripts/jd_parser.py](scripts/jd_parser.py) — JD 解析器
+- [scripts/jd_integrate.py](scripts/jd_integrate.py) — JD 关键词自然融入脚本
 - [scripts/bullet_rewrite.py](scripts/bullet_rewrite.py) — Bullet 诊断脚本
 - [scripts/ats_check.py](scripts/ats_check.py) — ATS 检查脚本
+- [assets/synonyms.yaml](assets/synonyms.yaml) — 同义词库（200+ 组）
+- [assets/concepts.yaml](assets/concepts.yaml) — 概念映射库（25 组）
+- [assets/university_names.yaml](assets/university_names.yaml) — 高校缩写表（70+ 所）

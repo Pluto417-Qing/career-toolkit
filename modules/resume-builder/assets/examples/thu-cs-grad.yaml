@@ -1,0 +1,117 @@
+meta:
+  language: zh
+  theme: modern
+  updated_at: 2026-07
+
+basics:
+  name: 李明
+  english_name: Li Ming
+  label: 前端工程师 · 应届生
+  avatar: photo.jpg
+  gender: 男
+  birth: 2002-09
+  phone: "13800138000"
+  email: liming@stu.tsinghua.edu.cn
+  location: 北京
+  profiles:
+    - network: GitHub
+      username: liming-thu
+      url: https://github.com/liming-thu
+  summary: 清华大学计算机系本科应届生，两段一线互联网前端实习经历，擅长 React / TypeScript 工程化。追求"能落地、有度量"的工程实践。
+
+education:
+  - institution: 清华大学
+    area: 计算机科学与技术
+    degree: 本科
+    gpa: 3.82/4.0
+    rank: 8/160
+    start: "2022-09"
+    end: "2026-06"
+    location: 北京
+    courses: [数据结构, 算法设计, 操作系统, 计算机网络, 编译原理, 人工智能导论]
+    highlights:
+      - 国家奖学金（2024，8000元）
+      - 清华大学一等奖学金（2023、2024）
+      - 校ACM集训队队员，ICPC亚洲区域赛金奖
+
+work:
+  - organization: 字节跳动
+    position: 前端开发实习生
+    type: 实习
+    department: 商业化技术
+    location: 北京
+    start: "2025-06"
+    end: "2025-09"
+    summary: 负责广告投放中台的前端架构优化。
+    highlights:
+      - 独立完成 30+ 广告投放场景的 schema 化改造，前端代码行数下降 45%
+      - 引入运行时校验框架，将线上表单类问题减少 60%
+      - 沉淀 4 篇技术文档作为团队 onboarding 材料，获 return offer
+
+  - organization: 腾讯
+    position: 前端开发实习生
+    type: 实习
+    department: 云开发事业部
+    location: 深圳
+    start: "2024-06"
+    end: "2024-09"
+    summary: 参与云开发控制台的可视化组件库建设。
+    highlights:
+      - 主导 12 个可视化组件的封装与文档建设，组件复用率提升至 85%
+      - 优化首屏加载性能，FCP 从 2.1s 降至 0.8s
+
+projects:
+  - name: SRT：基于图神经网络的推荐系统
+    role: 参与学生
+    type: SRT 计划
+    start: "2024-03"
+    end: "2025-03"
+    url: https://github.com/liming-thu/gnn-rec
+    summary: 在智能技术与系统实验室参与图神经网络推荐系统研究
+    tech: [PyTorch, DGL, Python]
+    highlights:
+      - 设计异构图编码方案，对比基线模型 Recall@10 提升 8.3%
+      - 产出 1 篇 ICASSP 2025 投稿（第一作者）
+
+  - name: MiniReact
+    role: 独立作者
+    type: 个人项目
+    url: https://github.com/liming-thu/mini-react
+    start: "2024-11"
+    end: "2025-02"
+    summary: 从零实现 React 核心机制的教学向仓库
+    tech: [TypeScript, Rollup]
+    highlights:
+      - 实现 Fiber 架构、Hooks、Concurrent Mode 简化版
+      - 编写系列博客共 8 篇，GitHub 累计 520+ star
+
+awards:
+  - title: ICPC 亚洲区域赛 · 金奖
+    date: "2024-11"
+    awarder: ACM-ICPC
+  - title: 国家奖学金
+    date: "2024-12"
+    awarder: 教育部
+  - title: 挑战杯 · 一等奖
+    date: "2024-05"
+    awarder: 清华大学团委
+
+skills:
+  - name: 编程语言
+    keywords: [TypeScript, JavaScript, Python, Go, C++]
+  - name: 前端框架
+    keywords: [React, Vue, Next.js]
+  - name: 工程化
+    keywords: [Webpack, Vite, Rollup, ESLint, Jest]
+
+languages:
+  - language: 英语
+    level: CET-6
+    score: "612"
+
+custom_sections:
+  - title: 求职意向
+    items:
+      - heading: 前端工程师 / 全栈工程师
+        subheading: 意向城市：北京 / 上海 / 杭州
+        summary: 期望方向：Web 基建、编辑器/低代码、开发者工具
