@@ -33,13 +33,13 @@ author: 袁箐鸿
 
 ### 联动场景
 
-典型链路（一键优化）：
+典型链路（双版本生成）：
 ```
-resume-builder 生成 resume.yaml
-  → resume-optimizer: jd_optimize 一键优化
-    （匹配→融入→诊断→ATS→自动应用高置信度修改）
-  → 输出 optimized.yaml + 小报告
-  → resume-builder: 用 optimized.yaml 重新渲染 HTML/PDF
+resume-builder 对话收集 → resume.yaml
+  → resume-optimizer: jd_optimize 双版本生成
+    （匹配→融入→诊断→ATS→生成两份简历）
+  → 输出 resume-general.yaml + resume-jd.yaml
+  → resume-builder: 分别渲染为 PDF
 ```
 
 ## 模块间共享约定

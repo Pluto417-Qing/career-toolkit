@@ -12,50 +12,88 @@
 | 3 | **Bullet 量化改写** | 帮我改 bullet、量化改写、优化经历描述 | resume.yaml 中的 highlights | 逐条改写对照 + 追问量化数据 |
 | 4 | **中文 ATS 检查** | ATS 检查、简历体检、格式合规吗 | resume.yaml（或 PDF/HTML） | 逐项合规报告 + 修复建议 |
 
-## Skill 0：一键优化（jd_optimize.py）
+## Skill 0：双版本生成（jd_optimize.py）
 
 ### 定位
 
-> 用户给了 JD + 简历，想要「直接给我改好的简历 + 一份小报告」。
+> 用户给了简历 + JD，要的不是分析报告，而是「直接给我两份改好的简历」。
 
-这是最常见的场景，不需要用户分别跑 4 个脚本。jd_optimize.py 串联全流程：
+这是简历生成的核心场景。jd_optimize.py 生成**两份**简历：
+
+| 版本 | 文件名 | 做了什么 | 适用场景 |
+|------|--------|---------|---------|
+| **通用版** | resume-general.yaml | 仅修 Bullet 基础问题（补动词），不碰 JD | 多岗位投递 |
+| **JD 适配版** | resume-jd.yaml | 通用版 + JD 关键词融入 + 内容侧重调整 | 针对该岗位投递 |
+
+### 生成流程
 
 ```
 resume.yaml + jd.txt
   → jd_match（三层匹配 + gap 分类）
-  → jd_integrate（关键词自然融入建议）
+  → jd_integrate（关键词融入建议）
   → bullet_rewrite（量化诊断）
-  → ats_check（ATS 合规检查）
-  → 自动应用高置信度修改
-  → 输出：优化后 resume.yaml + 小报告
+  → ats_check（ATS 检查）
+  → 生成通用版（只修 Bullet）
+  → 生成 JD 适配版（通用版 + JD 深度适配）
+  → 输出：resume-general.yaml + resume-jd.yaml + 小报告
 ```
 
-### 自动应用规则
+### 两版区别
 
-| 修改类型 | 自动应用条件 | 处理方式 |
-|----------|------------|---------|
-| evidence_gap 融入 | 置信度 ≥ 0.7 | 自动修改 bullet |
-| evidence_gap 融入 | 置信度 0.5-0.7 | 标记「需确认」 |
-| bullet 缺少动词 | NO_VERB | 自动补上合适动词 |
-| bullet 缺少量化 | NO_RESULT / NO_QUANT | 不自动修改（避免虚构数字） |
-| real_gap | 任何 | 不修改简历，只在报告中提示 |
+**通用版**：
+- 修复 NO_VERB（缺少动词的 bullet 自动补动词，弱动词替换而非叠加）
+- 不融入 JD 关键词
+- 不调整求职意向
+- 适合海投
+
+**JD 适配版**（基于通用版）：
+- 融入 evidence_gap 关键词（**分级应用，见下**）
+- 调整求职意向体现目标岗位
+- 补充领域经验技能组（JD 命中的概念，标注「推断」需核对）
+- 适合精准投递
+
+### 不编造原则（核心约束）
+
+简历内容**绝不编造**。关键词融入按编造风险分级：
+
+| 级别 | 策略 | 处理方式 | 原因 |
+|------|------|---------|------|
+| **可自动** | explicit + confidence ≥ 0.9 | 仅补规范名（`（相关技术：X）`） | bullet 的 tech 列表已有同义词，不改语义 |
+| **需确认** | tech_list / enrich / summary | 生成提问清单，**不写入简历** | 涉及「基于 X 优化」「使用 X 实现」等动作声明 |
+| **禁止** | new_context | 归入确认清单提问 | 需新增整条 bullet，构成编造经历 |
+
+skills 补充的概念标注「（推断）」并加入确认清单——非候选人自述，需人工核对。
+
+### 夸大风险检测
+
+扫描原简历和 JD 版，检测以下措辞并在报告中提示：
+
+- **高风险词**：精通、熟练掌握、资深、专家、深入研究、深度精通
+- **中风险词**：千万级、亿级、百万级、海量、极致、完美、巨大、显著提升
+
+每条提示包含位置、原词、风险级别和改写建议。夸大措辞不会自动修改，只在报告中标注，需候选人提供佐证。
+
+### 报告输出
+
+报告包含以下章节：
+1. 生成概况（覆盖、修改数、需确认数、夸大提示数）
+2. 通用版修改（仅 Bullet 修复）
+3. JD 适配版修改（自动融入 + label/skill 调整）
+4. **需候选人确认**（按风险分级，未确认前不写入简历）
+5. **夸大风险提示**（原简历中的可疑措辞）
+6. 无法填补的 gap（real_gap，不虚构）
+7. Bullet 剩余问题（需手动改写）
 
 ### 调用脚本
 
 ```bash
-python3 scripts/jd_optimize.py resume.yaml --jd jd.txt --out optimized.yaml
+python3 scripts/jd_optimize.py resume.yaml --jd jd.txt --out-dir ./output
 ```
 
-### 输出格式
-
-- **优化后简历 YAML**（`--out` 指定路径）
-- **小报告**（打印到 stdout），包含：
-  - 优化概况（匹配度、自动应用数、待确认数、无法填补数）
-  - 已自动应用的修改（before/after 对照）
-  - 待确认的建议
-  - 无法填补的 gap
-  - Bullet 剩余问题
-  - ATS 检查结果
+输出：
+- `output/resume-general.yaml` — 通用版
+- `output/resume-jd.yaml` — JD 适配版
+- 小报告（打印到 stdout）
 
 ## 何时使用
 
@@ -248,13 +286,14 @@ python3 scripts/ats_check.py <resume.yaml>
 ## 联动 resume-builder
 
 - 本模块的输入是 `resume-builder` 的产出（`resume.yaml`）
-- **一键优化**完成后，Agent 直接用优化后的 YAML 调用 `resume-builder` 重新渲染
+- **双版本生成**完成后，两份 YAML 都可调用 `resume-builder` 渲染为 PDF
 - 典型链路：
   ```
-  resume-builder 生成 resume.yaml
-    → jd_optimize 一键优化（匹配→融入→诊断→ATS→自动应用）
-    → 输出 optimized.yaml + 小报告
-    → resume-builder 用 optimized.yaml 重新渲染 HTML/PDF
+  resume-builder 对话收集 → resume.yaml
+    → jd_optimize 双版本生成
+      → resume-general.yaml（通用版）
+      → resume-jd.yaml（JD 适配版）
+    → resume-builder 分别渲染为 PDF
   ```
 
 ## 目录导航
