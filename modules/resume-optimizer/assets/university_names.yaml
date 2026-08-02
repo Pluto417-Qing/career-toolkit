@@ -1,0 +1,89 @@
+# 国内高校缩写 → 全称对照表
+# Agent 和 ats_check.py 共用此文件做缩写检测
+# 维护原则：覆盖 985/211 + 常见双非 + 海外名校
+
+# ─── 985 高校 ───
+- {abbr: 北大, full: 北京大学}
+- {abbr: 清华, full: 清华大学}
+- {abbr: 复旦, full: 复旦大学}
+- {abbr: 上交, full: 上海交通大学}
+- {abbr: 浙大, full: 浙江大学}
+- {abbr: 中科大, full: 中国科学技术大学}
+- {abbr: 南大, full: 南京大学}
+- {abbr: 武大, full: 武汉大学}
+- {abbr: 华科, full: 华中科技大学}
+- {abbr: 中大, full: 中山大学}
+- {abbr: 哈工大, full: 哈尔滨工业大学}
+- {abbr: 西交, full: 西安交通大学}
+- {abbr: 北航, full: 北京航空航天大学}
+- {abbr: 北师, full: 北京师范大学}
+- {abbr: 人大, full: 中国人民大学}
+- {abbr: 同济, full: 同济大学}
+- {abbr: 天大, full: 天津大学}
+- {abbr: 南开, full: 南开大学}
+- {abbr: 厦大, full: 厦门大学}
+- {abbr: 东南, full: 东南大学}
+- {abbr: 大工, full: 大连理工大学}
+- {abbr: 吉大, full: 吉林大学}
+- {abbr: 山大, full: 山东大学}
+- {abbr: 兰大, full: 兰州大学}
+- {abbr: 川大, full: 四川大学}
+- {abbr: 电子科大, full: 电子科技大学}
+- {abbr: 重大, full: 重庆大学}
+- {abbr: 湖大, full: 湖南大学}
+- {abbr: 中南, full: 中南大学}
+- {abbr: 华南理工, full: 华南理工大学}
+- {abbr: 西工大, full: 西北工业大学}
+- {abbr: 东北大, full: 东北大学}
+- {abbr: 农大, full: 中国农业大学}
+- {abbr: 海大, full: 中国海洋大学}
+- {abbr: 国防科大, full: 国防科技大学}
+- {abbr: 中央民大, full: 中央民族大学}
+- {abbr: 华东师范, full: 华东师范大学}
+
+# ─── 211 / 强势双非 ───
+- {abbr: 北邮, full: 北京邮电大学}
+- {abbr: 北理工, full: 北京理工大学}
+- {abbr: 华电, full: 华北电力大学}
+- {abbr: 北交, full: 北京交通大学}
+- {abbr: 北科大, full: 北京科技大学}
+- {abbr: 北化, full: 北京化工大学}
+- {abbr: 北林, full: 北京林业大学}
+- {abbr: 对外经贸, full: 对外经济贸易大学}
+- {abbr: 中财, full: 中央财经大学}
+- {abbr: 上财, full: 上海财经大学}
+- {abbr: 西电, full: 西安电子科技大学}
+- {abbr: 南航, full: 南京航空航天大学}
+- {abbr: 南理工, full: 南京理工大学}
+- {abbr: 河海, full: 河海大学}
+- {abbr: 苏大, full: 苏州大学}
+- {abbr: 东华, full: 东华大学}
+- {abbr: 上大, full: 上海大学}
+- {abbr:暨南, full: 暨南大学}
+- {abbr: 华师, full: 华南师范大学}
+- {abbr: 广外, full: 广东外语外贸大学}
+- {abbr: 深大, full: 深圳大学}
+- {abbr: 南方科大, full: 南方科技大学}
+- {abbr: 杭电, full: 杭州电子科技大学}
+- {abbr: 南邮, full: 南京邮电大学}
+- {abbr: 武理, full: 武汉理工大学}
+- {abbr: 华中师范, full: 华中师范大学}
+- {abbr: 中南财, full: 中南财经政法大学}
+- {abbr: 西南财, full: 西南财经大学}
+- {abbr: 西南交, full: 西南交通大学}
+- {abbr: 成电, full: 电子科技大学}
+
+# ─── 海外名校（常见简称） ───
+- {abbr: MIT, full: Massachusetts Institute of Technology}
+- {abbr: Stanford, full: Stanford University}
+- {abbr: CMU, full: Carnegie Mellon University}
+- {abbr: Caltech, full: California Institute of Technology}
+- {abbr: UC Berkeley, full: University of California Berkeley}
+- {abbr: UCLA, full: University of California Los Angeles}
+- {abbr: NUS, full: National University of Singapore}
+- {abbr: NTU, full: Nanyang Technological University}
+- {abbr: HKU, full: The University of Hong Kong}
+- {abbr: HKUST, full: Hong Kong University of Science and Technology}
+- {abbr: HKCU, full: The Chinese University of Hong Kong}
+- {abbr: Tsinghua, full: 清华大学}
+- {abbr: Peking, full: 北京大学}

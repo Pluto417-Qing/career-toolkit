@@ -44,21 +44,20 @@
 
 ### 同义词归并
 
-常见等价词组（匹配时视为同一关键词）：
-- JS / JavaScript / ECMAScript
-- TS / TypeScript
-- K8s / Kubernetes
-- 容器 / Docker / 容器化
-- MySQL / 关系型数据库 / RDBMS
-- Redis / 缓存 / 内存数据库
-- React / React.js / ReactJS
-- Vue / Vue.js / VueJS
-- 机器学习 / ML / Machine Learning
-- 深度学习 / DL / Deep Learning
-- CI/CD / 持续集成 / 持续部署
-- 微服务 / Microservice
+同义词库外置在 [assets/synonyms.yaml](../assets/synonyms.yaml)，当前覆盖 **200+ 组**同义词，包含：
 
-Agent 可根据上下文动态扩展同义词表。
+- 编程语言（JavaScript/TypeScript/Python/Go/Rust…）
+- 前端框架（React/Vue/Angular/Next.js…）
+- 后端框架（Spring Boot/Django/FastAPI/Express…）
+- 数据库（MySQL/PostgreSQL/MongoDB/Redis…）
+- 消息队列/中间件（Kafka/RabbitMQ/Nginx…）
+- 云原生/DevOps（Docker/K8s/CI-CD/Terraform…）
+- 机器学习/AI（ML/DL/NLP/LLM/PyTorch…）
+- 产品/运营（DAU/MAU/GMV/ROI/A-B测试…）
+- 设计（UI/UX/Figma/Sketch…）
+- 金融/财务（DCF/CPA/CFA/尽调…）
+
+Agent 可根据上下文动态扩展同义词库——只需在 YAML 中追加新组即可。
 
 ### 重要度分级
 

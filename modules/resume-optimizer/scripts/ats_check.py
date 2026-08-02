@@ -1,6 +1,7 @@
 """中文 ATS 合规检查脚本。
 
 读取 resume.yaml，逐项检查 ATS 合规性，输出 JSON 报告。
+学校缩写表外置在 assets/university_names.yaml，方便社区维护扩充。
 """
 
 import argparse
@@ -11,24 +12,34 @@ from pathlib import Path
 
 import yaml
 
+SKILL_DIR = Path(__file__).resolve().parent.parent
+UNIVERSITY_NAMES_PATH = SKILL_DIR / "assets" / "university_names.yaml"
+
 PHONE_PATTERN = re.compile(r"^1[3-9]\d{9}$")
 EMAIL_PATTERN = re.compile(r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$")
 DATE_YYYY_MM_DOT = re.compile(r"^\d{4}\.\d{2}$")
 DATE_YYYY_MM_DASH = re.compile(r"^\d{4}-\d{2}$")
 DATE_CHINESE = re.compile(r"\d{4}年\d{1,2}月")
 SENSITIVE_FIELDS = {"身份证", "身份证号", "家庭住址", "家庭地址", "婚姻", "政治面貌"}
-ABBREVIATION_PATTERNS = [
-    (re.compile(r"北邮"), "北京邮电大学"),
-    (re.compile(r"清华"), "清华大学"),
-    (re.compile(r"北大"), "北京大学"),
-    (re.compile(r"浙大"), "浙江大学"),
-    (re.compile(r"上交"), "上海交通大学"),
-    (re.compile(r"哈工大"), "哈尔滨工业大学"),
-    (re.compile(r"华科"), "华中科技大学"),
-    (re.compile(r"中科大"), "中国科学技术大学"),
-    (re.compile(r"南大"), "南京大学"),
-    (re.compile(r"武大"), "武汉大学"),
-]
+ID_CARD_PATTERN = re.compile(r"\d{17}[\dXx]")
+
+# LinkedIn / GitHub 等常见社交主页
+PROFILE_NETWORKS = {"github", "linkedin", "个人博客", "博客", "website", "知乎", "掘金", "csdn"}
+
+
+def load_university_names() -> list[tuple[re.Pattern, str]]:
+    """从外置 YAML 加载学校缩写表，返回 (pattern, full_name) 列表。"""
+    if not UNIVERSITY_NAMES_PATH.exists():
+        return []
+    with UNIVERSITY_NAMES_PATH.open("r", encoding="utf-8") as f:
+        entries = yaml.safe_load(f) or []
+    result = []
+    for entry in entries:
+        abbr = entry.get("abbr", "")
+        full = entry.get("full", "")
+        if abbr and full:
+            result.append((re.compile(re.escape(abbr)), full))
+    return result
 
 
 def check(rule_id: str, name: str, passed: bool, severity: str, detail: str = "", fix: str = "") -> dict:
@@ -80,8 +91,11 @@ def run(resume_path: str) -> dict:
     with open(resume_path, "r", encoding="utf-8") as f:
         resume = yaml.safe_load(f)
 
+    university_patterns = load_university_names()
     results = []
     basics = resume.get("basics", {})
+
+    # ─── 1. 基础信息 ───
 
     # 1.1 姓名
     results.append(check("1.1", "姓名字段", bool(basics.get("name")), "fatal",
@@ -109,16 +123,18 @@ def run(resume_path: str) -> dict:
     results.append(check("1.5", "教育经历完整", edu_valid, "fatal",
                          "" if edu_valid else "缺少教育经历或缺少 institution/degree"))
 
-    # 1.6 名称全称
+    # 1.6 学校全称
     for section in ("education", "work"):
         for i, entry in enumerate(resume.get(section, []) or []):
             name_field = entry.get("institution") or entry.get("organization") or ""
-            for pattern, full_name in ABBREVIATION_PATTERNS:
+            for pattern, full_name in university_patterns:
                 if pattern.search(name_field) and full_name not in name_field:
                     results.append(check("1.6", "名称使用全称", False, "warn",
                                          f'{section}[{i}] "{name_field}" 疑似缩写',
                                          f"建议改为完整名称，如 {full_name}"))
                     break
+
+    # ─── 2. 时间格式 ───
 
     # 2.1 时间格式统一
     dates = collect_dates(resume)
@@ -143,29 +159,81 @@ def run(resume_path: str) -> dict:
             results.append(check("2.4", f"{section} 倒序排列", ordered, "warn",
                                  f"{section} 未按时间倒序" if not ordered else ""))
 
-    # 4.1 敏感信息
-    full_text = json.dumps(resume, ensure_ascii=False)
-    has_sensitive = any(s in full_text for s in SENSITIVE_FIELDS)
-    id_card = bool(re.search(r"\d{17}[\dXx]", full_text))
-    results.append(check("4.1", "无敏感信息", not (has_sensitive or id_card), "warn",
-                         "检测到可能的敏感信息（身份证号/家庭地址/婚姻/政治面貌）" if (has_sensitive or id_card) else ""))
+    # ─── 3. 内容完整性 ───
 
-    # 4.3 技能等级
-    for skill in resume.get("skills", []) or []:
-        if skill.get("level") and "精通" in skill.get("level", ""):
-            results.append(check("4.3", "技能等级用词", False, "warn",
-                                 f'skills "{skill["name"]}" 使用了"精通"',
-                                 '除非确实顶级水平，建议改为"熟练"'))
-
-    # 4.4 highlights 非空
+    # 3.1 work highlights 非空
     for section in ("work", "projects"):
         for i, entry in enumerate(resume.get(section, []) or []):
             hl = entry.get("highlights", []) or []
             entry_name = entry.get("organization") or entry.get("name") or f"{section}[{i}]"
             if not hl:
-                results.append(check("4.4", "经历有 highlights", False, "warn",
+                results.append(check("3.1", "经历有 highlights", False, "warn",
                                      f'{section}[{i}] "{entry_name}" 无 highlights',
                                      "至少添加 1-2 条成果描述"))
+
+    # 3.2 简历长度（highlights 条数）
+    total_bullets = 0
+    for section in ("work", "projects", "research"):
+        for entry in resume.get(section, []) or []:
+            total_bullets += len(entry.get("highlights", []) or [])
+    if total_bullets > 30:
+        results.append(check("3.2", "经历条数合理", False, "warn",
+                             f"总 highlights 数 {total_bullets}，可能超长",
+                             "应届生建议控制在 15 条以内，社招 20 条以内"))
+    else:
+        results.append(check("3.2", "经历条数合理", True, "warn"))
+
+    # ─── 4. 敏感信息 / 用词 ───
+
+    # 4.1 敏感信息
+    full_text = json.dumps(resume, ensure_ascii=False)
+    has_sensitive = any(s in full_text for s in SENSITIVE_FIELDS)
+    has_id_card = bool(ID_CARD_PATTERN.search(full_text))
+    results.append(check("4.1", "无敏感信息", not (has_sensitive or has_id_card), "warn",
+                         "检测到可能的敏感信息（身份证号/家庭地址/婚姻/政治面貌）" if (has_sensitive or has_id_card) else ""))
+
+    # 4.3 技能等级用词
+    for skill in resume.get("skills", []) or []:
+        level = skill.get("level", "")
+        if level and "精通" in level:
+            results.append(check("4.3", "技能等级用词", False, "warn",
+                                 f'skills "{skill["name"]}" 使用了"精通"',
+                                 '除非确实顶级水平，建议改为"熟练"'))
+
+    # 4.5 社交主页
+    profiles = basics.get("profiles", []) or []
+    has_profile = len(profiles) > 0
+    results.append(check("4.5", "社交主页/作品集", has_profile, "warn",
+                         "" if has_profile else "未填写 GitHub / 博客 / 作品集链接",
+                         "技术岗建议填写 GitHub，产品岗建议填写作品集"))
+
+    # ─── 5. ATS 可读性专项 ───
+
+    # 5.1 无照片遮挡关键信息（avatar 存在时不报错，但提示）
+    avatar = basics.get("avatar", "")
+    if avatar:
+        results.append(check("5.1", "头像设置", True, "warn",
+                             "已设置头像，确保不遮挡姓名/联系方式"))
+
+    # 5.2 summary 长度
+    summary = basics.get("summary", "") or ""
+    if summary and len(summary) > 200:
+        results.append(check("5.2", "个人简介长度", False, "warn",
+                             f"summary 长度 {len(summary)} 字，过长",
+                             "建议控制在 100 字以内，HR 扫视时间有限"))
+    else:
+        results.append(check("5.2", "个人简介长度", True, "warn"))
+
+    # 5.3 技能关键词密度
+    skill_keywords_total = 0
+    for skill in resume.get("skills", []) or []:
+        skill_keywords_total += len(skill.get("keywords", []) or [])
+    if skill_keywords_total < 5:
+        results.append(check("5.3", "技能关键词密度", False, "warn",
+                             f"技能关键词仅 {skill_keywords_total} 个",
+                             "建议至少列出 10 个技术关键词，提高 ATS 命中率"))
+    else:
+        results.append(check("5.3", "技能关键词密度", True, "warn"))
 
     # Summary
     total = len(results)

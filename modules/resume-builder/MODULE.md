@@ -18,7 +18,7 @@
 - 在浏览器预览简历，或导出印刷级 PDF
 - 需要一份 JSON Resume 兼容数据用来接第三方模板
 
-不覆盖：JD 匹配 / ATS 深度诊断 / bullet 量化改写（交给 `resume-optimizer`）；职业方向规划（交给 `career-planner`）。
+不覆盖：JD 匹配 / ATS 深度诊断 / bullet 量化改写（交给 `resume-optimizer`）。
 
 ## 工作流：对话驱动，三阶段自动推进
 
@@ -99,7 +99,6 @@ python3 scripts/render.py <path/to/resume.yaml> --out-dir <output_dir> --pdf
 
 ## 与其他模块的协作
 
-- `career-planner` 完成画像后可自动映射 `profile.yaml → resume.yaml`，无缝衔接本模块
 - `resume-optimizer`（后续）在本模块产出的 `resume.json` 上做 JD 匹配与 ATS 检查
 - `lark-doc` / `lark-im` / `lark-shared`：飞书发布链路
 

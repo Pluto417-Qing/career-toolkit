@@ -1,5 +1,5 @@
-<h1 align="center">Career Toolkit</h1>
-<p align="center">Agent Skill — 用对话代替表单，从职业规划到简历生成一步到位。</p>
+<h1 align="center">Resume Toolkit</h1>
+<p align="center">Agent Skill — 专注中文简历领域，从对话生成到求职强化一步到位。</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/type-Agent%20Skill-purple"/>
@@ -40,20 +40,19 @@
 
 ```
        ┌─────────────────────────────────────────────────┐
-       │              Career Toolkit                      │
+       │              Resume Toolkit                     │
        │                                                 │
-       │   ① Planner    ② Builder      ③ Optimizer      │
-       │   ┌────────┐   ┌──────────┐   ┌────────────┐   │
-       │   │ 画像   │   │ 对话挖掘 │   │ JD 关键词  │   │
-       │   │ 测评   │──→│ YAML生成 │──→│ ATS 检查   │   │
-       │   │ 规划   │   │ 主题渲染 │   │ Bullet改写 │   │
-       │   └────────┘   └──────────┘   └────────────┘   │
+       │   ① Builder              ② Optimizer           │
+       │   ┌──────────┐          ┌────────────┐         │
+       │   │ 对话挖掘 │          │ JD 关键词  │         │
+       │   │ YAML生成 │─────────→│ ATS 检查   │         │
+       │   │ 主题渲染 │          │ Bullet改写 │         │
+       │   └──────────┘          └────────────┘         │
        │                                                 │
-       │   profile.yaml → resume.yaml → 匹配报告         │
+       │   resume.yaml → 匹配报告 / ATS报告 / 改写建议  │
        └─────────────────────────────────────────────────┘
 ```
 
-- **Career Planner** — 引导式提问 + Holland 测评，产出职业规划和行动时间线
 - **Resume Builder** — 对话挖掘经历 → YAML → 选主题渲染（HTML/PDF/Markdown/JSON Resume）
 - **Resume Optimizer** — 给 JD 算覆盖率、ATS 合规检查、逐条 Bullet 改写
 
@@ -72,7 +71,7 @@
 ```bash
 git clone https://github.com/Pluto417-Qing/resume-skill.git
 cd resume-skill
-pip install PyYAML Jinja2 jsonschema
+pip install PyYAML Jinja2 jsonschema jieba
 pip install weasyprint  # 可选，PDF 导出
 ```
 
@@ -80,9 +79,9 @@ pip install weasyprint  # 可选，PDF 导出
 
 | Agent / IDE | 接入方法 |
 |---|---|
-| Trae | 克隆到 `~/.trae/skills/career-toolkit` |
-| Cursor | 克隆到 `~/.cursor/skills/career-toolkit`，或在 `.cursor/rules/` 中引用 |
-| Windsurf | 克隆到 `~/.windsurf/skills/career-toolkit` |
+| Trae | 克隆到 `~/.trae/skills/resume-toolkit` |
+| Cursor | 克隆到 `~/.cursor/skills/resume-toolkit`，或在 `.cursor/rules/` 中引用 |
+| Windsurf | 克隆到 `~/.windsurf/skills/resume-toolkit` |
 | Claude Code | 将仓库路径加入项目 `AGENTS.md` 或 `~/.claude/settings.json` 的 skills 列表 |
 | Codex (OpenAI) | 在 `codex.yaml` 中注册为 tool，或放入 `~/.codex/skills/` |
 | OpenClaw | 在 `.openclaw/config.yaml` 的 `skills` 字段添加本地路径或远程 URL |
@@ -98,8 +97,7 @@ pip install weasyprint  # 可选，PDF 导出
 | 数据层 | YAML + JSON Schema 校验 |
 | 渲染层 | Jinja2 模板 + 纯 CSS |
 | 导出层 | WeasyPrint / Markdown / JSON Resume |
-| 测评层 | Python + YAML 题库 |
-| 优化层 | 关键词提取 + 规则引擎 |
+| 优化层 | jieba 分词 + TF-IDF + 规则引擎 + 同义词库 |
 
 全离线，不依赖外部 API。模块间通过文件解耦，可单独使用。
 
