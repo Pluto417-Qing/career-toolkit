@@ -19,8 +19,11 @@ from condenser.content_condenser import ContentCondenser
 from condenser.expression_optimizer import ExpressionOptimizer
 from condenser.highlighter import Highlighter
 from question.question_generator import QuestionGenerator
-from builder.resume_builder import ResumeBuilder
-from builder.template_system import TemplateManager
+from pipeline.orchestrator import ResumeOrchestrator
+from pipeline.template_system import TemplateManager
+
+# 向后兼容别名
+ResumeBuilder = ResumeOrchestrator
 
 
 def main():

@@ -1,4 +1,4 @@
-"""测试 resume_builder 完整流程。"""
+"""测试 resume_orchestrator 完整流程。"""
 
 import sys
 import tempfile
@@ -6,8 +6,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from builder.resume_builder import ResumeBuilder
+from pipeline.orchestrator import ResumeOrchestrator
 from profile.profile_manager import ProfileManager
+
+# 向后兼容别名
+ResumeBuilder = ResumeOrchestrator
 
 
 def create_test_profile():
@@ -111,7 +114,7 @@ def test_full_build_flow():
     with tempfile.TemporaryDirectory() as tmpdir:
         # 创建 builder
         config = {"profiles_dir": tmpdir}
-        builder = ResumeBuilder(config)
+        builder = ResumeOrchestrator(config)
 
         # 创建信息库
         profile = create_test_profile()
@@ -173,7 +176,7 @@ def test_save_and_load():
 
     with tempfile.TemporaryDirectory() as tmpdir:
         config = {"profiles_dir": str(Path(tmpdir) / "profiles")}
-        builder = ResumeBuilder(config)
+        builder = ResumeOrchestrator(config)
 
         # 创建信息库
         profile = create_test_profile()
@@ -204,7 +207,7 @@ def test_profile_update_from_answers():
 
     with tempfile.TemporaryDirectory() as tmpdir:
         config = {"profiles_dir": str(Path(tmpdir) / "profiles")}
-        builder = ResumeBuilder(config)
+        builder = ResumeOrchestrator(config)
 
         # 创建信息库
         profile = create_test_profile()
@@ -242,7 +245,7 @@ def test_list_and_delete_profiles():
 
     with tempfile.TemporaryDirectory() as tmpdir:
         config = {"profiles_dir": str(Path(tmpdir) / "profiles")}
-        builder = ResumeBuilder(config)
+        builder = ResumeOrchestrator(config)
 
         # 创建两个信息库
         profile1 = create_test_profile()
@@ -273,7 +276,7 @@ def test_interactive_workflow():
 
     with tempfile.TemporaryDirectory() as tmpdir:
         config = {"profiles_dir": str(Path(tmpdir) / "profiles")}
-        builder = ResumeBuilder(config)
+        builder = ResumeOrchestrator(config)
 
         # 模拟老用户流程
         print("  📋 场景：老用户创建简历")

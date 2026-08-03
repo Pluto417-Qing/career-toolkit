@@ -1,6 +1,7 @@
-"""简历构建器。
+"""简历编排器。
 
 整合所有模块，形成完整的简历生成流程。
+负责调用各子模块，协调数据流，最终产出 YAML 格式的简历。
 """
 
 import json
@@ -9,7 +10,7 @@ from typing import Optional
 
 import yaml
 
-# 导入各模块
+# 导入各子模块
 from profile.profile_manager import ProfileManager
 from jd.jd_analyzer import JDAnalyzer
 from ranker.experience_ranker import ExperienceRanker
@@ -17,22 +18,24 @@ from condenser.content_condenser import ContentCondenser
 from question.question_generator import QuestionGenerator
 
 
-class ResumeBuilder:
-    """简历构建器。
+class ResumeOrchestrator:
+    """简历编排器。
 
     整合 ProfileManager、JDAnalyzer、ExperienceRanker、
     ContentCondenser、QuestionGenerator 等模块。
+
+    职责：信息库 → JD分析 → 筛选 → 精简 → 产出 YAML
     """
 
     def __init__(self, config: Optional[dict] = None):
-        """初始化构建器。
+        """初始化编排器。
 
         参数：
             config: 配置字典
         """
         self.config = config or {}
 
-        # 初始化各模块
+        # 初始化各子模块
         self.profile_manager = ProfileManager(
             self.config.get("profiles_dir", "profiles")
         )
@@ -49,13 +52,16 @@ class ResumeBuilder:
             self.config.get("max_questions", 10)
         )
 
-    def build_resume(self, user_id: str, jd_text: str,
+    def build_resume(self, user_id: str, jd_text: Optional[str] = None,
                      update_profile: bool = True) -> dict:
         """构建简历（完整流程）。
 
+        有 JD 时：生成 JD 适配版简历
+        无 JD 时：生成通用版简历
+
         参数：
             user_id: 用户 ID
-            jd_text: JD 文本
+            jd_text: JD 文本（可选）
             update_profile: 是否更新信息库
 
         返回：
@@ -63,6 +69,7 @@ class ResumeBuilder:
         """
         result = {
             "status": "success",
+            "mode": "jd_optimized" if jd_text else "general",
             "steps": [],
             "resume": None,
             "jd_analysis": None,
@@ -87,29 +94,31 @@ class ResumeBuilder:
             }
         })
 
-        # Step 2: 分析 JD
-        try:
-            jd_analysis = self.jd_analyzer.analyze(jd_text)
-            result["jd_analysis"] = jd_analysis
-            result["steps"].append({
-                "step": "analyze_jd",
-                "status": "success",
-                "data": {
-                    "quality_score": jd_analysis.get("quality_score"),
-                    "required_keywords_count": len(jd_analysis.get("keywords", {}).get("required", [])),
-                    "concepts_count": len(jd_analysis.get("concept_mapping", [])),
-                }
-            })
-        except Exception as e:
-            result["steps"].append({
-                "step": "analyze_jd",
-                "status": "error",
-                "error": str(e),
-            })
-            result["errors"].append(f"JD 分析失败：{e}")
-            return result
+        # Step 2: 分析 JD（仅当有 JD 时）
+        jd_analysis = None
+        if jd_text:
+            try:
+                jd_analysis = self.jd_analyzer.analyze(jd_text)
+                result["jd_analysis"] = jd_analysis
+                result["steps"].append({
+                    "step": "analyze_jd",
+                    "status": "success",
+                    "data": {
+                        "quality_score": jd_analysis.get("quality_score"),
+                        "required_keywords_count": len(jd_analysis.get("keywords", {}).get("required", [])),
+                        "concepts_count": len(jd_analysis.get("concept_mapping", [])),
+                    }
+                })
+            except Exception as e:
+                result["steps"].append({
+                    "step": "analyze_jd",
+                    "status": "error",
+                    "error": str(e),
+                })
+                result["errors"].append(f"JD 分析失败：{e}")
+                return result
 
-        # Step 3: 筛选经历
+        # Step 3: 筛选经历（基于 JD 或默认策略）
         try:
             selection_result = self.experience_ranker.rank(profile, jd_analysis)
             result["steps"].append({
@@ -156,27 +165,28 @@ class ResumeBuilder:
             result["errors"].append(f"内容精简失败：{e}")
             return result
 
-        # Step 5: 生成问题
-        try:
-            question_set = self.question_generator.generate_questions(
-                profile, jd_analysis, selection_result
-            )
-            result["questions"] = question_set
-            result["steps"].append({
-                "step": "generate_questions",
-                "status": "success",
-                "data": {
-                    "total_questions": question_set.get("total_count"),
-                    "high_priority": question_set.get("high_priority_count"),
-                }
-            })
-        except Exception as e:
-            result["steps"].append({
-                "step": "generate_questions",
-                "status": "error",
-                "error": str(e),
-            })
-            result["errors"].append(f"问题生成失败：{e}")
+        # Step 5: 生成问题（仅当有 JD 时）
+        if jd_analysis:
+            try:
+                question_set = self.question_generator.generate_questions(
+                    profile, jd_analysis, selection_result
+                )
+                result["questions"] = question_set
+                result["steps"].append({
+                    "step": "generate_questions",
+                    "status": "success",
+                    "data": {
+                        "total_questions": question_set.get("total_count"),
+                        "high_priority": question_set.get("high_priority_count"),
+                    }
+                })
+            except Exception as e:
+                result["steps"].append({
+                    "step": "generate_questions",
+                    "status": "error",
+                    "error": str(e),
+                })
+                result["errors"].append(f"问题生成失败：{e}")
 
         return result
 
@@ -211,7 +221,7 @@ class ResumeBuilder:
 
         saved_files = {}
 
-        # 保存简历
+        # 保存简历（单一 YAML 文件）
         if result.get("resume"):
             resume_path = output_path / "resume.yaml"
             with open(resume_path, "w", encoding="utf-8") as f:
@@ -219,7 +229,7 @@ class ResumeBuilder:
                          sort_keys=False, default_flow_style=False)
             saved_files["resume"] = str(resume_path)
 
-        # 保存 JD 分析
+        # 保存 JD 分析（仅当有 JD 时）
         if result.get("jd_analysis"):
             jd_path = output_path / "jd_analysis.yaml"
             with open(jd_path, "w", encoding="utf-8") as f:
@@ -227,7 +237,7 @@ class ResumeBuilder:
                          sort_keys=False, default_flow_style=False)
             saved_files["jd_analysis"] = str(jd_path)
 
-        # 保存问题集
+        # 保存问题集（仅当有问题时）
         if result.get("questions"):
             questions_path = output_path / "questions.json"
             with open(questions_path, "w", encoding="utf-8") as f:
@@ -238,6 +248,7 @@ class ResumeBuilder:
         summary_path = output_path / "build_summary.json"
         summary = {
             "status": result.get("status"),
+            "mode": result.get("mode"),
             "errors": result.get("errors", []),
             "steps": [
                 {"step": s["step"], "status": s["status"]}

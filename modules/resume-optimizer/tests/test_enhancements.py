@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from condenser.expression_optimizer import ExpressionOptimizer
 from condenser.highlighter import Highlighter
-from builder.template_system import TemplateManager
+from pipeline.template_system import TemplateManager
 
 
 def test_expression_optimizer():

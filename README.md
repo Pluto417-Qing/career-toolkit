@@ -9,7 +9,7 @@
 
 **Resume Toolkit** 是一个全离线、信息库驱动的中文简历系统。核心理念：
 
-> 先建立「个人信息库」存储完整履历，再面向特定 JD 从信息库中筛选、裁剪、润色、交互生成两份简历——**通用版（海投）** 与 **JD 适配版（定向）**。
+> 先建立「个人信息库」存储完整履历，再面向特定 JD 从信息库中筛选、裁剪、润色、交互生成简历。**有 JD 则生成 JD 适配版，无 JD 则生成通用版**。
 
 ---
 
@@ -64,10 +64,10 @@
 │  │  └──────────────────┘     └────────────────────────────┘       │ │
 │  │           │                         │                           │ │
 │  │           ▼                         ▼                           │ │
-│  │  ⑤ QuestionGenerator      ⑥ ResumeBuilder                     │ │
+│  │  ⑤ QuestionGenerator      ⑥ ResumeOrchestrator                 │ │
 │  │  ┌──────────────────┐     ┌────────────────────────────┐       │ │
-│  │  │ 缺失/模糊检测    │     │ 整合所有模块               │       │ │
-│  │  │ 交互式追问       │     │ 11 主题对比 · 多格式导出   │       │ │
+│  │  │ 缺失/模糊检测    │     │ 编排所有子模块             │       │ │
+│  │  │ 交互式追问       │     │ 产出 YAML 简历            │       │ │
 │  │  └──────────────────┘     └────────────────────────────┘       │ │
 │  │                                                                 │ │
 │  └─────────────────────────────────────────────────────────────────┘ │
@@ -83,7 +83,7 @@
 | **信息库驱动** | 一次采集完整履历（工作/项目/教育双视角），多次复用生成不同简历 |
 | **双视角采集** | 每条经历同时记录「项目做了什么」和「你做了什么」，构建真实贡献 |
 | **5 维经历筛选** | 关键词匹配、概念关联、量化程度、重要性、时效性加权评分 |
-| **双版本生成** | 通用版（海投）+ JD 适配版（定向），不编造经历 |
+| **智能模式** | 有 JD 生成 JD 适配版，无 JD 生成通用版，不编造经历 |
 | **交互式追问** | 自动识别缺失量化、模糊描述、与 JD 不匹配的条目并追问用户 |
 | **一页纸控制** | 默认输出 A4 一页，自动裁剪弱相关内容 |
 | **表达优化** | 弱动词→强动词替换、行业术语专业化、STAR 模板应用 |
@@ -94,32 +94,36 @@
 
 ## 模块详解
 
-### 🔖 Resume Builder（简历生成）
+### 🏗️ resume-builder（渲染层）
 
-对话式采集 → YAML → 选主题渲染（HTML/PDF/Markdown/JSON Resume）。
+**纯渲染引擎**：接收 YAML + 主题名 → 输出 HTML/PDF/Markdown。
 
 ```bash
-# 从信息库生成简历
-python3 modules/resume-optimizer/scripts/resume_cli.py build <user_id> --jd jd.txt
+# 渲染简历
+python3 modules/resume-builder/scripts/render.py resume.yaml --theme modern
 ```
 
-### 🔍 Resume Optimizer（求职优化）
+### ⚙️ resume-optimizer（编排层）
 
-面向 JD 的完整优化链路：
+**优化编排引擎**：信息库 → JD 分析 → 筛选 → 精简 → 产出 YAML。
 
-| 原子 Skill | 说明 |
+| 子模块 | 说明 |
 |---|---|
-| **JD 匹配** | 三层关键词覆盖率分析，输出 gap 分类与改写建议 |
-| **关键词融入** | 不堆砌、不编造，5 种融入策略 + 置信度分级 |
-| **Bullet 改写** | 诊断形容词式/职责式/模糊式描述，生成改写对照 |
-| **ATS 检查** | 中文字段合规、时间格式、夸大词检测 |
-| **双版本生成** | 一键产出通用版 + JD 适配版 |
+| **ProfileManager** | 信息库 CRUD、版本控制、描述符系统 |
+| **JDAnalyzer** | JD 关键词提取、概念映射、质量评分 |
+| **ExperienceRanker** | 5 维相关性评分、经历排序与 Top-N 选择 |
+| **ContentCondenser** | 双视角合并、弱动词替换、一页纸控制 |
+| **QuestionGenerator** | 缺失量化检测、模糊描述追问、JD 匹配确认 |
+| **ResumeOrchestrator** | 编排所有子模块，产出 YAML 简历 |
+
+**两层关系**：`resume-optimizer` 产出 YAML → `resume-builder` 渲染。
 
 ```bash
-# 一键优化
-python3 modules/resume-optimizer/scripts/jd_optimize.py resume.yaml --jd jd.txt
-# 匹配分析
-python3 modules/resume-optimizer/scripts/jd_match.py resume.yaml --jd jd.txt
+# 从信息库构建简历（有 JD）
+python3 scripts/resume_cli.py build <user_id> --jd jd.txt
+
+# 从信息库构建简历（无 JD，生成通用版）
+python3 scripts/resume_cli.py build <user_id>
 ```
 
 ### ⚙️ 模块化子系统
@@ -133,7 +137,7 @@ python3 modules/resume-optimizer/scripts/jd_match.py resume.yaml --jd jd.txt
 | **ranker** | `ranker/` | 5 维相关性评分、经历排序与 Top-N 选择 |
 | **condenser** | `condenser/` | 内容精简、表达优化、重点高亮 |
 | **question** | `question/` | 问题生成、优先级排序、交互管理 |
-| **builder** | `builder/` | 整合编排、模板渲染、多格式导出 |
+| **pipeline** | `pipeline/` | 编排所有子模块、模板对比、多格式导出 |
 
 ---
 
@@ -210,20 +214,22 @@ pip install weasyprint  # 可选，PDF 导出
 
 ```
 modules/
-├── resume-builder/          # 对话采集 + 渲染
+├── resume-builder/          # 渲染层（YAML → HTML/PDF/MD）
 │   ├── assets/themes/       # 11 套主题
 │   ├── assets/tsinghua/     # 清华院系/奖学金/经历类型
 │   └── scripts/             # render / validate / to_markdown
-└── resume-optimizer/        # 求职优化
+└── resume-optimizer/        # 编排层（信息库 → YAML）
     ├── profile/             # 信息库管理
     ├── jd/                  # JD 分析
     ├── ranker/              # 经历筛选
     ├── condenser/           # 内容精简 + 表达优化 + 重点突出
     ├── question/            # 交互提问生成
-    ├── builder/             # 整合构建 + 模板系统
+    ├── pipeline/            # 编排器 + 模板系统
     ├── assets/              # 动词/术语/概念/同义词库
-    └── scripts/             # CLI + 5 个原子 Skill 脚本
+    └── scripts/             # CLI 工具
 ```
+
+**数据流**：`resume-optimizer` 产出 YAML → `resume-builder` 渲染输出
 
 ---
 
