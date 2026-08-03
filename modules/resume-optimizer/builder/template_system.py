@@ -1,462 +1,291 @@
 """简历模板系统。
 
-支持多模板生成、模板对比、自定义主题。
+对接 resume-builder 的 11 套 Jinja2 主题，提供模板对比和管理。
 """
 
 from pathlib import Path
 from typing import Optional
 import json
+import sys
+
+# 定位 resume-builder 的 themes 目录
+_CURRENT_DIR = Path(__file__).resolve().parent.parent.parent
+_THEMES_DIR = _CURRENT_DIR / "resume-builder" / "assets" / "themes"
+
+
+# 11 套主题的元信息（基于 resume-builder/assets/themes/）
+THEME_META = {
+    "classic": {
+        "display_name": "经典",
+        "description": "传统正式风格，适合银行、国企等传统行业",
+        "category": "traditional",
+    },
+    "modern": {
+        "display_name": "现代",
+        "description": "简约专业风格，适合互联网、科技公司",
+        "category": "modern",
+    },
+    "minimal": {
+        "display_name": "极简",
+        "description": "极简设计，突出内容本身",
+        "category": "minimal",
+    },
+    "compact": {
+        "display_name": "紧凑",
+        "description": "高密度排版，适合一页纸控制",
+        "category": "compact",
+    },
+    "elegant": {
+        "display_name": "优雅",
+        "description": "精致优雅，适合中高管岗位",
+        "category": "traditional",
+    },
+    "academic": {
+        "display_name": "学术",
+        "description": "学术风格，适合科研、教育岗位",
+        "category": "academic",
+    },
+    "infographic": {
+        "display_name": "信息图",
+        "description": "视觉化风格，适合设计、产品岗位",
+        "category": "creative",
+    },
+    "creative": {
+        "display_name": "创意",
+        "description": "活力个性风格，适合创意类岗位",
+        "category": "creative",
+    },
+    "executive": {
+        "display_name": "高管",
+        "description": "大气稳重，适合高管、资深岗位",
+        "category": "traditional",
+    },
+    "metro": {
+        "display_name": "都市",
+        "description": "现代都市风格，适合时尚、媒体行业",
+        "category": "modern",
+    },
+    "tech": {
+        "display_name": "科技",
+        "description": "科技感风格，适合技术研发岗位",
+        "category": "modern",
+    },
+}
+
+# 主题分类 → 推荐岗位映射
+CATEGORY_RECOMMENDATIONS = {
+    "traditional": ["银行", "国企", "政府", "事业单位", "公务员"],
+    "modern": ["互联网", "科技", "IT", "软件", "工程师"],
+    "minimal": ["任何岗位", "技术岗", "简约风格偏好"],
+    "compact": ["内容较多", "一页纸需求", "多段经历"],
+    "academic": ["科研", "教育", "学术", "高校", "实验室"],
+    "creative": ["设计", "产品", "创意", "市场", "品牌"],
+}
 
 
 class ResumeTemplate:
-    """简历模板。"""
+    """简历模板（包装 resume-builder 的主题）。"""
 
-    def __init__(self, name: str, config: dict):
+    def __init__(self, name: str):
         """初始化模板。
 
         参数：
-            name: 模板名称
-            config: 模板配置
+            name: 主题名称（对应 resume-builder 的主题目录）
         """
         self.name = name
-        self.config = config
+        meta = THEME_META.get(name, {})
+        self.display_name = meta.get("display_name", name)
+        self.description = meta.get("description", "")
+        self.category = meta.get("category", "modern")
+        self.theme_dir = _THEMES_DIR / name
 
-        # 基础配置
-        self.display_name = config.get("display_name", name)
-        self.description = config.get("description", "")
-        self.layout = config.get("layout", "single_column")
-        self.style = config.get("style", {})
+    def exists(self) -> bool:
+        """检查主题是否存在于 resume-builder 中。"""
+        return self.theme_dir.is_dir() and (self.theme_dir / "template.html.j2").exists()
 
     def render(self, resume_data: dict, output_format: str = "html") -> str:
         """渲染简历。
 
         参数：
-            resume_data: 简历数据
+            resume_data: 简历数据（resume.yaml 的结构）
             output_format: 输出格式 (html/markdown/json)
 
         返回：
             渲染结果
         """
+        if output_format == "json":
+            return json.dumps(resume_data, ensure_ascii=False, indent=2)
+
+        if not self.exists():
+            raise ValueError(f"主题不存在: {self.name} (目录: {self.theme_dir})")
+
         if output_format == "html":
-            return self._render_html(resume_data)
+            return self._render_via_builder(resume_data)
         elif output_format == "markdown":
             return self._render_markdown(resume_data)
-        elif output_format == "json":
-            return json.dumps(resume_data, ensure_ascii=False, indent=2)
         else:
             raise ValueError(f"不支持的输出格式：{output_format}")
 
-    def _render_html(self, resume_data: dict) -> str:
-        """渲染 HTML。"""
-        # 基础样式
-        styles = self._get_base_styles()
+    def _render_via_builder(self, resume_data: dict) -> str:
+        """调用 resume-builder 的 Jinja2 渲染。"""
+        try:
+            from jinja2 import Environment, FileSystemLoader, select_autoescape
+        except ImportError:
+            raise ImportError("请先安装 jinja2: pip install Jinja2")
 
-        # 构建 HTML
-        html_parts = [
-            "<!DOCTYPE html>",
-            "<html>",
-            "<head>",
-            '<meta charset="UTF-8">',
-            f"<title>{resume_data.get('basics', {}).get('name', 'Resume')}</title>",
-            "<style>",
-            styles,
-            "</style>",
-            "</head>",
-            "<body>",
-            self._render_header(resume_data.get("basics", {})),
-            self._render_education(resume_data.get("education", [])),
-            self._render_work(resume_data.get("work", [])),
-            self._render_projects(resume_data.get("projects", [])),
-            self._render_skills(resume_data.get("skills", [])),
-            "</body>",
-            "</html>",
-        ]
-
-        return "\n".join(html_parts)
+        env = Environment(
+            loader=FileSystemLoader(str(self.theme_dir)),
+            autoescape=select_autoescape(["html", "xml"]),
+            trim_blocks=True,
+            lstrip_blocks=True,
+        )
+        tmpl = env.get_template("template.html.j2")
+        return tmpl.render(data=resume_data)
 
     def _render_markdown(self, resume_data: dict) -> str:
-        """渲染 Markdown。"""
-        md_parts = []
-
+        """渲染 Markdown（与 resume-builder 保持一致）。"""
         basics = resume_data.get("basics", {})
-        md_parts.append(f"# {basics.get('name', '')}")
-        md_parts.append("")
+        parts = [f"# {basics.get('name', '')}", ""]
 
         if basics.get("label"):
-            md_parts.append(f"**{basics['label']}**")
+            parts.append(f"**{basics['label']}**")
+        contact = []
         if basics.get("phone"):
-            md_parts.append(f"📞 {basics['phone']}")
+            contact.append(f"📞 {basics['phone']}")
         if basics.get("email"):
-            md_parts.append(f"✉️ {basics['email']}")
-        md_parts.append("")
+            contact.append(f"✉️ {basics['email']}")
+        if contact:
+            parts.append(" | ".join(contact))
+        parts.append("")
 
-        # 教育背景
         for edu in resume_data.get("education", []):
-            md_parts.append(f"## 📚 {edu.get('institution', '')}")
-            md_parts.append(f"*{edu.get('subtitle', '')} | {edu.get('period', '')}*")
+            parts.append(f"## 📚 {edu.get('institution', edu.get('title', ''))}")
+            parts.append(f"*{edu.get('subtitle', '')} | {edu.get('period', '')}*")
             for hl in edu.get("highlights", []):
-                md_parts.append(f"- {hl}")
-            md_parts.append("")
+                parts.append(f"- {hl}")
+            parts.append("")
 
-        # 工作经历
-        for work in resume_data.get("work", []):
-            md_parts.append(f"## 💼 {work.get('title', '')}")
-            md_parts.append(f"*{work.get('subtitle', '')} | {work.get('period', '')}*")
-            for hl in work.get("highlights", []):
-                md_parts.append(f"- {hl}")
-            md_parts.append("")
+        for w in resume_data.get("work", []):
+            parts.append(f"## 💼 {w.get('title', '')}")
+            parts.append(f"*{w.get('subtitle', '')} | {w.get('period', '')}*")
+            for hl in w.get("highlights", []):
+                parts.append(f"- {hl}")
+            parts.append("")
 
-        # 项目经历
         for proj in resume_data.get("projects", []):
-            md_parts.append(f"## 🚀 {proj.get('title', '')}")
-            md_parts.append(f"*{proj.get('subtitle', '')}*")
+            parts.append(f"## 🚀 {proj.get('title', '')}")
+            parts.append(f"*{proj.get('subtitle', '')}*")
             for hl in proj.get("highlights", []):
-                md_parts.append(f"- {hl}")
-            md_parts.append("")
+                parts.append(f"- {hl}")
+            parts.append("")
 
-        return "\n".join(md_parts)
-
-    def _get_base_styles(self) -> str:
-        """获取基础样式。"""
-        # 从模板配置获取样式，或使用默认
-        font_family = self.style.get("font_family", "'Segoe UI', 'Microsoft YaHei', sans-serif")
-        primary_color = self.style.get("primary_color", "#2563eb")
-        bg_color = self.style.get("bg_color", "#ffffff")
-        text_color = self.style.get("text_color", "#1f2937")
-
-        return f"""
-            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-            body {{
-                font-family: {font_family};
-                font-size: 10pt;
-                line-height: 1.5;
-                color: {text_color};
-                background: {bg_color};
-                max-width: 210mm;
-                margin: 0 auto;
-                padding: 10mm;
-            }}
-            header {{
-                text-align: center;
-                border-bottom: 2px solid {primary_color};
-                padding-bottom: 10px;
-                margin-bottom: 15px;
-            }}
-            header h1 {{
-                font-size: 24pt;
-                color: {primary_color};
-                margin-bottom: 5px;
-            }}
-            header .contact {{
-                font-size: 9pt;
-                color: #6b7280;
-            }}
-            section {{
-                margin-bottom: 15px;
-            }}
-            section h2 {{
-                font-size: 12pt;
-                color: {primary_color};
-                border-bottom: 1px solid #e5e7eb;
-                padding-bottom: 3px;
-                margin-bottom: 8px;
-            }}
-            .entry {{
-                margin-bottom: 12px;
-            }}
-            .entry-title {{
-                font-weight: 600;
-                font-size: 11pt;
-            }}
-            .entry-subtitle {{
-                color: #6b7280;
-                font-size: 10pt;
-            }}
-            .entry-period {{
-                color: #9ca3af;
-                font-size: 9pt;
-            }}
-            .highlights {{
-                margin-top: 5px;
-                padding-left: 15px;
-            }}
-            .highlights li {{
-                margin-bottom: 3px;
-            }}
-            .quant {{
-                color: {primary_color};
-                font-weight: 600;
-            }}
-            .impact {{
-                color: #059669;
-                font-weight: 600;
-            }}
-            .tech {{
-                background: #eff6ff;
-                padding: 1px 4px;
-                border-radius: 3px;
-                font-family: monospace;
-            }}
-            @media print {{
-                body {{ padding: 0; }}
-            }}
-        """
-
-    def _render_header(self, basics: dict) -> str:
-        """渲染头部。"""
-        name = basics.get("name", "")
-        label = basics.get("label", "")
-        phone = basics.get("phone", "")
-        email = basics.get("email", "")
-
-        return f"""
-            <header>
-                <h1>{name}</h1>
-                <div class="contact">
-                    {label} | {phone} | {email}
-                </div>
-            </header>
-        """
-
-    def _render_education(self, education: list) -> str:
-        """渲染教育背景。"""
-        if not education:
-            return ""
-
-        parts = ["<section>", "<h2>📚 教育背景</h2>"]
-
-        for edu in education:
-            parts.append(f"""
-                <div class="entry">
-                    <div class="entry-title">{edu.get('title', '')}</div>
-                    <div class="entry-subtitle">{edu.get('subtitle', '')}</div>
-                    <div class="entry-period">{edu.get('period', '')}</div>
-                    <ul class="highlights">
-                        {''.join(f'<li>{hl}</li>' for hl in edu.get('highlights', []))}
-                    </ul>
-                </div>
-            """)
-
-        parts.append("</section>")
         return "\n".join(parts)
 
-    def _render_work(self, work: list) -> str:
-        """渲染工作经历。"""
-        if not work:
-            return ""
-
-        parts = ["<section>", "<h2>💼 工作经历</h2>"]
-
-        for w in work:
-            parts.append(f"""
-                <div class="entry">
-                    <div class="entry-title">{w.get('title', '')}</div>
-                    <div class="entry-subtitle">{w.get('subtitle', '')}</div>
-                    <div class="entry-period">{w.get('period', '')}</div>
-                    <ul class="highlights">
-                        {''.join(f'<li>{hl}</li>' for hl in w.get('highlights', []))}
-                    </ul>
-                </div>
-            """)
-
-        parts.append("</section>")
-        return "\n".join(parts)
-
-    def _render_projects(self, projects: list) -> str:
-        """渲染项目经历。"""
-        if not projects:
-            return ""
-
-        parts = ["<section>", "<h2>🚀 项目经历</h2>"]
-
-        for proj in projects:
-            parts.append(f"""
-                <div class="entry">
-                    <div class="entry-title">{proj.get('title', '')}</div>
-                    <div class="entry-subtitle">{proj.get('subtitle', '')}</div>
-                    <ul class="highlights">
-                        {''.join(f'<li>{hl}</li>' for hl in proj.get('highlights', []))}
-                    </ul>
-                </div>
-            """)
-
-        parts.append("</section>")
-        return "\n".join(parts)
-
-    def _render_skills(self, skills: list) -> str:
-        """渲染技能。"""
-        if not skills:
-            return ""
-
-        parts = ["<section>", "<h2>🛠️ 技能</h2>", '<ul class="highlights">']
-
-        for skill in skills:
-            name = skill.get("name", "")
-            keywords = skill.get("keywords", [])
-            if keywords:
-                parts.append(f"<li><strong>{name}:</strong> {', '.join(keywords)}</li>")
-
-        parts.extend(["</ul>", "</section>"])
-        return "\n".join(parts)
-
-
-# ═══════════════════════════════════════════════════════════
-# 预设模板
-# ═══════════════════════════════════════════════════════════
-
-# 经典模板：传统、正式
-CLASSIC_TEMPLATE = ResumeTemplate("classic", {
-    "display_name": "经典风格",
-    "description": "传统正式风格，适合银行、国企等传统行业",
-    "layout": "single_column",
-    "style": {
-        "font_family": "'SimSun', 'STSong', serif",
-        "primary_color": "#000000",
-        "bg_color": "#ffffff",
-        "text_color": "#333333",
-    }
-})
-
-# 现代模板：简约、专业
-MODERN_TEMPLATE = ResumeTemplate("modern", {
-    "display_name": "现代风格",
-    "description": "简约专业风格，适合互联网、科技公司",
-    "layout": "single_column",
-    "style": {
-        "font_family": "'Segoe UI', 'Microsoft YaHei', sans-serif",
-        "primary_color": "#2563eb",
-        "bg_color": "#ffffff",
-        "text_color": "#1f2937",
-    }
-})
-
-# 极简模板：简洁、聚焦
-MINIMAL_TEMPLATE = ResumeTemplate("minimal", {
-    "display_name": "极简风格",
-    "description": "极简设计，突出内容本身",
-    "layout": "single_column",
-    "style": {
-        "font_family": "'Helvetica Neue', Arial, sans-serif",
-        "primary_color": "#374151",
-        "bg_color": "#ffffff",
-        "text_color": "#111827",
-    }
-})
-
-# 创意模板：活力、个性
-CREATIVE_TEMPLATE = ResumeTemplate("creative", {
-    "display_name": "创意风格",
-    "description": "活力个性风格，适合设计、产品岗位",
-    "layout": "single_column",
-    "style": {
-        "font_family": "'PingFang SC', 'Microsoft YaHei', sans-serif",
-        "primary_color": "#6366f1",
-        "bg_color": "#fafafa",
-        "text_color": "#1f2937",
-    }
-})
-
-
-# ═══════════════════════════════════════════════════════════
-# 模板管理器
-# ═══════════════════════════════════════════════════════════
 
 class TemplateManager:
-    """模板管理器。"""
+    """模板管理器（基于 resume-builder 的 11 套主题）。"""
 
-    def __init__(self):
-        """初始化管理器。"""
-        self.templates = {
-            "classic": CLASSIC_TEMPLATE,
-            "modern": MODERN_TEMPLATE,
-            "minimal": MINIMAL_TEMPLATE,
-            "creative": CREATIVE_TEMPLATE,
-        }
-
-    def get_template(self, name: str) -> Optional[ResumeTemplate]:
-        """获取模板。
+    def __init__(self, themes_dir: Optional[str] = None):
+        """初始化管理器。
 
         参数：
-            name: 模板名称
-
-        返回：
-            模板对象，如果不存在返回 None
+            themes_dir: 主题目录路径（默认自动定位 resume-builder/assets/themes）
         """
-        return self.templates.get(name)
+        if themes_dir:
+            self.themes_dir = Path(themes_dir)
+        else:
+            self.themes_dir = _THEMES_DIR
+
+        # 从目录扫描可用主题
+        self._templates = {}
+        if self.themes_dir.is_dir():
+            for d in sorted(self.themes_dir.iterdir()):
+                if d.is_dir() and (d / "template.html.j2").exists():
+                    self._templates[d.name] = ResumeTemplate(d.name)
+
+    def get_template(self, name: str) -> Optional[ResumeTemplate]:
+        """获取模板。"""
+        return self._templates.get(name)
 
     def list_templates(self) -> list[dict]:
-        """列出所有模板。"""
-        return [
-            {
+        """列出所有可用主题。"""
+        result = []
+        for name, tmpl in sorted(self._templates.items()):
+            meta = THEME_META.get(name, {})
+            result.append({
                 "name": name,
-                "display_name": tmpl.display_name,
-                "description": tmpl.description,
-            }
-            for name, tmpl in self.templates.items()
-        ]
+                "display_name": meta.get("display_name", name),
+                "description": meta.get("description", tmpl.description),
+                "category": meta.get("category", "modern"),
+            })
+        return result
+
+    def list_by_category(self) -> dict[str, list[dict]]:
+        """按分类列出主题。"""
+        by_cat: dict[str, list[dict]] = {}
+        for t in self.list_templates():
+            cat = t.get("category", "other")
+            by_cat.setdefault(cat, []).append(t)
+        return by_cat
 
     def render_with_all_templates(self, resume_data: dict,
                                    output_format: str = "html") -> dict[str, str]:
-        """用所有模板渲染简历。
-
-        参数：
-            resume_data: 简历数据
-            output_format: 输出格式
-
-        返回：
-            模板名称 -> 渲染结果
-        """
+        """用所有可用主题渲染简历。"""
         results = {}
-
-        for name, template in self.templates.items():
-            results[name] = template.render(resume_data, output_format)
-
+        for name, tmpl in self._templates.items():
+            try:
+                results[name] = tmpl.render(resume_data, output_format)
+            except Exception as e:
+                results[name] = f"[渲染失败: {e}]"
         return results
 
     def compare_templates(self, resume_data: dict) -> dict:
-        """对比所有模板。
-
-        参数：
-            resume_data: 简历数据
-
-        返回：
-            对比结果
-        """
+        """对比所有主题并推荐。"""
         comparison = {
+            "total_templates": len(self._templates),
             "templates": [],
             "recommendations": [],
         }
 
-        # 收集各模板信息
-        for name, template in self.templates.items():
-            html = template.render(resume_data, "html")
+        for name, tmpl in sorted(self._templates.items()):
+            meta = THEME_META.get(name, {})
+            html_len = 0
+            try:
+                html_len = len(tmpl.render(resume_data, "html"))
+            except Exception:
+                pass
+
             comparison["templates"].append({
                 "name": name,
-                "display_name": template.display_name,
-                "description": template.description,
-                "html_length": len(html),
-                "style": template.style,
+                "display_name": meta.get("display_name", name),
+                "description": meta.get("description", ""),
+                "category": meta.get("category", "modern"),
+                "html_length": html_len,
             })
 
-        # 生成推荐
-        # 根据简历内容推荐合适的模板
+        # 根据岗位标签推荐
         basics = resume_data.get("basics", {})
-        label = basics.get("label", "").lower()
+        label = (basics.get("label", "") or "").lower()
 
-        if any(kw in label for kw in ["银行", "国企", "政府", "事业单位"]):
+        matched_cats = set()
+        for cat, keywords in CATEGORY_RECOMMENDATIONS.items():
+            if any(kw in label for kw in keywords):
+                matched_cats.add(cat)
+
+        if matched_cats:
             comparison["recommendations"].append({
-                "template": "classic",
-                "reason": "传统行业适合经典正式风格",
-            })
-        elif any(kw in label for kw in ["设计", "产品", "创意"]):
-            comparison["recommendations"].append({
-                "template": "creative",
-                "reason": "创意类岗位适合活力个性风格",
+                "categories": list(matched_cats),
+                "reason": f"岗位标签「{basics.get('label', '')}」匹配这些分类",
+                "templates": [
+                    t["name"] for t in comparison["templates"]
+                    if t["category"] in matched_cats
+                ],
             })
         else:
             comparison["recommendations"].append({
-                "template": "modern",
-                "reason": "互联网科技岗位适合简约专业风格",
+                "categories": ["modern"],
+                "reason": "默认推荐现代风格，适合大多数岗位",
+                "templates": ["modern", "minimal", "compact"],
             })
 
         return comparison
