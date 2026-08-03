@@ -1,0 +1,92 @@
+# 夸大风险词库
+# 用于检测简历中可能夸大的措辞
+
+# 高风险：声明超出可验证范围的能力或规模
+high_risk:
+  - word: 精通
+    suggestion: 改为「熟悉」或「熟练使用」，并准备具体项目佐证
+    examples: [精通 Java, 精通 React, 精通分布式系统]
+
+  - word: 熟练掌握
+    suggestion: 改为「熟悉」或直接列出使用过的项目
+    examples: [熟练掌握 Python, 熟练掌握数据分析]
+
+  - word: 资深
+    suggestion: 改为具体年限，如「3 年经验」
+    examples: [资深工程师, 资深开发者]
+
+  - word: 专家
+    suggestion: 改为「熟悉」或列出代表性产出
+    examples: [技术专家, 领域专家]
+
+  - word: 精通掌握
+    suggestion: 改为「熟悉」或列出具体应用
+    examples: [精通掌握前端技术栈]
+
+  - word: 深入研究
+    suggestion: 改为「了解原理」或列出具体研究产出
+    examples: [深入研究底层原理]
+
+  - word: 深度精通
+    suggestion: 改为「熟悉」或列出具体应用
+    examples: [深度精通微服务架构]
+
+# 中等风险：使用模糊的大词，缺乏具体数据支撑
+medium_risk:
+  - word: 千万级
+    suggestion: 确认数字来源，如无据改为相对量化（如「提升 N 倍」）
+    examples: [千万级用户, 千万级数据]
+
+  - word: 亿级
+    suggestion: 确认数字来源，如无据改为相对量化
+    examples: [亿级流量, 亿级数据]
+
+  - word: 百万级
+    suggestion: 确认数字来源，如无据改为相对量化
+    examples: [百万级并发, 百万级用户]
+
+  - word: 海量
+    suggestion: 改为具体规模数字
+    examples: [海量数据, 海量用户]
+
+  - word: 极致
+    suggestion: 改为具体量化指标
+    examples: [极致性能, 极致体验]
+
+  - word: 完美
+    suggestion: 改为具体达成率
+    examples: [完美解决, 完美优化]
+
+  - word: 巨大
+    suggestion: 改为具体倍数或百分比
+    examples: [巨大提升, 巨大改进]
+
+  - word: 显著提升
+    suggestion: 补充具体提升幅度
+    examples: [性能显著提升, 效率显著提升]
+
+# 行业特定夸大词（可选）
+industry_specific:
+  技术岗:
+    high_risk:
+      - word: 核心贡献者
+        suggestion: 确认具体贡献，列出 PR 或 commit 数
+      - word: 主力开发
+        suggestion: 改为「参与开发」并说明负责模块
+
+  产品岗:
+    medium_risk:
+      - word: 主导设计
+        suggestion: 确认是否独自设计，否则改为「参与设计」
+      - word: 从零到一
+        suggestion: 确认具体职责，避免夸大个人作用
+
+# 检测规则说明
+detection_rules:
+  - 范围: [basics.summary, basics.label, work.*.highlights, work.*.summary, projects.*.highlights, skills.*.keywords]
+    说明: 扫描简历文本字段
+
+  - 触发条件: 文本中包含夸大词
+    处理: 报告中标注位置 + 风险级别 + 改写建议
+
+  - 不自动修改原则: 夸大措辞只报告不修改，需候选人确认或提供佐证

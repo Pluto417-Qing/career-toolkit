@@ -12,7 +12,14 @@
   JD 版：在通用版基础上，融入 JD 关键词 + 调整内容侧重 + 重排顺序
 
 Usage:
+    # 基础模式：自动生成两份简历
     python3 scripts/jd_optimize.py <resume.yaml> --jd <jd.txt> --out-dir <output_dir>
+
+    # 交互模式：遇到不确定的建议时询问用户
+    python3 scripts/jd_optimize.py <resume.yaml> --jd <jd.txt> --out-dir <output_dir> --interactive
+
+    # 只确认高风险项
+    python3 scripts/jd_optimize.py <resume.yaml> --jd <jd.txt> --out-dir <output_dir> --interactive --risk-level high
 """
 
 import argparse
@@ -22,6 +29,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 import yaml
@@ -29,41 +37,207 @@ import yaml
 SCRIPTS_DIR = Path(__file__).resolve().parent
 SKILL_DIR = SCRIPTS_DIR.parent
 
+# 导入自定义异常
+try:
+    from exceptions import (
+        ScriptExecutionError,
+        ScriptTimeoutError,
+        ScriptRetryError,
+        ValidationError,
+    )
+except ImportError:
+    # 兼容旧版本，如果异常模块不存在则使用基础异常
+    class ScriptExecutionError(Exception):
+        def __init__(self, script_name, returncode, stderr):
+            self.script_name = script_name
+            self.returncode = returncode
+            self.stderr = stderr
+            super().__init__(f"脚本 {script_name} 执行失败（退出码 {returncode}）：{stderr}")
 
-def run_script(script_name: str, *args) -> dict:
-    """运行一个 Python 脚本并返回 JSON 输出。"""
+    class ScriptTimeoutError(Exception):
+        def __init__(self, script_name, timeout):
+            self.script_name = script_name
+            self.timeout = timeout
+            super().__init__(f"脚本 {script_name} 执行超时（{timeout} 秒）")
+
+    class ScriptRetryError(Exception):
+        def __init__(self, script_name, attempts, last_error):
+            self.script_name = script_name
+            self.attempts = attempts
+            self.last_error = last_error
+            super().__init__(f"脚本 {script_name} 重试 {attempts} 次后仍失败：{last_error}")
+
+    class ValidationError(Exception):
+        def __init__(self, field, reason):
+            self.field = field
+            self.reason = reason
+            super().__init__(f"字段 {field} 校验失败：{reason}")
+
+
+def run_script(script_name: str, *args, max_retries: int = 3, timeout: int = 60,
+               retry_delay: float = 1.0, verbose: bool = False) -> dict:
+    """运行一个 Python 脚本并返回 JSON 输出。
+
+    参数：
+        script_name: 脚本名称
+        *args: 脚本参数
+        max_retries: 最大重试次数（默认 3）
+        timeout: 超时秒数（默认 60）
+        retry_delay: 重试间隔秒数（默认 1.0）
+        verbose: 是否显示详细日志
+
+    返回：
+        dict: 脚本输出的 JSON 数据
+
+    异常：
+        ScriptRetryError: 重试后仍失败
+        ScriptTimeoutError: 执行超时
+        ScriptExecutionError: 执行失败
+    """
     cmd = [sys.executable, str(SCRIPTS_DIR / script_name)] + list(args)
-    result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
-    if result.returncode != 0:
-        print(f"⚠️ {script_name} 执行失败: {result.stderr}", file=sys.stderr)
-        return {}
-    try:
-        return json.loads(result.stdout)
-    except json.JSONDecodeError:
-        return {}
+
+    last_error = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            if verbose and attempt > 1:
+                print(f"   重试 {attempt}/{max_retries}: {script_name}")
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                timeout=timeout
+            )
+
+            if result.returncode != 0:
+                last_error = ScriptExecutionError(script_name, result.returncode, result.stderr)
+                if verbose:
+                    print(f"   ⚠️ 执行失败（退出码 {result.returncode}）", file=sys.stderr)
+
+                # 某些错误不应该重试（如文件不存在）
+                if "not found" in result.stderr.lower() or "不存在" in result.stderr:
+                    raise last_error
+
+                # 其他错误可以重试
+                if attempt < max_retries:
+                    time.sleep(retry_delay * attempt)  # 指数退避
+                    continue
+                else:
+                    raise ScriptRetryError(script_name, max_retries, last_error)
+
+            # 执行成功，解析 JSON
+            try:
+                data = json.loads(result.stdout)
+                if verbose and attempt > 1:
+                    print(f"   ✅ 重试成功")
+                return data
+            except json.JSONDecodeError as e:
+                # JSON 解析失败不重试，直接抛出
+                raise ScriptExecutionError(
+                    script_name, 0,
+                    f"JSON 解析失败：{e}\n输出内容：{result.stdout[:200]}"
+                )
+
+        except subprocess.TimeoutExpired:
+            last_error = ScriptTimeoutError(script_name, timeout)
+            if verbose:
+                print(f"   ⚠️ 执行超时（{timeout} 秒）", file=sys.stderr)
+
+            if attempt < max_retries:
+                time.sleep(retry_delay * attempt)
+                continue
+            else:
+                raise ScriptRetryError(script_name, max_retries, last_error)
+
+        except KeyboardInterrupt:
+            print("\n用户中断执行")
+            raise
+
+    # 不应该到达这里
+    raise ScriptRetryError(script_name, max_retries, last_error or Exception("未知错误"))
+
+
+# ═══════════════════════════════════════════
+# 配置加载
+# ═══════════════════════════════════════════
+
+def load_verb_config() -> tuple[dict, list, list]:
+    """加载动词配置。
+
+    返回：(强动词字典, 已有动词列表, 弱动词列表)
+    """
+    verbs_path = SKILL_DIR / "assets" / "verbs.yaml"
+    if verbs_path.exists():
+        with verbs_path.open("r", encoding="utf-8") as f:
+            config = yaml.safe_load(f) or {}
+
+        strong_verbs = config.get("strong_verbs", {})
+        existing_verbs = config.get("existing_verbs", [])
+        weak_verbs = config.get("weak_verbs", [])
+        return strong_verbs, existing_verbs, weak_verbs
+    else:
+        # 回退到默认配置
+        return (
+            {
+                "创造类": ["主导", "设计", "搭建", "构建", "创立", "发明", "提出"],
+                "优化类": ["优化", "提升", "改进", "降低", "压缩", "加速", "重构"],
+                "分析类": ["分析", "调研", "评估", "诊断", "排查", "定位"],
+                "管理类": ["推动", "组织", "协调", "带领", "分配", "规划"],
+                "技术类": ["实现", "开发", "封装", "部署", "集成", "迁移"],
+            },
+            ["主导", "独立完成", "设计", "落地", "推动", "优化", "沉淀",
+             "实现", "开发", "封装", "部署", "集成", "迁移", "搭建", "构建",
+             "使用", "基于", "引入", "负责", "参与", "产出", "编写",
+             "重构", "分析", "调研", "组织", "协调", "带领"],
+            ["做了", "进行了", "完成了", "弄了", "搞了", "处理了"]
+        )
+
+
+def load_exaggeration_config() -> dict:
+    """加载夸大词配置。"""
+    exagg_path = SKILL_DIR / "assets" / "exaggeration_words.yaml"
+    if exagg_path.exists():
+        with exagg_path.open("r", encoding="utf-8") as f:
+            return yaml.safe_load(f) or {}
+    else:
+        # 回退到默认配置
+        return {
+            "high_risk": [
+                {"word": w, "suggestion": s}
+                for w, s in [
+                    ("精通", "改为「熟悉」或「熟练使用」，并准备具体项目佐证"),
+                    ("熟练掌握", "改为「熟悉」或直接列出使用过的项目"),
+                    ("资深", "改为具体年限，如「3 年经验」"),
+                    ("专家", "改为「熟悉」或列出代表性产出"),
+                ]
+            ],
+            "medium_risk": [
+                {"word": w, "suggestion": s}
+                for w, s in [
+                    ("千万级", "确认数字来源，如无据改为相对量化"),
+                    ("亿级", "确认数字来源，如无据改为相对量化"),
+                    ("海量", "改为具体规模数字"),
+                ]
+            ]
+        }
+
+
+# 加载配置（模块级别，启动时加载一次）
+STRONG_VERBS, EXISTING_VERBS, WEAK_VERBS = load_verb_config()
+EXAGGERATION_CONFIG = load_exaggeration_config()
+
+# 构建夸大词字典（兼容旧代码）
+EXAGGERATION_WORDS = {}
+for item in EXAGGERATION_CONFIG.get("high_risk", []):
+    EXAGGERATION_WORDS.setdefault("high", []).append(item["word"])
+for item in EXAGGERATION_CONFIG.get("medium_risk", []):
+    EXAGGERATION_WORDS.setdefault("medium", []).append(item["word"])
 
 
 # ═══════════════════════════════════════════
 # 通用版生成：只修 Bullet，不碰 JD
 # ═══════════════════════════════════════════
-
-STRONG_VERBS = {
-    "创造类": ["主导", "设计", "搭建", "构建", "创立", "发明", "提出"],
-    "优化类": ["优化", "提升", "改进", "降低", "压缩", "加速", "重构"],
-    "分析类": ["分析", "调研", "评估", "诊断", "排查", "定位"],
-    "管理类": ["推动", "组织", "协调", "带领", "分配", "规划"],
-    "技术类": ["实现", "开发", "封装", "部署", "集成", "迁移"],
-}
-
-EXISTING_VERBS = [
-    "主导", "独立完成", "设计", "落地", "推动", "优化", "沉淀",
-    "实现", "开发", "封装", "部署", "集成", "迁移", "搭建", "构建",
-    "使用", "基于", "引入", "负责", "参与", "产出", "编写",
-    "重构", "分析", "调研", "组织", "协调", "带领",
-]
-
-# 弱动词：前置会读成"主导做了…"，应替换而非叠加
-WEAK_VERBS = ["做了", "进行了", "完成了", "弄了", "搞了", "处理了"]
 
 
 def build_general_version(resume: dict, bullet_result: dict) -> tuple[dict, list[dict]]:
@@ -163,8 +337,17 @@ AUTO_THRESHOLD = 0.9
 
 
 def build_jd_version(general: dict, match_result: dict, integrate_result: dict,
-                      jd_keywords: list) -> tuple[dict, list[dict], list[dict]]:
+                      jd_keywords: list, interactive: bool = False,
+                      min_risk_level: str = "medium") -> tuple[dict, list[dict], list[dict]]:
     """在通用版基础上，融入 JD 关键词 + 调整内容侧重。
+
+    参数：
+        general: 通用版简历
+        match_result: JD 匹配结果
+        integrate_result: JD 融入建议
+        jd_keywords: JD 关键词列表
+        interactive: 是否启用交互模式
+        min_risk_level: 交互确认的最低风险级别（critical/high/medium/low）
 
     返回 (JD 适配版 resume, 修改记录, 需候选人确认的清单)。
 
@@ -180,6 +363,10 @@ def build_jd_version(general: dict, match_result: dict, integrate_result: dict,
     applied = []
     confirmations = []
 
+    # 风险级别顺序
+    risk_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+    min_risk_idx = risk_order.get(min_risk_level, 2)
+
     # 1. 关键词融入（分级）
     suggestions = integrate_result.get("suggestions", [])
     for sug in suggestions:
@@ -191,6 +378,7 @@ def build_jd_version(general: dict, match_result: dict, integrate_result: dict,
         original = sug.get("original_text", "")
         strategy = sug.get("strategy", "")
         entry_name = sug.get("target_entry", "")
+        suggested_text = sug.get("suggested_text", "")
 
         # 自动应用：仅 explicit + 高置信度（补规范名，不改动作）
         if strategy == "explicit" and confidence >= AUTO_THRESHOLD:
@@ -220,8 +408,12 @@ def build_jd_version(general: dict, match_result: dict, integrate_result: dict,
                 })
             continue
 
+        # 计算风险级别
+        risk = _strategy_risk(strategy)
+        risk_idx = risk_order.get(risk, 2)
+
         # 需确认：tech_list / enrich / summary / new_context
-        confirmations.append({
+        confirmation_item = {
             "keyword": keyword,
             "strategy": strategy,
             "strategy_description": sug.get("strategy_description", ""),
@@ -229,10 +421,52 @@ def build_jd_version(general: dict, match_result: dict, integrate_result: dict,
             "target_entry": entry_name,
             "target_section": section,
             "bullet_text": original,
-            "suggested_text": sug.get("suggested_text", ""),
+            "suggested_text": suggested_text,
             "question": _build_confirmation_question(keyword, strategy, entry_name, original),
-            "risk": _strategy_risk(strategy),
-        })
+            "risk": risk,
+        }
+
+        # 交互模式：符合风险级别要求的才询问
+        if interactive and risk_idx <= min_risk_idx:
+            user_decision = _interactive_confirm(confirmation_item)
+            if user_decision["action"] == "apply":
+                # 用户确认应用，执行融入
+                if entry_index >= 0 and bullet_index >= 0:
+                    entries = jd_version.get(section, [])
+                    if entry_index < len(entries):
+                        entry = entries[entry_index]
+                        highlights = entry.get("highlights", [])
+                        if bullet_index < len(highlights):
+                            # 使用用户确认的文本或建议文本
+                            final_text = user_decision.get("custom_text", suggested_text)
+                            highlights[bullet_index] = final_text
+                            applied.append({
+                                "type": "keyword_integrate",
+                                "keyword": keyword,
+                                "section": section,
+                                "entry": entry_name,
+                                "bullet_index": bullet_index,
+                                "before": original,
+                                "after": final_text,
+                                "confidence": confidence,
+                                "mode": "interactive",
+                                "user_note": user_decision.get("note", ""),
+                                "note": "用户交互确认后应用",
+                            })
+                            continue
+            elif user_decision["action"] == "skip":
+                # 用户选择跳过，记录但不应用
+                confirmation_item["user_decision"] = "skipped"
+                confirmations.append(confirmation_item)
+                continue
+            elif user_decision["action"] == "abort":
+                # 用户选择中止，返回当前状态
+                confirmation_item["user_decision"] = "aborted"
+                confirmations.append(confirmation_item)
+                break
+
+        # 非交互模式或风险级别不够：归入确认清单
+        confirmations.append(confirmation_item)
 
     # 2. label 调整（求职意向，不涉及编造，可自动）
     jd_title = _extract_jd_title(jd_keywords)
@@ -279,6 +513,90 @@ def build_jd_version(general: dict, match_result: dict, integrate_result: dict,
             })
 
     return jd_version, applied, confirmations
+
+
+def _interactive_confirm(item: dict) -> dict:
+    """交互式确认一个融入建议。
+
+    显示问题，等待用户输入，返回用户决定。
+
+    返回格式：
+    {
+        "action": "apply" | "skip" | "abort",
+        "custom_text": str | None,  # 用户自定义文本（可选）
+        "note": str | None,          # 用户备注（可选）
+    }
+    """
+    print("\n" + "═" * 70)
+    print(f"🔍 需要确认：{item['keyword']}")
+    print("═" * 70)
+    print(f"风险级别：{item['risk'].upper()}")
+    print(f"策略：{item['strategy_description']}")
+    print(f"目标位置：{item['target_entry']} → {item['target_section']}")
+    print(f"\n当前文本：{item['bullet_text']}")
+    print(f"建议文本：{item['suggested_text']}")
+    print(f"\n问题：{item['question']}")
+    print("─" * 70)
+    print("选项：")
+    print("  [y] 确认应用建议文本")
+    print("  [c] 自定义文本")
+    print("  [s] 跳过此项（不融入该关键词）")
+    print("  [a] 中止所有交互，使用当前状态生成简历")
+    print("  [?] 查看帮助")
+    print("─" * 70)
+
+    while True:
+        try:
+            choice = input("请选择 [y/c/s/a/?]: ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print("\n检测到中断，中止交互模式")
+            return {"action": "abort"}
+
+        if choice == "y":
+            return {"action": "apply"}
+        elif choice == "c":
+            print("\n请输入自定义文本（直接回车使用建议文本）：")
+            try:
+                custom = input("> ").strip()
+            except (EOFError, KeyboardInterrupt):
+                print("\n检测到中断，使用建议文本")
+                return {"action": "apply"}
+
+            if custom:
+                print(f"\n自定义文本：{custom}")
+                print("确认使用此文本？[y/n]")
+                try:
+                    confirm = input("> ").strip().lower()
+                except (EOFError, KeyboardInterrupt):
+                    confirm = "n"
+
+                if confirm == "y":
+                    return {"action": "apply", "custom_text": custom}
+                else:
+                    print("已取消自定义，请重新选择")
+                    continue
+            else:
+                return {"action": "apply"}
+        elif choice == "s":
+            print("已跳过此项")
+            return {"action": "skip"}
+        elif choice == "a":
+            print("\n⚠️ 中止交互模式，将使用当前已确认的内容生成简历")
+            return {"action": "abort"}
+        elif choice == "?":
+            print("\n帮助：")
+            print("  y - 确认应用系统建议的文本")
+            print("  c - 自己编写融入文本（可以更自然）")
+            print("  s - 跳过此项，不融入该关键词")
+            print("  a - 停止交互，直接用当前结果生成简历")
+            print("  ? - 显示此帮助信息")
+            print("\n建议：")
+            print("  - 如果你确实有相关经历，选择 y 或 c")
+            print("  - 如果没有或不确定，选择 s 跳过")
+            print("  - 自定义文本时，请确保内容真实")
+            print("")
+        else:
+            print(f"无效选择：{choice}，请重新输入")
 
 
 def _build_confirmation_question(keyword: str, strategy: str, entry: str, bullet: str) -> str:
@@ -622,8 +940,22 @@ def format_report_text(report: dict) -> str:
 # 主流程
 # ═══════════════════════════════════════════
 
-def run(resume_path: str, jd_path: str, out_dir: str | None = None) -> dict:
-    """双版本生成管道。"""
+def run(resume_path: str, jd_path: str, out_dir: str | None = None,
+        interactive: bool = False, min_risk_level: str = "medium",
+        verbose: bool = False) -> dict:
+    """双版本生成管道。
+
+    参数：
+        resume_path: 简历文件路径
+        jd_path: JD 文件路径
+        out_dir: 输出目录
+        interactive: 是否启用交互模式
+        min_risk_level: 交互确认的最低风险级别
+        verbose: 是否显示详细进度
+    """
+    if verbose:
+        print("🚀 开始简历优化流程...")
+
     with open(resume_path, "r", encoding="utf-8") as f:
         resume = yaml.safe_load(f)
 
@@ -632,31 +964,49 @@ def run(resume_path: str, jd_path: str, out_dir: str | None = None) -> dict:
 
     try:
         # 1. JD 匹配
-        match_result = run_script("jd_match.py", resume_path, "--jd", jd_path)
+        if verbose:
+            print("📊 步骤 1/6: JD 关键词匹配...")
+        match_result = run_script("jd_match.py", resume_path, "--jd", jd_path, verbose=verbose)
         if not match_result:
             return {"error": "JD 匹配失败"}
         with open(match_path, "w", encoding="utf-8") as f:
             json.dump(match_result, f, ensure_ascii=False)
 
         # 2. JD 融入建议
-        integrate_result = run_script("jd_integrate.py", resume_path, "--match", match_path)
+        if verbose:
+            print("🔧 步骤 2/6: 生成关键词融入建议...")
+        integrate_result = run_script("jd_integrate.py", resume_path, "--match", match_path, verbose=verbose)
 
         # 3. Bullet 诊断
-        bullet_result = run_script("bullet_rewrite.py", resume_path)
+        if verbose:
+            print("📝 步骤 3/6: Bullet 文本诊断...")
+        bullet_result = run_script("bullet_rewrite.py", resume_path, verbose=verbose)
 
         # 4. ATS 检查
-        ats_result = run_script("ats_check.py", resume_path)
+        if verbose:
+            print("✅ 步骤 4/6: ATS 格式检查...")
+        ats_result = run_script("ats_check.py", resume_path, verbose=verbose)
 
         # 5. 生成通用版（只修 Bullet）
+        if verbose:
+            print("📄 步骤 5/6: 生成通用版简历...")
         general_version, general_changes = build_general_version(resume, bullet_result)
 
         # 6. 生成 JD 适配版（通用版 + JD 深度适配）
+        if verbose:
+            print("🎯 步骤 6/6: 生成 JD 适配版简历...")
+            if interactive:
+                print("   交互模式已启用，将逐项确认关键融入")
+
         jd_keywords = match_result.get("covered", []) + match_result.get("missing", [])
         jd_version, jd_changes, confirmations = build_jd_version(
-            general_version, match_result, integrate_result, jd_keywords
+            general_version, match_result, integrate_result, jd_keywords,
+            interactive=interactive, min_risk_level=min_risk_level
         )
 
         # 7. 夸大风险检测（对原简历 + JD 版）
+        if verbose:
+            print("⚠️  检测夸大风险措辞...")
         exaggeration_warnings = detect_exaggeration(resume)
         jd_exaggeration = detect_exaggeration(jd_version)
         # 去重（按 location + word）
@@ -673,7 +1023,7 @@ def run(resume_path: str, jd_path: str, out_dir: str | None = None) -> dict:
             confirmations, exaggeration_warnings, ats_result
         )
 
-        # 8. 输出文件
+        # 9. 输出文件
         if out_dir:
             out_dir = Path(out_dir)
             out_dir.mkdir(parents=True, exist_ok=True)
@@ -683,6 +1033,11 @@ def run(resume_path: str, jd_path: str, out_dir: str | None = None) -> dict:
                 yaml.dump(general_version, f, allow_unicode=True, sort_keys=False, default_flow_style=False)
             with open(jd_yaml_path, "w", encoding="utf-8") as f:
                 yaml.dump(jd_version, f, allow_unicode=True, sort_keys=False, default_flow_style=False)
+
+            if verbose:
+                print(f"\n✅ 完成！")
+                print(f"📄 通用版已保存：{general_path}")
+                print(f"🎯 JD 适配版已保存：{jd_yaml_path}")
 
         return {
             "general_resume": general_version,
@@ -695,30 +1050,156 @@ def run(resume_path: str, jd_path: str, out_dir: str | None = None) -> dict:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="双版本简历生成：通用版 + JD 适配版")
+    parser = argparse.ArgumentParser(
+        description="双版本简历生成：通用版 + JD 适配版",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+示例：
+  # 自动模式：自动生成两份简历
+  python jd_optimize.py resume.yaml --jd jd.txt --out-dir ./output
+
+  # 交互模式：逐项确认关键融入
+  python jd_optimize.py resume.yaml --jd jd.txt --out-dir ./output --interactive
+
+  # 只确认高风险项
+  python jd_optimize.py resume.yaml --jd jd.txt --out-dir ./output --interactive --risk-level high
+
+  # 显示详细进度
+  python jd_optimize.py resume.yaml --jd jd.txt --out-dir ./output --verbose
+
+  # 批量处理：处理整个 JD 目录
+  python jd_optimize.py resume.yaml --jd-dir ./jds --out-dir ./output
+
+  # 批量处理 + 交互模式
+  python jd_optimize.py resume.yaml --jd-dir ./jds --out-dir ./output --interactive --verbose
+        """
+    )
     parser.add_argument("resume", help="resume.yaml 路径")
-    parser.add_argument("--jd", required=True, help="JD 文本文件路径")
+    parser.add_argument("--jd", help="JD 文本文件路径（单文件模式）")
+    parser.add_argument("--jd-dir", help="JD 文件目录（批量模式，处理目录下所有 .txt 文件）")
     parser.add_argument("--out-dir", default=None, help="输出目录（生成 resume-general.yaml + resume-jd.yaml）")
+    parser.add_argument("--interactive", action="store_true", help="启用交互模式，逐项确认关键融入")
+    parser.add_argument("--risk-level", choices=["critical", "high", "medium", "low"],
+                        default="medium", help="交互确认的最低风险级别（默认：medium）")
+    parser.add_argument("--verbose", action="store_true", help="显示详细进度")
     args = parser.parse_args()
+
+    # 参数校验
+    if not args.jd and not args.jd_dir:
+        print("错误：必须指定 --jd 或 --jd-dir", file=sys.stderr)
+        sys.exit(1)
+
+    if args.jd and args.jd_dir:
+        print("错误：--jd 和 --jd-dir 不能同时使用", file=sys.stderr)
+        sys.exit(1)
 
     if not Path(args.resume).exists():
         print(f"错误：简历文件不存在 {args.resume}", file=sys.stderr)
         sys.exit(1)
-    if not Path(args.jd).exists():
-        print(f"错误：JD 文件不存在 {args.jd}", file=sys.stderr)
-        sys.exit(1)
 
-    result = run(args.resume, args.jd, args.out_dir)
+    # 单文件模式
+    if args.jd:
+        if not Path(args.jd).exists():
+            print(f"错误：JD 文件不存在 {args.jd}", file=sys.stderr)
+            sys.exit(1)
 
-    if "error" in result:
-        print(f"❌ {result['error']}", file=sys.stderr)
-        sys.exit(1)
+        result = run(
+            args.resume, args.jd, args.out_dir,
+            interactive=args.interactive,
+            min_risk_level=args.risk_level,
+            verbose=args.verbose
+        )
 
-    print(result["report_text"])
+        if "error" in result:
+            print(f"❌ {result['error']}", file=sys.stderr)
+            sys.exit(1)
 
-    if args.out_dir:
-        print(f"\n📄 通用版已保存：{Path(args.out_dir) / 'resume-general.yaml'}")
-        print(f"🎯 JD 适配版已保存：{Path(args.out_dir) / 'resume-jd.yaml'}")
+        print(result["report_text"])
+
+        if args.out_dir:
+            print(f"\n📄 通用版已保存：{Path(args.out_dir) / 'resume-general.yaml'}")
+            print(f"🎯 JD 适配版已保存：{Path(args.out_dir) / 'resume-jd.yaml'}")
+
+    # 批量模式
+    else:
+        jd_dir = Path(args.jd_dir)
+        if not jd_dir.exists():
+            print(f"错误：JD 目录不存在 {args.jd_dir}", file=sys.stderr)
+            sys.exit(1)
+
+        jd_files = list(jd_dir.glob("*.txt"))
+        if not jd_files:
+            print(f"错误：目录 {args.jd_dir} 中没有找到 .txt 文件", file=sys.stderr)
+            sys.exit(1)
+
+        print(f"📂 找到 {len(jd_files)} 个 JD 文件")
+        print("=" * 70)
+
+        results = []
+        for i, jd_file in enumerate(jd_files, 1):
+            print(f"\n[{i}/{len(jd_files)}] 处理：{jd_file.name}")
+            print("-" * 70)
+
+            # 为每个 JD 创建单独的输出目录
+            jd_out_dir = Path(args.out_dir) / jd_file.stem if args.out_dir else None
+
+            try:
+                result = run(
+                    args.resume, str(jd_file),
+                    str(jd_out_dir) if jd_out_dir else None,
+                    interactive=args.interactive,
+                    min_risk_level=args.risk_level,
+                    verbose=args.verbose
+                )
+
+                if "error" in result:
+                    print(f"❌ 失败：{result['error']}")
+                    results.append({"jd": jd_file.name, "status": "failed", "error": result["error"]})
+                else:
+                    coverage = result["report"]["summary"]["coverage"]
+                    print(f"✅ 完成：覆盖率 {coverage}%")
+                    results.append({
+                        "jd": jd_file.name,
+                        "status": "success",
+                        "coverage": coverage,
+                        "out_dir": str(jd_out_dir) if jd_out_dir else None
+                    })
+
+            except Exception as e:
+                print(f"❌ 异常：{e}")
+                results.append({"jd": jd_file.name, "status": "error", "error": str(e)})
+
+        # 输出汇总报告
+        print("\n" + "=" * 70)
+        print("📊 批量处理汇总")
+        print("=" * 70)
+
+        success_count = sum(1 for r in results if r["status"] == "success")
+        failed_count = sum(1 for r in results if r["status"] != "success")
+
+        print(f"总数：{len(results)}")
+        print(f"成功：{success_count}")
+        print(f"失败：{failed_count}")
+
+        if success_count > 0:
+            print("\n✅ 成功处理：")
+            for r in results:
+                if r["status"] == "success":
+                    print(f"   - {r['jd']}: {r['coverage']}% 覆盖率")
+
+        if failed_count > 0:
+            print("\n❌ 失败：")
+            for r in results:
+                if r["status"] != "success":
+                    print(f"   - {r['jd']}: {r.get('error', '未知错误')}")
+
+        # 保存汇总结果
+        if args.out_dir:
+            summary_path = Path(args.out_dir) / "batch_summary.json"
+            summary_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(summary_path, "w", encoding="utf-8") as f:
+                json.dump(results, f, ensure_ascii=False, indent=2)
+            print(f"\n📄 汇总报告已保存：{summary_path}")
 
 
 if __name__ == "__main__":
