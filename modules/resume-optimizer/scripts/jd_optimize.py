@@ -26,18 +26,18 @@ import argparse
 import copy
 import json
 import re
-import subprocess
 import sys
 import tempfile
 import time
 from pathlib import Path
+from typing import Any, Optional
 
 import yaml
 
 SCRIPTS_DIR = Path(__file__).resolve().parent
 SKILL_DIR = SCRIPTS_DIR.parent
 
-# 导入自定义异常
+# ─── 导入自定义异常 ───
 try:
     from exceptions import (
         ScriptExecutionError,
@@ -46,7 +46,6 @@ try:
         ValidationError,
     )
 except ImportError:
-    # 兼容旧版本，如果异常模块不存在则使用基础异常
     class ScriptExecutionError(Exception):
         def __init__(self, script_name, returncode, stderr):
             self.script_name = script_name
@@ -74,26 +73,81 @@ except ImportError:
             super().__init__(f"字段 {field} 校验失败：{reason}")
 
 
+# ─── 直接导入其他模块的 run() 函数 ───
+# 避免子进程开销，共享 jieba 分词器
+try:
+    # 将 scripts 目录加入 sys.path
+    sys.path.insert(0, str(SCRIPTS_DIR))
+
+    import jd_match as jd_match_module
+    import jd_integrate as jd_integrate_module
+    import bullet_rewrite as bullet_rewrite_module
+    import ats_check as ats_check_module
+
+    HAS_DIRECT_IMPORT = True
+except ImportError:
+    # 回退到子进程方式（兼容性）
+    HAS_DIRECT_IMPORT = False
+    import subprocess
+
+
 def run_script(script_name: str, *args, max_retries: int = 3, timeout: int = 60,
                retry_delay: float = 1.0, verbose: bool = False) -> dict:
     """运行一个 Python 脚本并返回 JSON 输出。
 
-    参数：
-        script_name: 脚本名称
-        *args: 脚本参数
-        max_retries: 最大重试次数（默认 3）
-        timeout: 超时秒数（默认 60）
-        retry_delay: 重试间隔秒数（默认 1.0）
-        verbose: 是否显示详细日志
-
-    返回：
-        dict: 脚本输出的 JSON 数据
-
-    异常：
-        ScriptRetryError: 重试后仍失败
-        ScriptTimeoutError: 执行超时
-        ScriptExecutionError: 执行失败
+    优先使用直接导入（性能更好），回退到子进程（兼容性）。
     """
+    # 直接导入方式
+    if HAS_DIRECT_IMPORT:
+        return _run_direct(script_name, *args, verbose=verbose)
+
+    # 子进程方式（回退）
+    return _run_subprocess(script_name, *args, max_retries=max_retries,
+                            timeout=timeout, retry_delay=retry_delay, verbose=verbose)
+
+
+def _run_direct(script_name: str, *args, verbose: bool = False) -> dict:
+    """直接导入方式运行脚本。
+
+    参数格式：
+    - jd_match.py: resume_path, "--jd", jd_path
+    - jd_integrate.py: resume_path, "--match", match_path
+    - bullet_rewrite.py: resume_path
+    - ats_check.py: resume_path
+    """
+    try:
+        if script_name == "jd_match.py":
+            # args: (resume_path, "--jd", jd_path)
+            resume_path = args[0]
+            jd_path = args[2] if len(args) > 2 else args[1]
+            return jd_match_module.run(resume_path, jd_path)
+
+        elif script_name == "jd_integrate.py":
+            # args: (resume_path, "--match", match_path)
+            resume_path = args[0]
+            match_path = args[2] if len(args) > 2 else args[1]
+            return jd_integrate_module.run(resume_path, match_path)
+
+        elif script_name == "bullet_rewrite.py":
+            # args: (resume_path,)
+            return bullet_rewrite_module.run(args[0])
+
+        elif script_name == "ats_check.py":
+            # args: (resume_path,)
+            return ats_check_module.run(args[0])
+
+        else:
+            raise ScriptExecutionError(script_name, 0, f"未知脚本：{script_name}")
+
+    except IndexError as e:
+        raise ScriptExecutionError(script_name, 0, f"参数不足：{e}")
+    except Exception as e:
+        raise ScriptExecutionError(script_name, 0, str(e))
+
+
+def _run_subprocess(script_name: str, *args, max_retries: int = 3, timeout: int = 60,
+                     retry_delay: float = 1.0, verbose: bool = False) -> dict:
+    """子进程方式运行脚本（兼容性回退）。"""
     cmd = [sys.executable, str(SCRIPTS_DIR / script_name)] + list(args)
 
     last_error = None
@@ -115,25 +169,21 @@ def run_script(script_name: str, *args, max_retries: int = 3, timeout: int = 60,
                 if verbose:
                     print(f"   ⚠️ 执行失败（退出码 {result.returncode}）", file=sys.stderr)
 
-                # 某些错误不应该重试（如文件不存在）
                 if "not found" in result.stderr.lower() or "不存在" in result.stderr:
                     raise last_error
 
-                # 其他错误可以重试
                 if attempt < max_retries:
-                    time.sleep(retry_delay * attempt)  # 指数退避
+                    time.sleep(retry_delay * attempt)
                     continue
                 else:
                     raise ScriptRetryError(script_name, max_retries, last_error)
 
-            # 执行成功，解析 JSON
             try:
                 data = json.loads(result.stdout)
                 if verbose and attempt > 1:
                     print(f"   ✅ 重试成功")
                 return data
             except json.JSONDecodeError as e:
-                # JSON 解析失败不重试，直接抛出
                 raise ScriptExecutionError(
                     script_name, 0,
                     f"JSON 解析失败：{e}\n输出内容：{result.stdout[:200]}"
@@ -154,7 +204,6 @@ def run_script(script_name: str, *args, max_retries: int = 3, timeout: int = 60,
             print("\n用户中断执行")
             raise
 
-    # 不应该到达这里
     raise ScriptRetryError(script_name, max_retries, last_error or Exception("未知错误"))
 
 
@@ -162,7 +211,7 @@ def run_script(script_name: str, *args, max_retries: int = 3, timeout: int = 60,
 # 配置加载
 # ═══════════════════════════════════════════
 
-def load_verb_config() -> tuple[dict, list, list]:
+def load_verb_config() -> tuple[dict[str, list[str]], list[str], list[str]]:
     """加载动词配置。
 
     返回：(强动词字典, 已有动词列表, 弱动词列表)
@@ -172,9 +221,9 @@ def load_verb_config() -> tuple[dict, list, list]:
         with verbs_path.open("r", encoding="utf-8") as f:
             config = yaml.safe_load(f) or {}
 
-        strong_verbs = config.get("strong_verbs", {})
-        existing_verbs = config.get("existing_verbs", [])
-        weak_verbs = config.get("weak_verbs", [])
+        strong_verbs: dict[str, list[str]] = config.get("strong_verbs", {})
+        existing_verbs: list[str] = config.get("existing_verbs", [])
+        weak_verbs: list[str] = config.get("weak_verbs", [])
         return strong_verbs, existing_verbs, weak_verbs
     else:
         # 回退到默认配置
@@ -194,7 +243,7 @@ def load_verb_config() -> tuple[dict, list, list]:
         )
 
 
-def load_exaggeration_config() -> dict:
+def load_exaggeration_config() -> dict[str, Any]:
     """加载夸大词配置。"""
     exagg_path = SKILL_DIR / "assets" / "exaggeration_words.yaml"
     if exagg_path.exists():
@@ -240,7 +289,7 @@ for item in EXAGGERATION_CONFIG.get("medium_risk", []):
 # ═══════════════════════════════════════════
 
 
-def build_general_version(resume: dict, bullet_result: dict) -> tuple[dict, list[dict]]:
+def build_general_version(resume: dict[str, Any], bullet_result: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """生成通用版：只修 Bullet 的 NO_VERB 问题。
 
     返回 (通用版 resume, 修改记录)。
@@ -336,9 +385,10 @@ def _pick_strong_verb(text: str) -> str:
 AUTO_THRESHOLD = 0.9
 
 
-def build_jd_version(general: dict, match_result: dict, integrate_result: dict,
-                      jd_keywords: list, interactive: bool = False,
-                      min_risk_level: str = "medium") -> tuple[dict, list[dict], list[dict]]:
+def build_jd_version(general: dict[str, Any], match_result: dict[str, Any],
+                      integrate_result: dict[str, Any],
+                      jd_keywords: list[dict[str, Any]], interactive: bool = False,
+                      min_risk_level: str = "medium") -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
     """在通用版基础上，融入 JD 关键词 + 调整内容侧重。
 
     参数：
@@ -654,7 +704,7 @@ EXAGGERATION_WORDS = {
 }
 
 
-def detect_exaggeration(resume: dict) -> list[dict]:
+def detect_exaggeration(resume: dict[str, Any]) -> list[dict[str, Any]]:
     """扫描简历文本，检测可能夸大的措辞。
 
     返回夸大风险列表，每项含位置、原词、风险级别、建议。
@@ -730,10 +780,10 @@ def _exaggeration_fix(word: str, level: str) -> str:
 # 生成对比报告
 # ═══════════════════════════════════════════
 
-def generate_report(match_result: dict, bullet_result: dict,
-                    general_changes: list[dict], jd_changes: list[dict],
-                    confirmations: list[dict], exaggeration_warnings: list[dict],
-                    ats_result: dict | None) -> dict:
+def generate_report(match_result: dict[str, Any], bullet_result: dict[str, Any],
+                    general_changes: list[dict[str, Any]], jd_changes: list[dict[str, Any]],
+                    confirmations: list[dict[str, Any]], exaggeration_warnings: list[dict[str, Any]],
+                    ats_result: Optional[dict[str, Any]]) -> dict[str, Any]:
     """生成两版对比报告。"""
     gap_summary = match_result.get("gap_summary", {})
     real_gaps = match_result.get("real_gaps", [])
@@ -816,7 +866,7 @@ def generate_report(match_result: dict, bullet_result: dict,
     }
 
 
-def format_report_text(report: dict) -> str:
+def format_report_text(report: dict[str, Any]) -> str:
     """格式化为人类可读文本。"""
     lines = []
     s = report["summary"]
@@ -942,7 +992,7 @@ def format_report_text(report: dict) -> str:
 
 def run(resume_path: str, jd_path: str, out_dir: str | None = None,
         interactive: bool = False, min_risk_level: str = "medium",
-        verbose: bool = False) -> dict:
+        verbose: bool = False, session: Any = None) -> dict:
     """双版本生成管道。
 
     参数：
@@ -952,6 +1002,7 @@ def run(resume_path: str, jd_path: str, out_dir: str | None = None,
         interactive: 是否启用交互模式
         min_risk_level: 交互确认的最低风险级别
         verbose: 是否显示详细进度
+        session: 会话管理器实例（可选）
     """
     if verbose:
         print("🚀 开始简历优化流程...")
@@ -972,10 +1023,18 @@ def run(resume_path: str, jd_path: str, out_dir: str | None = None,
         with open(match_path, "w", encoding="utf-8") as f:
             json.dump(match_result, f, ensure_ascii=False)
 
+        # 保存中间结果到会话
+        if session:
+            session.add_result("match_result", match_result)
+
         # 2. JD 融入建议
         if verbose:
             print("🔧 步骤 2/6: 生成关键词融入建议...")
         integrate_result = run_script("jd_integrate.py", resume_path, "--match", match_path, verbose=verbose)
+
+        # 保存中间结果到会话
+        if session:
+            session.add_result("integrate_result", integrate_result)
 
         # 3. Bullet 诊断
         if verbose:
@@ -1003,6 +1062,11 @@ def run(resume_path: str, jd_path: str, out_dir: str | None = None,
             general_version, match_result, integrate_result, jd_keywords,
             interactive=interactive, min_risk_level=min_risk_level
         )
+
+        # 保存确认项到会话
+        if session:
+            for conf in confirmations:
+                session.add_confirmation(conf)
 
         # 7. 夸大风险检测（对原简历 + JD 版）
         if verbose:
@@ -1039,11 +1103,19 @@ def run(resume_path: str, jd_path: str, out_dir: str | None = None,
                 print(f"📄 通用版已保存：{general_path}")
                 print(f"🎯 JD 适配版已保存：{jd_yaml_path}")
 
+        # 保存最终结果到会话
+        if session:
+            session.add_result("general_resume", general_version)
+            session.add_result("jd_resume", jd_version)
+            session.add_result("report", report)
+            session.pause()  # 暂停状态，等待用户确认
+
         return {
             "general_resume": general_version,
             "jd_resume": jd_version,
             "report": report,
             "report_text": format_report_text(report),
+            "confirmations": confirmations,
         }
     finally:
         Path(match_path).unlink(missing_ok=True)
@@ -1072,9 +1144,18 @@ def main():
 
   # 批量处理 + 交互模式
   python jd_optimize.py resume.yaml --jd-dir ./jds --out-dir ./output --interactive --verbose
+
+  # 会话持久化：保存交互过程
+  python jd_optimize.py resume.yaml --jd jd.txt --out-dir ./output --interactive --session my-session
+
+  # 恢复会话继续优化
+  python jd_optimize.py --load-session my-session
+
+  # 生成 A/B 对比视图
+  python jd_optimize.py resume.yaml --jd jd.txt --out-dir ./output --diff
         """
     )
-    parser.add_argument("resume", help="resume.yaml 路径")
+    parser.add_argument("resume", nargs="?", help="resume.yaml 路径")
     parser.add_argument("--jd", help="JD 文本文件路径（单文件模式）")
     parser.add_argument("--jd-dir", help="JD 文件目录（批量模式，处理目录下所有 .txt 文件）")
     parser.add_argument("--out-dir", default=None, help="输出目录（生成 resume-general.yaml + resume-jd.yaml）")
@@ -1082,9 +1163,77 @@ def main():
     parser.add_argument("--risk-level", choices=["critical", "high", "medium", "low"],
                         default="medium", help="交互确认的最低风险级别（默认：medium）")
     parser.add_argument("--verbose", action="store_true", help="显示详细进度")
+    parser.add_argument("--session", help="保存会话到指定路径（不带扩展名）")
+    parser.add_argument("--load-session", help="从指定会话文件恢复继续优化")
+    parser.add_argument("--list-sessions", help="列出指定目录下的所有会话")
+    parser.add_argument("--diff", action="store_true", help="生成 A/B 对比视图 HTML 报告")
     args = parser.parse_args()
 
-    # 参数校验
+    # ─── 列出会话模式 ───
+    if args.list_sessions:
+        from session import list_sessions, format_session_time
+        sessions = list_sessions(args.list_sessions)
+        if not sessions:
+            print(f"📁 目录 {args.list_sessions} 中没有会话文件")
+        else:
+            print(f"📁 会话列表（共 {len(sessions)} 个）")
+            print("=" * 70)
+            for s in sessions:
+                print(f"  {s['name']}")
+                print(f"    状态：{s['status']} | 待处理：{s['pending_count']} 项")
+                print(f"    简历：{s['resume']}")
+                print(f"    JD：{s['jd']}")
+                print(f"    更新时间：{format_session_time(s['updated_at'])}")
+                print("-" * 70)
+        return
+
+    # ─── 恢复会话模式 ───
+    if args.load_session:
+        from session import SessionManager
+        session_path = args.load_session
+        if not session_path.endswith(".session.json"):
+            session_path += ".session.json"
+
+        try:
+            session = SessionManager.load(session_path)
+            summary = session.get_summary()
+            print(f"📂 恢复会话：{args.load_session}")
+            print(f"   状态：{summary['status']}")
+            print(f"   待处理确认：{summary['pending_count']} 项")
+            print("=" * 70)
+
+            # 继续优化流程
+            result = run(
+                summary["resume_path"],
+                summary["jd_path"],
+                summary.get("out_dir"),
+                interactive=True,
+                min_risk_level=summary.get("min_risk_level", "medium"),
+                verbose=args.verbose,
+                session=session
+            )
+
+            if "error" in result:
+                print(f"❌ {result['error']}", file=sys.stderr)
+                sys.exit(1)
+
+            print(result["report_text"])
+
+            # 完成会话
+            session.complete()
+            session.save(session_path)
+            print(f"\n✅ 会话已完成并保存：{session_path}")
+
+            if summary.get("out_dir"):
+                print(f"📄 通用版已保存：{Path(summary['out_dir']) / 'resume-general.yaml'}")
+                print(f"🎯 JD 适配版已保存：{Path(summary['out_dir']) / 'resume-jd.yaml'}")
+
+        except FileNotFoundError as e:
+            print(f"❌ {e}", file=sys.stderr)
+            sys.exit(1)
+        return
+
+    # ─── 参数校验 ───
     if not args.jd and not args.jd_dir:
         print("错误：必须指定 --jd 或 --jd-dir", file=sys.stderr)
         sys.exit(1)
@@ -1093,9 +1242,15 @@ def main():
         print("错误：--jd 和 --jd-dir 不能同时使用", file=sys.stderr)
         sys.exit(1)
 
-    if not Path(args.resume).exists():
+    if not args.resume or not Path(args.resume).exists():
         print(f"错误：简历文件不存在 {args.resume}", file=sys.stderr)
         sys.exit(1)
+
+    # ─── 初始化会话管理器 ───
+    session_mgr = None
+    if args.session or args.interactive:
+        from session import SessionManager
+        session_mgr = SessionManager()
 
     # 单文件模式
     if args.jd:
@@ -1103,11 +1258,20 @@ def main():
             print(f"错误：JD 文件不存在 {args.jd}", file=sys.stderr)
             sys.exit(1)
 
+        # 设置会话配置
+        if session_mgr:
+            session_mgr.set_config(
+                args.resume, args.jd, args.out_dir,
+                interactive=args.interactive,
+                min_risk_level=args.risk_level
+            )
+
         result = run(
             args.resume, args.jd, args.out_dir,
             interactive=args.interactive,
             min_risk_level=args.risk_level,
-            verbose=args.verbose
+            verbose=args.verbose,
+            session=session_mgr
         )
 
         if "error" in result:
@@ -1116,9 +1280,32 @@ def main():
 
         print(result["report_text"])
 
+        # 保存会话
+        if args.session and session_mgr:
+            session_path = args.session
+            if not session_path.endswith(".session.json"):
+                session_path += ".session.json"
+            session_mgr.complete()
+            session_mgr.save(session_path)
+            print(f"\n💾 会话已保存：{session_path}")
+
         if args.out_dir:
             print(f"\n📄 通用版已保存：{Path(args.out_dir) / 'resume-general.yaml'}")
             print(f"🎯 JD 适配版已保存：{Path(args.out_dir) / 'resume-jd.yaml'}")
+
+            # 生成 A/B 对比视图
+            if args.diff:
+                try:
+                    from diff_view import generate_diff_report
+                    diff_path = generate_diff_report(
+                        str(Path(args.out_dir) / "resume-general.yaml"),
+                        str(Path(args.out_dir) / "resume-jd.yaml"),
+                        args.out_dir
+                    )
+                    print(f"📊 A/B 对比视图已生成：{diff_path}")
+                    print("   在浏览器中打开查看详细差异")
+                except Exception as e:
+                    print(f"⚠️ 生成对比视图失败：{e}")
 
     # 批量模式
     else:
