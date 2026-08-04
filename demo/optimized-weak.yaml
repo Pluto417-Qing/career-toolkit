@@ -1,0 +1,66 @@
+meta:
+  language: zh
+  theme: modern
+basics:
+  name: 王小红
+  label: 前端工程师 · 应届生
+  phone: '13900139000'
+  email: wangxh@stu.tsinghua.edu.cn
+  profiles:
+  - network: GitHub
+    url: https://github.com/wangxh-thu
+  summary: 清华大学软件学院本科，有一段大厂实习经历。
+education:
+- institution: 清华大学
+  area: 软件工程
+  degree: 本科
+  gpa: 3.65/4.0
+  start: 2022-09
+  end: 2026-06
+  courses:
+  - 数据结构
+  - 操作系统
+  - 软件工程
+  - 数据库系统
+work:
+- organization: 美团
+  position: 前端开发实习生
+  department: 到店事业群
+  start: 2025-06
+  end: 2025-09
+  tech:
+  - React
+  - TypeScript
+  - Webpack
+  highlights:
+  - 参与了商家后台的开发工作
+  - 负责表单组件的封装
+  - 优化了页面加载速度
+projects:
+- name: 校园二手交易平台
+  role: 前端负责人
+  tech:
+  - Vue
+  - Vite
+  - Node.js
+  highlights:
+  - 主导做了前端的开发
+  - 实现了商品发布和搜索功能
+skills:
+- name: 编程语言
+  keywords:
+  - JavaScript
+  - TypeScript
+  - Python
+- name: 前端框架
+  keywords:
+  - React
+  - Vue
+awards:
+- title: 清华大学二等奖学金
+  date: 2024-12
+  awarder: 清华大学
+languages:
+- language: 英语
+  level: CET-6
+  score: '580'

@@ -1,0 +1,30 @@
+﻿{
+  "total_gaps": 1,
+  "processable": 1,
+  "unprocessable": 0,
+  "suggestions": [
+    {
+      "keyword": "服务端",
+      "gap_type": "evidence_gap",
+      "target_section": "work",
+      "target_entry": "腾讯",
+      "target_bullet_index": 1,
+      "original_text": "基于 Next.js 实现服务端渲染，优化首屏加载性能，FCP 从 2.1s 降至 0.8s，支持万级日活用户",
+      "suggested_text": "基于 Next.js 实现服务端渲染，优化首屏加载性能，FCP 从 2.1s 降至 0.8s，支持万级日活用户，引入 服务端 优化技术方案",
+      "strategy": "tech_list",
+      "strategy_description": "技术栈补写：tech 列表有关联技术，建议在文本中体现",
+      "relevance_score": 0.9,
+      "confidence": 0.7,
+      "note": "该经历的 tech 列表有概念关联技术，建议在描述中自然提及 服务端"
+    }
+  ],
+  "unprocessable_list": [],
+  "stuffing_warnings": [],
+  "principles": [
+    "每个 bullet 最多融入 1 个新关键词",
+    "融入后的句子必须语义通顺",
+    "优先融入已有相关技术的经历段",
+    "标注 [?] 的部分需要用户确认真实数据",
+    "低置信度建议必须用户确认后才采用"
+  ]
+}

@@ -1,0 +1,106 @@
+# 清华大学奖学金 / 荣誉体系
+# Agent 填写 awards 字段时的规范参考
+# 清华奖学金体系复杂，学生常遗漏或写法不规范
+
+# ─── 国家级奖学金 ───
+- level: 国家级
+  awards:
+    - name: 国家奖学金
+      abbr: 国奖
+      prestige: 极高
+      note: 每年全清华约 60 人，写明年份和金额
+      template: "国家奖学金（{年份}，{金额}元）"
+    - name: 国家励志奖学金
+      abbr: 国励
+      prestige: 高
+      note: 面向家庭经济困难学生
+
+# ─── 校级奖学金 ───
+- level: 校级
+  awards:
+    - name: 清华大学特等奖学金
+      abbr: 特奖
+      prestige: 极高
+      note: 清华最高荣誉，每年约 15 人，必须写
+      template: "清华大学特等奖学金（{年份}）"
+    - name: 清华大学一等奖学金
+      abbr: 一等
+      prestige: 高
+      note: 前 5% 左右
+      template: "清华大学一等奖学金（{年份}）"
+    - name: 清华大学二等奖学金
+      abbr: 二等
+      prestige: 中高
+      note: 前 15% 左右
+      template: "清华大学二等奖学金（{年份}）"
+    - name: 清华大学学习优秀奖学金
+      abbr: 学优
+      prestige: 中
+      note: 前 30% 可申请
+      template: "学习优秀奖学金（{年份}）"
+    - name: 清华大学综合优秀奖学金
+      abbr: 综合
+      prestige: 中
+      note: 综合评价前 30%
+    - name: 科技创新奖学金
+      abbr: 科创
+      prestige: 中高
+      note: 有科研成果/竞赛获奖
+    - name: 社会工作优秀奖学金
+      abbr: 社工
+      prestige: 中
+      note: 学生干部
+    - name: 体育优秀奖学金
+      abbr: 体育
+      prestige: 中
+      note: 体育特长
+    - name: 艺术优秀奖学金
+      abbr: 艺术
+      prestige: 中
+      note: 艺术特长
+    - name: 志愿服务奖学金
+      abbr: 志愿
+      prestige: 中
+      note: 志愿服务时长达标
+    - name: 优秀新生奖学金
+      abbr: 新生
+      prestige: 中
+      note: 高考/保送优秀新生
+
+# ─── 院系级奖学金 ───
+- level: 院系级
+  note: 各院系有命名各异的奖学金，如「蒋南翔奖学金」「九次方奖学金」等
+  template: "{奖学金名}（{年份}）"
+  tips: 院系级奖学金不影响筛选，但低年级可写
+
+# ─── 荣誉称号 ───
+- level: 荣誉称号
+  awards:
+    - name: 清华大学优秀学生
+      abbr: 优生
+      prestige: 高
+    - name: 清华大学优秀学生干部
+      abbr: 优干
+      prestige: 中高
+    - name: 清华大学优秀毕业生
+      abbr: 优秀毕业生
+      prestige: 高
+      note: 毕业年才能评，10% 左右
+      template: "清华大学优秀毕业生（{年份}）"
+    - name: 清华大学优良毕业生
+      abbr: 优良毕业生
+      prestige: 中高
+      note: 毕业年，前 30%
+    - name: 北京市优秀毕业生
+      abbr: 市优秀毕业生
+      prestige: 极高
+      note: 每年全清华约 100 人
+      template: "北京市优秀毕业生（{年份}）"
+
+# ─── 写作规范 ───
+writing_rules:
+  - 奖学金名称必须写全称，首次出现不用缩写
+  - 如有多项，按「国家级 > 校级特等 > 校级一等 > 校级二等 > 院系级」排序
+  - 同一年获得多项奖学金可合并写，如"国家奖学金、清华大学一等奖学金（2024）"
+  - 奖学金金额可写可不写，国奖/特奖建议写金额
+  - 连续多年获奖写"连续3年获XX奖学金"，不要每年各写一条

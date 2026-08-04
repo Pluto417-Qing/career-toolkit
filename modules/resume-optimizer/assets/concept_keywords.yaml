@@ -1,0 +1,98 @@
+# 概念-关键词映射库
+# 用于识别 JD 中的概念关联，提升匹配精度
+
+concepts:
+  - concept: 前端工程化
+    keywords:
+      core: [Webpack, Vite, Rollup, ESBuild, Parcel]
+      ci_cd: [Jenkins, GitHub Actions, GitLab CI, Travis, CI/CD, 自动化构建]
+      container: [Docker, K8s, Kubernetes, 容器化]
+      lint: [ESLint, StyleLint, Prettier, 代码规范]
+
+  - concept: 性能优化
+    keywords:
+      metrics: [FCP, LCP, TTI, CLS, FPS, 首屏加载, 渲染性能]
+      techniques: [懒加载, 代码分割, Tree Shaking, 虚拟列表, 防抖, 节流]
+      cache: [HTTP 缓存, Service Worker, CDN, 预缓存]
+      scale: [QPS, 并发, 日活, 高并发, 海量数据]
+
+  - concept: 前端框架
+    keywords:
+      vue: [Vue, Vue.js, Vue3, Nuxt, Vuex, Pinia]
+      react: [React, React.js, Next.js, Redux, React Hooks]
+      angular: [Angular, Angular.js, RxJS]
+      svelte: [Svelte]
+
+  - concept: 开源贡献
+    keywords:
+      evidence: [GitHub, GitLab, star, fork, PR, Pull Request, Commit]
+      content: [技术博客, 技术分享, 开源项目, npm 包]
+
+  - concept: 服务端开发
+    keywords:
+      languages: [Node.js, Python, Java, Go, Rust, C++]
+      frameworks: [Express, Koa, Django, Flask, Spring Boot, Gin]
+      database: [MySQL, PostgreSQL, MongoDB, Redis, Elasticsearch]
+      api: [RESTful, GraphQL, gRPC, WebSocket]
+
+  - concept: 移动端开发
+    keywords:
+      ios: [iOS, Swift, Objective-C, UIKit, SwiftUI]
+      android: [Android, Kotlin, Java, Jetpack, Compose]
+      cross_platform: [Flutter, React Native, uni-app, Taro]
+
+  - concept: 算法与数据结构
+    keywords:
+      data_structure: [数组, 链表, 树, 图, 哈希表, 堆, 栈, 队列]
+      algorithm: [排序, 查找, 动态规划, 贪心, 分治, 回溯, 位运算]
+      complexity: [时间复杂度, 空间复杂度, 优化]
+
+  - concept: 设计模式与架构
+    keywords:
+      patterns: [单例, 工厂, 观察者, 策略, 装饰器, 代理]
+      architecture: [MVVM, MVC, 微服务, 单体, 分布式, 高可用]
+      design: [DDD, 领域驱动, CQRS, 事件驱动]
+
+  - concept: 测试
+    keywords:
+      unit: [单元测试, Jest, Mocha, pytest, JUnit]
+      e2e: [端到端测试, E2E, Cypress, Playwright, Selenium]
+      performance: [性能测试, LoadRunner, JMeter, 压力测试]
+      tools: [代码覆盖率, 回归测试, 自动化测试]
+
+  - concept: 安全
+    keywords:
+      web: [XSS, CSRF, SQL注入, CSP, 安全头]
+      auth: [OAuth, JWT, 双因素认证, RBAC]
+      encryption: [加密, 解密, SSL, TLS, 哈希]
+
+# 同义词映射（用于关键词匹配）
+synonyms:
+  React: [React.js, ReactJS, react]
+  TypeScript: [TS, typescript, ts]
+  JavaScript: [JS, javascript, js]
+  Vue: [Vue.js, VueJS, vue]
+  Node.js: [Node, nodejs, node.js]
+  Python: [python, py]
+  前端: [Frontend, front-end, 前端开发]
+  后端: [Backend, back-end, 服务端, 后端开发]
+  全栈: [Fullstack, full-stack, 全栈开发]
+  工程化: [工程化, 前端工程化, 构建工具]
+  性能优化: [性能优化, 性能调优, 优化]
+  高并发: [高并发, 海量数据, 大规模]
+  开源: [开源, Open Source, OSS]
+  实习: [实习, Intern, 实习经历]
+  本科: [本科, 学士, Bachelor]
+  硕士: [硕士, 研究生, Master]
+  博士: [博士, PhD, Doctor]
+
+# 权重规则
+weight_rules:
+  # 必备技能权重更高
+  required_keywords: 10
+  preferred_keywords: 5
+  soft_skills: 3
+  # 经验要求
+  experience_match: 8
+  # 学历要求
+  education_match: 7

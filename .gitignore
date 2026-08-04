@@ -1,3 +1,11 @@
 modules/resume-builder/out/
+__pycache__/
+*.pyc
 .DS_Store
 .vscode/*
+
+# 脚本运行产物
+demo/output/
+demo/output-weak/
+demo/output*/
+*.tmp.json

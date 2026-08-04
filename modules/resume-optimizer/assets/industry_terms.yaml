@@ -1,0 +1,149 @@
+# 行业术语库
+# 用于简历表达专业化
+
+# ═══════════════════════════════════════════
+# 技术领域术语
+# ═══════════════════════════════════════════
+
+frontend:
+  core:
+    - 响应式设计      # Responsive Design
+    - 组件化开发      # Component-based Development
+    - 状态管理        # State Management
+    - 虚拟 DOM        # Virtual DOM
+    - 单页应用        # SPA
+    - 渐进式应用      # PWA
+  
+  performance:
+    - 首屏加载        # FCP (First Contentful Paint)
+    - 最大内容绘制    # LCP (Largest Contentful Paint)
+    - 交互时延        # TTI (Time to Interactive)
+    - 累积布局偏移    # CLS (Cumulative Layout Shift)
+    - 懒加载          # Lazy Loading
+    - 代码分割        # Code Splitting
+  
+  engineering:
+    - 模块化          # Modularization
+    - 前端工程化      # Frontend Engineering
+    - 自动化构建      # Automated Build
+    - 持续集成        # CI/CD
+    - 代码质量        # Code Quality
+    - 开发规范        # Development Standards
+
+backend:
+  core:
+    - 微服务架构      # Microservices Architecture
+    - 分布式系统      # Distributed Systems
+    - 高可用          # High Availability
+    - 高并发          # High Concurrency
+    - 负载均衡        # Load Balancing
+    - 服务治理        # Service Governance
+  
+  database:
+    - 关系型数据库    # RDBMS
+    - 非关系型数据库  # NoSQL
+    - 数据库优化      # Database Optimization
+    - 索引优化        # Index Optimization
+    - 分库分表        # Database Sharding
+    - 读写分离        # Read-Write Separation
+  
+  api:
+    - RESTful API     # REST 架构风格
+    - GraphQL         # GraphQL 查询语言
+    - 微服务接口      # Microservice APIs
+    - 接口设计        # API Design
+    - 接口文档        # API Documentation
+
+devops:
+  core:
+    - 容器化          # Containerization
+    - 容器编排        # Container Orchestration
+    - 持续集成        # CI (Continuous Integration)
+    - 持续部署        # CD (Continuous Deployment)
+    - 基础设施即代码  # IaC (Infrastructure as Code)
+    - 监控告警        # Monitoring & Alerting
+  
+  tools:
+    - Docker 容器     # Docker Containers
+    - Kubernetes 集群 # K8s Clusters
+    - Jenkins 流水线  # Jenkins Pipelines
+    - GitOps 实践     # GitOps Practices
+
+# ═══════════════════════════════════════════
+# 业务领域术语
+# ═══════════════════════════════════════════
+
+ecommerce:
+  - 电商系统
+  - 购物车
+  - 订单系统
+  - 支付网关
+  - 库存管理
+  - 促销引擎
+
+social:
+  - 社交平台
+  - 即时通讯
+  - 内容分发
+  - 推荐系统
+  - 用户画像
+  - 活跃度分析
+
+enterprise:
+  - 企业级应用
+  - 权限管理
+  - 工作流引擎
+  - 报表系统
+  - 数据看板
+  - 审批流程
+
+# ═══════════════════════════════════════════
+# 量化指标术语
+# ═══════════════════════════════════════════
+
+metrics:
+  performance:
+    - QPS            # 每秒查询数
+    - TPS            # 每秒事务数
+    - 响应时间        # Response Time
+    - 吞吐量          # Throughput
+    - 并发数          # Concurrency
+    - 延迟            # Latency
+  
+  business:
+    - DAU            # 日活用户数
+    - MAU            # 月活用户数
+    - GMV            # 商品交易总额
+    - 转化率          # Conversion Rate
+    - 留存率          # Retention Rate
+    - 用户增长        # User Growth
+  
+  engineering:
+    - 代码覆盖率      # Code Coverage
+    - 构建 success 率  # Build Success Rate
+    - 部署频率        # Deployment Frequency
+    - 故障恢复时间    # MTTR
+    - 服务可用性      # Service Availability
+
+# ═══════════════════════════════════════════
+# 专业缩写
+# ═══════════════════════════════════════════
+
+abbreviations:
+  # 前端
+  SPA: Single Page Application
+  PWA: Progressive Web Application
+  SSR: Server-Side Rendering
+  CSR: Client-Side Rendering
+  
+  # 后端
+  API: Application Programming Interface
+  SDK: Software Development Kit
+  RPC: Remote Procedure Call
+  ORM: Object-Relational Mapping
+  
+  # 运维
+  CI: Continuous Integration
+  CD: Continuous Deployment
+  SLA: Service Level Agreement
+  SLO: Service Level Objective
